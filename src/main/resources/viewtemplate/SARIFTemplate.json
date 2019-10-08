@@ -1,0 +1,63 @@
+[
+	[
+		{
+			"type": "template",
+			"title": "Description",
+			"key": "brief",
+			"templateId": "SIMPLE",
+			"dataType": "string"
+		}
+	],
+	[
+		{
+			"type": "fieldset",
+			"htmlClass": "container-spacer-bottom",
+			"items": [
+				{
+					"type": "template",
+					"title": "File name",
+					"key": "fullFileName",
+					"templateId": "SIMPLE",
+					"dataType": "string"
+				},
+				{
+					"type": "template",
+					"title": "Impact",
+					"key": "impact",
+					"templateId": "SIMPLE",
+					"dataType": "float"
+				},
+				{
+					"type": "template",
+					"title": "Criticality",
+					"key": "friority",
+					"templateId": "SIMPLE",
+					"dataType": "string"
+				}
+			]
+		}
+	],
+	[
+		{
+			"type": "template",
+			"title": "Other Information",
+			"templateId": "TITLEBOX",
+			"items": [
+				{
+					"type": "template",
+					"title": "Custom1",
+					"key": "customAttributes.custom1",
+					"templateId": "SIMPLE",
+					"dataType": "string"
+				},
+				{
+					"type": "template",
+					"title": "Custom2",
+					"key": "customAttributes.custom2",
+					"templateId": "SIMPLE",
+					"dataType": "string"
+				}
+			]
+		}
+	]
+]

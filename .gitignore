@@ -1,0 +1,17 @@
+.gradle/
+.shelf/
+build/
+bin/
+out/
+dist/
+*.iml
+*.iws
+*.ipr
+.settings/
+.classpath
+.settings
+.project
+*~
+rebel.xml
+.idea/
+/fortifyRepository

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<plugin xmlns="xmlns://www.fortify.com/schema/pluginmanifest-1.0.xsd"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="PluginDescriptor"
+        id="com.fortify.ssc.parser.sarif" api-version="1.0">
+    <plugin-info>
+        <name>SARIF parser plugin</name>
+        <version><!--VERSION-->0.0<!--/VERSION--></version>
+        <data-version>1</data-version>
+        <vendor name="Micro Focus" url="https://www.microfocus.com"/>
+        <description>SARIF parser plugin</description>
+        <resources>
+            <localization>
+                <language id="default" location="/resources/sarif_en.properties"/>
+                <language id="en" location="/resources/sarif_en.properties"/>
+            </localization>
+            <images>
+                <image imageType="icon" location="/images/sarif-icon.png"/>
+                <image imageType="logo" location="/images/sarif-logo.png"/>
+            </images>
+        </resources>
+    </plugin-info>
+    <issue-parser xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <engine-type>SARIF</engine-type>
+        <supported-engine-versions>[2.1.0]</supported-engine-versions>
+        <view-template location="/viewtemplate/SARIFTemplate.json">
+            <description>Default SARIF vulnerability view template.</description>
+        </view-template>
+    </issue-parser>
+</plugin>
+

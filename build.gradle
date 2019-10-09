@@ -71,6 +71,6 @@ jar {
         }
     }
     // include files from compileExport dependencies
-    from { configurations.compileExport.collect { it.isDirectory() ? it : zipTree(it).matching { exclude 'META-INF/*' } } }
+    from { configurations.compileExport.collect { it.isDirectory() ? it : zipTree(it).matching { exclude('META-INF/*', '/*.txt', '/*.html') } } }
 }
 

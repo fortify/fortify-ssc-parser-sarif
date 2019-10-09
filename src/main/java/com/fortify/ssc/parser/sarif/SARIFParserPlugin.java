@@ -33,11 +33,11 @@ public class SARIFParserPlugin implements ParserPlugin<CustomVulnAttribute> {
 
     @Override
     public void parseScan(final ScanData scanData, final ScanBuilder scanBuilder) throws ScanParsingException, IOException {
-        new ScanParser(scanBuilder).parse(scanData);
+        new ScanParser(scanData, scanBuilder).parse();
     }
 
 	@Override
-	public void parseVulnerabilities(ScanData scanData, VulnerabilityHandler vulnerabilityHandler) throws ScanParsingException, IOException {
-		new VulnerabilitiesParser(vulnerabilityHandler).parse(scanData);
+	public void parseVulnerabilities(final ScanData scanData, final VulnerabilityHandler vulnerabilityHandler) throws ScanParsingException, IOException {
+		new VulnerabilitiesParser(scanData, vulnerabilityHandler).parse();
 	}
 }

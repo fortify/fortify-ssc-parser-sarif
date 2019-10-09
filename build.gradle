@@ -46,6 +46,7 @@ dependencies {
     compileExport(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: "$jacksonVersion") { transitive = false }
     compileExport(group: 'org.apache.commons', name: 'commons-lang3', version: "3.9") { transitive = false }
     compileExport(group: 'commons-codec', name: 'commons-codec', version: '1.13') { transitive = false }
+    compileExport(group: 'commons-io', name: 'commons-io', version: '2.6') { transitive = false }
     compileExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.7') { transitive = true }
     
     //testImplementation 'org.junit.platform:junit-jupiter-api:5.3.1'

@@ -1,4 +1,4 @@
-package com.fortify.ssc.parser.sarif.parser;
+package com.fortify.ssc.parser.sarif.parser.util;
 
 /**
  * (c) Copyright [2017] Micro Focus or one of its affiliates.

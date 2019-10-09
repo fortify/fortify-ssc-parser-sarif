@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
@@ -47,6 +48,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
+import com.fortify.ssc.parser.sarif.parser.util.DateDeserializer;
 
 /**
  * Abstract base class for parsing arbitrary JSON structures. 
@@ -185,15 +187,36 @@ public abstract class AbstractParser {
 	 * @throws IOException
 	 */
 	public final void parse(ScanData scanData) throws ScanParsingException, IOException {
-		try (   final InputStream content = scanData.getInputStream(x -> x.endsWith(".sarif"));
-				final JsonParser jsonParser = JSON_FACTORY.createParser(content)) {
+		parse(scanData, null);
+	}
+	
+	/**
+	 * Parse JSON contents retrieved from the given {@link ScanData} object
+	 * for the given input region, calling the {@link #finish()} method once 
+	 * parsing has been completed.
+	 * @param scanData
+	 * @throws ScanParsingException
+	 * @throws IOException
+	 */
+	public final void parse(ScanData scanData, InputRegion inputRegion) throws ScanParsingException, IOException {
+		try ( final InputStream content = scanData.getInputStream(x -> x.endsWith(".sarif")) ) {
+			parse(content, inputRegion);
+		}
+	}
+	
+	public final void parse(InputStream inputStream, InputRegion inputRegion) throws ScanParsingException, IOException {
+		if ( inputRegion!=null ) {
+			inputStream = new BoundedInputStream(inputStream, inputRegion.getEnd());
+			inputStream.skip(inputRegion.getStart());
+		}
+		try (final JsonParser jsonParser = JSON_FACTORY.createParser(inputStream)) {
 			jsonParser.nextToken();
-			assertStartObject(jsonParser);
+			assertStartObjectOrArray(jsonParser);
 			parseAndFinish(jsonParser, "/");
 		}
 	}
 	
-	protected final void parseAndFinish(final JsonParser jsonParser, String parentPath) throws ScanParsingException, IOException {
+	public final void parseAndFinish(final JsonParser jsonParser, String parentPath) throws ScanParsingException, IOException {
 		parse(jsonParser, parentPath);
 		finish();
 	}
@@ -236,7 +259,7 @@ public abstract class AbstractParser {
 		parseChildren(jsonParser, currentPath, JsonToken.END_OBJECT);
 	}
 	
-	protected final void parseObjectPropertiesAndFinish(JsonParser jsonParser, String currentPath) throws ScanParsingException, IOException {
+	public final void parseObjectPropertiesAndFinish(JsonParser jsonParser, String currentPath) throws ScanParsingException, IOException {
 		parseChildren(jsonParser, currentPath, JsonToken.END_OBJECT);
 		finish();
 	}
@@ -255,8 +278,10 @@ public abstract class AbstractParser {
 	 * Subclasses can override this method if they need to perform any processing once
 	 * parsing has finished.
 	 * @return
+	 * @throws IOException 
+	 * @throws ScanParsingException 
 	 */
-	protected <T> T finish() { return null; }
+	protected <T> T finish() throws ScanParsingException, IOException { return null; }
 	
 	/**
 	 * Assuming the given {@link JsonParser} instance is currently pointing at a JSON array
@@ -323,6 +348,16 @@ public abstract class AbstractParser {
 		return result;
 	}
 	
+	protected static final InputRegion getObjectOrArrayRegion(JsonParser jsonParser) throws ScanParsingException, IOException {
+		assertStartObjectOrArray(jsonParser);
+		// TODO Do we need to take into account file encoding to determine number of bytes
+		//      for the '[' character?
+		long start = jsonParser.getCurrentLocation().getByteOffset()-"[".getBytes().length; 
+		jsonParser.skipChildren();
+		long end = jsonParser.getCurrentLocation().getByteOffset();
+		return new InputRegion(start, end);
+	}
+	
 	/**
 	 * If the given {@link JsonParser} is currently pointing at a JSON object or array,
 	 * this method will skip all children of that object or array.
@@ -363,6 +398,18 @@ public abstract class AbstractParser {
 			throw new ScanParsingException(String.format("Expected object start at %s", jsonParser.getTokenLocation()));
 		}
 	}
+	
+	/**
+	 * Assert that the given {@link JsonParser} is currently pointing at the start tag of a 
+	 * JSON object or array, throwing a {@link ScanParsingException} otherwise.
+	 * @param jsonParser
+	 * @throws ScanParsingException
+	 */
+	protected static final void assertStartObjectOrArray(final JsonParser jsonParser) throws ScanParsingException {
+		if (jsonParser.currentToken() != JsonToken.START_OBJECT && jsonParser.currentToken() != JsonToken.START_ARRAY) {
+			throw new ScanParsingException(String.format("Expected object or array start at %s", jsonParser.getTokenLocation()));
+		}
+	}
 
 	@FunctionalInterface
 	public interface Handler {
@@ -372,5 +419,21 @@ public abstract class AbstractParser {
 	@FunctionalInterface
 	public interface ParserSupplier<T extends AbstractParser> {
 	    T get() throws ScanParsingException, IOException;
+	}
+	
+	public static final class InputRegion {
+		private final long start;
+		private final long end;
+		public InputRegion(long start, long end) {
+			super();
+			this.start = start;
+			this.end = end;
+		}
+		public long getStart() {
+			return start;
+		}
+		public long getEnd() {
+			return end;
+		}
 	}
 }

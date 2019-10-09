@@ -31,6 +31,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
+import com.fortify.ssc.parser.sarif.parser.util.CustomElsaSerializer;
 
 public final class RuleParser extends AbstractParser {
 	private final Map<String, Rule> rules;
@@ -56,10 +57,12 @@ public final class RuleParser extends AbstractParser {
 	}
 	
 	public static final class Rule implements Serializable {
+		public static final CustomElsaSerializer<Rule> SERIALIZER = new CustomElsaSerializer<>(Rule.class, RuleConfiguration.class, SARIFLevel.class, Enum.class);
 		private static final long serialVersionUID = 1L;
 		private final String objectId;
 		@JsonProperty private String id;
 		@JsonProperty private String name;
+		@JsonProperty private RuleConfiguration configuration = new RuleConfiguration();
 		@JsonProperty private Map<String,String> messageStrings;
 		@JsonProperty private Map<String,String> shortDescription;
 		@JsonProperty private Map<String,String> fullDescription;
@@ -76,6 +79,9 @@ public final class RuleParser extends AbstractParser {
 		public String getName() {
 			return name;
 		}
+		public RuleConfiguration getConfiguration() {
+			return configuration;
+		}
 		public Map<String, String> getMessageStrings() {
 			return messageStrings;
 		}
@@ -87,6 +93,15 @@ public final class RuleParser extends AbstractParser {
 		}
 		public Map<String, String> getFullDescription() {
 			return fullDescription;
+		}
+		
+		public static final class RuleConfiguration implements Serializable {
+			private static final long serialVersionUID = 1L;
+			@JsonProperty private SARIFLevel defaultLevel = SARIFLevel.warning;
+
+			public SARIFLevel getDefaultLevel() {
+				return defaultLevel;
+			}
 		}
 	}
 }

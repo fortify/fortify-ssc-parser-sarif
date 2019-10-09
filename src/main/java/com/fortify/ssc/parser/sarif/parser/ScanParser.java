@@ -23,6 +23,7 @@ public class ScanParser extends AbstractParser {
 	private final ScanData scanData;
     private final ScanBuilder scanBuilder;
     @JsonProperty private String version;
+    private int numFiles = 0;
     
 	public ScanParser(final ScanData scanData, ScanBuilder scanBuilder) {
 		this.scanData = scanData;
@@ -35,16 +36,16 @@ public class ScanParser extends AbstractParser {
 	
 	@Override
 	protected void addHandlers(Map<String, Handler> pathToHandlerMap) {
-		pathToHandlerMap.put("/runs/invocations/endTime", 
+		pathToHandlerMap.put("/runs/invocations/endTimeUtc", 
 				jp -> scanBuilder.setScanDate(DATE_CONVERTER.convert(jp.getValueAsString())));
 		pathToHandlerMap.put("/runs/invocations/machine", 
 				jp -> scanBuilder.setHostName(jp.getValueAsString()));
-		pathToHandlerMap.put("/runs/instanceGuid", 
+		pathToHandlerMap.put("/runs/automationId/guid", 
 				jp -> scanBuilder.setBuildId(jp.getValueAsString()));
-		pathToHandlerMap.put("/runs/logicalId", 
+		pathToHandlerMap.put("/runs/automationId/id", 
 				jp -> scanBuilder.setScanLabel(jp.getValueAsString()));
-		pathToHandlerMap.put("/runs/files", 
-				jp -> scanBuilder.setNumFiles(countObjectEntries(jp)));
+		pathToHandlerMap.put("/runs/artifacts", 
+				jp -> numFiles+=countArrayEntries(jp));
 	}
 	
 	@Override
@@ -53,6 +54,7 @@ public class ScanParser extends AbstractParser {
 			throw new ScanParsingException(Constants.MSG_UNSUPPORTED_INPUT_FILE_VERSION+": "+version);
 		}
 		scanBuilder.setEngineVersion(version);
+		scanBuilder.setNumFiles(numFiles);
 		scanBuilder.completeScan();
 		return null;
 	}

@@ -25,6 +25,7 @@
 package com.fortify.ssc.parser.sarif.parser.subentity;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
@@ -125,7 +126,7 @@ public final class RunParser extends AbstractParser {
     
     public final class ResultDependencies {
     	private final Map<String, Rule> rules;
-    	@JsonProperty private Map<String,String> originalUriBaseIds;
+    	@JsonProperty private Map<String,URI> originalUriBaseIds;
     	
     	/**
          * Add the various parser handlers for collecting our data.
@@ -139,7 +140,7 @@ public final class RunParser extends AbstractParser {
     		rules = db.hashMap("rules", Serializer.STRING, Rule.SERIALIZER).create();
 		}
 
-		public Map<String, String> getOriginalUriBaseIds() {
+		public Map<String, URI> getOriginalUriBaseIds() {
 			return Collections.unmodifiableMap(originalUriBaseIds);
 		}
 		

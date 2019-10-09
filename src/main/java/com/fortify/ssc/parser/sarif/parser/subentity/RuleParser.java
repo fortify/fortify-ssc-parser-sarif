@@ -87,6 +87,7 @@ public final class RuleParser extends AbstractParser {
 		
 		public Rule(String objectId) {
 			this.objectId = objectId;
+			this.name = objectId;
 		}
 		public String getObjectId() {
 			return objectId;

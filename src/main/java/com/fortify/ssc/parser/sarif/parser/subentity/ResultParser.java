@@ -24,6 +24,7 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.parser.subentity;
 
+import java.net.URI;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public final class ResultParser extends AbstractParser {
 	private final VulnerabilityHandler vulnerabilityHandler;
 	private final ResultDependencies resultDependencies;
 	
-	@JsonProperty private String analysisTarget_uri;
+	@JsonProperty private FileLocation analysisTarget;
 	@JsonProperty private String ruleId;
 	@JsonProperty private String ruleMessageId;
 	@JsonProperty private SARIFLevel level;
@@ -77,14 +78,14 @@ public final class ResultParser extends AbstractParser {
 		Rule rule = getRule();
 		Priority priority = getPriority(rule);
 		if ( priority != null ) {
-			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(UUID.randomUUID().toString());
+			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(getVulnerabilityUuid());
 			vb.setAccuracy(5.0f);
 			vb.setAnalyzer("External");
-			vb.setCategory(ruleId);
+			vb.setCategory(getCategory(rule));
 			vb.setClassName(null);
 			vb.setConfidence(2.5f);
     		vb.setEngineType(Constants.ENGINE_TYPE);
-    		vb.setFileName(analysisTarget_uri);
+    		vb.setFileName(getFileName());
     		//vb.setFunctionName(functionName);
     		vb.setImpact(2.5f);
     		//vb.setKingdom(kingdom);
@@ -103,7 +104,7 @@ public final class ResultParser extends AbstractParser {
     		//vb.setSourceContext(sourceContext);
     		//vb.setSourceFile(sourceFile);
     		//vb.setSourceLine(sourceLine);
-    		//vb.setSubCategory(subCategory);
+    		vb.setSubCategory(getSubCategory(rule));
     		//vb.setTaintFlag(taintFlag);
     		//vb.setVulnerabilityAbstract(vulnerabilityAbstract);
     		//vb.setVulnerabilityRecommendation(vulnerabilityRecommendation);
@@ -113,7 +114,7 @@ public final class ResultParser extends AbstractParser {
 		}
 		return null;
 	}
-	
+
 	private Rule getRule() {
 		return ruleId==null ? null : resultDependencies.getRules().get(ruleId);
 	}
@@ -131,9 +132,43 @@ public final class ResultParser extends AbstractParser {
 		return result;
 	}
 	
+	private String getVulnerabilityUuid() {
+		// TODO Generate UUID based on correlationGuid, fingerprints or partialFingerPrints properties
+		return UUID.randomUUID().toString();
+	}
+	
+	private String getCategory(Rule rule) {
+		return rule==null ? Constants.ENGINE_TYPE : rule.getName();
+	}
+	
+	private String getSubCategory(Rule rule) {
+		return rule==null ? ruleId : null;
+	}
+	
+	private String getFileName() {
+		// TODO If analysisTarget not defined, get file name from locations[]
+		return analysisTarget==null?null:analysisTarget.getFullFileName(resultDependencies);
+	}
+	
 	private void addCustomAttributes(StaticVulnerabilityBuilder vb) {
 		// TODO Add custom attributes
 		
+	}
+	
+	private static final class FileLocation {
+		@JsonProperty private URI uri;
+		@JsonProperty private String uriBaseId;
+		public String getFullFileName(ResultDependencies resultDependencies) {
+			URI resultUri = this.uri;
+			// TODO Lookup uriBaseId in resultDependencies.getOriginalUriBaseIds()
+			//      and append uri to corresponding original base URI
+			// TODO Convert URI to file name
+			if ( uriBaseId!=null ) {
+				URI baseUri = resultDependencies.getOriginalUriBaseIds().get(uriBaseId);
+				resultUri = baseUri.resolve(resultUri);
+			}
+			return resultUri.getPath(); 
+		}
 	}
 
 	

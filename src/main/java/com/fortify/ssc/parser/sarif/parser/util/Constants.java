@@ -44,6 +44,7 @@ import com.fortify.ssc.parser.sarif.parser.subentity.ResultParser;
 public class Constants {
 	private static final String DEFAULT_ENGINE_TYPE = "SARIF";
 	public static final String ENGINE_TYPE = getEngineType();
+	public static final String MSG_UNSUPPORTED_INPUT_FILE_VERSION = "Unsupported input file version";
 	
 	private Constants() {}
 	

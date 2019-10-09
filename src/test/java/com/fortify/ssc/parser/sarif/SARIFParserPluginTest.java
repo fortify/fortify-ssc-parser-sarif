@@ -24,6 +24,9 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
@@ -39,12 +42,19 @@ import org.junit.jupiter.api.Test;
 import com.fortify.plugin.api.ScanBuilder;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanEntry;
+import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.SARIFParserPlugin;
+import com.fortify.ssc.parser.sarif.parser.util.Constants;
 
 class SARIFParserPluginTest {
-	private static final String[] SAMPLE_FILES = {"example1.sarif", "example2.sarif"};
+	private static final String[] SAMPLE_FILES = {
+			"spec-minimal.sarif", 
+			"spec-minimal-without-source.sarif",
+			"spec-minimal-with-source.sarif",
+			"spec-comprehensive.sarif",
+			"github.com_microsoft_sarif-sdk_blob_master_src_Samples_Sarif.WorkItems.Sample_SampleTestFiles_Current.sarif"};
 	
 	
 	private final ScanData getScanData(String fileName) {
@@ -116,6 +126,16 @@ class SARIFParserPluginTest {
 			System.err.println("\n\n---- "+file+" - parseVulnerabilities");
 			new SARIFParserPlugin().parseVulnerabilities(getScanData(file), vulnerabilityHandler);
 			// TODO Check actual output
+		}
+	}
+	
+	@Test
+	void testParseScanUnsupportedVersion() throws Exception {
+		try {
+			new SARIFParserPlugin().parseScan(getScanData("spec-comprehensive-2.0.0.sarif"), scanBuilder);
+			fail("Parser plugin didn't throw exception for unsupported input file version");
+		} catch (ScanParsingException e) {
+			assertTrue(e.getMessage().startsWith(Constants.MSG_UNSUPPORTED_INPUT_FILE_VERSION), "Exception message starts with '"+Constants.MSG_UNSUPPORTED_INPUT_FILE_VERSION+"'");
 		}
 	}
 

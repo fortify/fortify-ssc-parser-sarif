@@ -43,6 +43,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -64,7 +65,7 @@ public abstract class AbstractParser {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractParser.class);
 	private static final JsonFactory JSON_FACTORY = new JsonFactory().disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
 	protected static final DateConverter DATE_CONVERTER = new DateConverter();
-	private final ObjectMapper objectMapper = getObjectMapper();
+	protected final ObjectMapper objectMapper = getObjectMapper();
 	private final Map<String, Handler> pathToHandlerMap = new LinkedHashMap<>();
 
 	/**
@@ -116,7 +117,7 @@ public abstract class AbstractParser {
 	 * @return
 	 */
 	protected ObjectMapper getObjectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		SimpleModule module = new SimpleModule();
 		module.addDeserializer(Date.class, new StdDelegatingDeserializer<Date>(DATE_CONVERTER));
 		mapper.registerModule(module);

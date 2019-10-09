@@ -138,7 +138,7 @@
         {
           "ruleId": "BA2021",
           "ruleIndex": 1,
-          "level": "warning",
+          "level": "error",
           "message": {
             "id": "Error",
             "arguments": [

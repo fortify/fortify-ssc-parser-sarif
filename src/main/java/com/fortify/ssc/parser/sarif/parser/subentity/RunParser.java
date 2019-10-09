@@ -25,15 +25,14 @@
 package com.fortify.ssc.parser.sarif.parser.subentity;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.VulnerabilityHandler;
@@ -126,24 +125,24 @@ public final class RunParser extends AbstractParser {
     
     public final class ResultDependencies {
     	private final Map<String, Rule> rules;
-    	@JsonProperty private Map<String,URI> originalUriBaseIds;
+    	private final Map<String,SARIFFileLocation> originalUriBaseIds;
+    	
+    	public ResultDependencies(final DB db) {
+    		rules = db.hashMap("rules", Serializer.STRING, Rule.SERIALIZER).create();
+    		originalUriBaseIds = new LinkedHashMap<>();
+		}
+    	
     	
     	/**
          * Add the various parser handlers for collecting our data.
          */
         protected void addHandlers(Map<String, Handler> pathToHandlerMap) {
-        	// For SARIF 2.0.0
-        	pathToHandlerMap.put("/resources/rules/*", jp->new RuleParser(rules, jp.getCurrentName()).parseObjectPropertiesAndFinish(jp, "/"));
-        	// For SARIF 2.0.1
-        	pathToHandlerMap.put("/tool/driver/rules", jp->parseArrayEntries(jp, ()->new RuleParser(rules, null)));
+        	pathToHandlerMap.put("/tool/driver/rules", jp->parseArrayEntries(jp, ()->new RuleParser(rules)));
+        	pathToHandlerMap.put("/originalUriBaseIds/*", jp->originalUriBaseIds.put(jp.getCurrentName(), objectMapper.readValue(jp, SARIFFileLocation.class)));
         	addPropertyHandlers(pathToHandlerMap, this);
         }
-    	
-    	public ResultDependencies(final DB db) {
-    		rules = db.hashMap("rules", Serializer.STRING, Rule.SERIALIZER).create();
-		}
 
-		public Map<String, URI> getOriginalUriBaseIds() {
+		public Map<String, SARIFFileLocation> getOriginalUriBaseIds() {
 			return Collections.unmodifiableMap(originalUriBaseIds);
 		}
 		

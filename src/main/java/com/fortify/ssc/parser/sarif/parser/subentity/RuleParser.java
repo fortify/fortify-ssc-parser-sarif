@@ -62,16 +62,16 @@ public final class RuleParser extends AbstractParser {
 	 * @param rules
 	 * @param objectId
 	 */
-	public RuleParser(Map<String, Rule> rules, String objectId) {
+	public RuleParser(Map<String, Rule> rules) {
 		super(false);
 		this.rules = rules;
-		this.rule = new Rule(objectId);
+		this.rule = new Rule();
 		initializeHandlers();
 	}
 	
 	@Override
 	protected <T> T finish() throws ScanParsingException, IOException {
-		rules.put(rule.getObjectId(), rule);
+		rules.put(rule.getId(), rule);
 		return null;
 	}
 	
@@ -91,7 +91,6 @@ public final class RuleParser extends AbstractParser {
 	public static final class Rule implements Serializable {
 		public static final CustomSerializerElsa<Rule> SERIALIZER = new CustomSerializerElsa<>(Rule.class, RuleConfiguration.class, SARIFLevel.class, SARIFMessage.class, Enum.class, HashMap.class, LinkedHashMap.class);
 		private static final long serialVersionUID = 1L;
-		private final String objectId;
 		@JsonProperty private String id;
 		@JsonProperty private RuleConfiguration configuration = new RuleConfiguration();
 		@JsonProperty private String name;
@@ -99,12 +98,6 @@ public final class RuleParser extends AbstractParser {
 		@JsonProperty private SARIFMessage shortDescription;
 		@JsonProperty private SARIFMessage fullDescription;
 		
-		public Rule(String objectId) {
-			this.objectId = objectId;
-		}
-		public String getObjectId() {
-			return objectId==null?id:objectId;
-		}
 		public String getId() {
 			return id;
 		}

@@ -24,24 +24,32 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.parser.subentity;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
 import com.fortify.ssc.parser.sarif.parser.util.CustomSerializerElsa;
 
 /**
  * This class will parse individual rule entries from the
- * /resources/rules array. Parsed data will be stored in 
- * a {@link Rule} instance, which itself is added to the
- * rules map provided in the constructor, under the objectId
- * provided in the constructor.
+ * /resources/rules object, or the /tool/driver/rules array. 
+ * Parsed data will be stored in a {@link Rule} instance, 
+ * which itself is added to the rules map provided in the 
+ * constructor. The map key will either be the rule property
+ * name (when parsing /resources/rules) as provided to the
+ * constructor, or the id from the parsed {@link Rule}
+ * instance.
  * 
  * @author Ruud Senden
  *
  */
 public final class RuleParser extends AbstractParser {
+	private final Map<String, Rule> rules;
 	private final Rule rule;
 
 	/**
@@ -56,9 +64,15 @@ public final class RuleParser extends AbstractParser {
 	 */
 	public RuleParser(Map<String, Rule> rules, String objectId) {
 		super(false);
+		this.rules = rules;
 		this.rule = new Rule(objectId);
-		rules.put(objectId, rule);
 		initializeHandlers();
+	}
+	
+	@Override
+	protected <T> T finish() throws ScanParsingException, IOException {
+		rules.put(rule.getObjectId(), rule);
+		return null;
 	}
 	
 	/** 
@@ -75,22 +89,21 @@ public final class RuleParser extends AbstractParser {
 	 * @author Ruud Senden
 	 */
 	public static final class Rule implements Serializable {
-		public static final CustomSerializerElsa<Rule> SERIALIZER = new CustomSerializerElsa<>(Rule.class, RuleConfiguration.class, SARIFLevel.class, Enum.class);
+		public static final CustomSerializerElsa<Rule> SERIALIZER = new CustomSerializerElsa<>(Rule.class, RuleConfiguration.class, SARIFLevel.class, SARIFMessage.class, Enum.class, HashMap.class, LinkedHashMap.class);
 		private static final long serialVersionUID = 1L;
 		private final String objectId;
 		@JsonProperty private String id;
-		@JsonProperty private String name;
 		@JsonProperty private RuleConfiguration configuration = new RuleConfiguration();
+		@JsonProperty private String name;
 		@JsonProperty private Map<String,String> messageStrings;
-		@JsonProperty private Map<String,String> shortDescription;
-		@JsonProperty private Map<String,String> fullDescription;
+		@JsonProperty private SARIFMessage shortDescription;
+		@JsonProperty private SARIFMessage fullDescription;
 		
 		public Rule(String objectId) {
 			this.objectId = objectId;
-			this.name = objectId;
 		}
 		public String getObjectId() {
-			return objectId;
+			return objectId==null?id:objectId;
 		}
 		public String getId() {
 			return id;
@@ -107,10 +120,10 @@ public final class RuleParser extends AbstractParser {
 		public static long getSerialversionuid() {
 			return serialVersionUID;
 		}
-		public Map<String, String> getShortDescription() {
+		public SARIFMessage getShortDescription() {
 			return shortDescription;
 		}
-		public Map<String, String> getFullDescription() {
+		public SARIFMessage getFullDescription() {
 			return fullDescription;
 		}
 		

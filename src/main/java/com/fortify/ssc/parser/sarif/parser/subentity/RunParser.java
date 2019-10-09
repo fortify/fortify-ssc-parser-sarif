@@ -132,7 +132,10 @@ public final class RunParser extends AbstractParser {
          * Add the various parser handlers for collecting our data.
          */
         protected void addHandlers(Map<String, Handler> pathToHandlerMap) {
+        	// For SARIF 2.0.0
         	pathToHandlerMap.put("/resources/rules/*", jp->new RuleParser(rules, jp.getCurrentName()).parseObjectPropertiesAndFinish(jp, "/"));
+        	// For SARIF 2.0.1
+        	pathToHandlerMap.put("/tool/driver/rules", jp->parseArrayEntries(jp, ()->new RuleParser(rules, null)));
         	addPropertyHandlers(pathToHandlerMap, this);
         }
     	

@@ -268,7 +268,7 @@ public abstract class AbstractParser {
 	 */
 	protected final void parse(final JsonParser jsonParser, String parentPath) throws ScanParsingException, IOException {
 		JsonToken currentToken = jsonParser.getCurrentToken();
-		if ( currentToken != null && currentToken==JsonToken.START_ARRAY || currentToken==JsonToken.START_OBJECT || currentToken.isScalarValue()) {
+		if ( currentToken != null && (currentToken==JsonToken.START_ARRAY || currentToken==JsonToken.START_OBJECT || currentToken.isScalarValue())) {
 			String currentPath = getPath(parentPath, jsonParser.getCurrentName());
 			LOG.trace("Processing "+currentPath);
 			Handler handler = pathToHandlerMap.computeIfAbsent(currentPath, k->pathToHandlerMap.get(getPath(parentPath, "*")));

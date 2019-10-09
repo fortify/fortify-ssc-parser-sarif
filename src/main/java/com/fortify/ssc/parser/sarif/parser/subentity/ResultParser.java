@@ -27,6 +27,7 @@ package com.fortify.ssc.parser.sarif.parser.subentity;
 import java.net.URI;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,11 +139,13 @@ public final class ResultParser extends AbstractParser {
 	}
 	
 	private String getCategory(Rule rule) {
-		return rule==null ? Constants.ENGINE_TYPE : rule.getName();
+		return rule==null || rule.getName()==null 
+				? Constants.ENGINE_TYPE 
+				: StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
 	}
 	
 	private String getSubCategory(Rule rule) {
-		return rule==null ? ruleId : null;
+		return rule==null || rule.getName()==null ? ruleId : null;
 	}
 	
 	private String getFileName() {

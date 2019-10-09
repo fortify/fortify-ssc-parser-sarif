@@ -33,7 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
@@ -49,6 +48,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.ssc.parser.sarif.parser.util.DateDeserializer;
+import com.fortify.ssc.parser.sarif.parser.util.Region;
+import com.fortify.ssc.parser.sarif.parser.util.RegionInputStream;
 
 /**
  * Abstract base class for parsing arbitrary JSON structures. 
@@ -198,21 +199,15 @@ public abstract class AbstractParser {
 	 * @throws ScanParsingException
 	 * @throws IOException
 	 */
-	public final void parse(ScanData scanData, InputRegion inputRegion) throws ScanParsingException, IOException {
-		try ( final InputStream content = scanData.getInputStream(x -> x.endsWith(".sarif")) ) {
-			parse(content, inputRegion);
-		}
-	}
-	
-	public final void parse(InputStream inputStream, InputRegion inputRegion) throws ScanParsingException, IOException {
-		if ( inputRegion!=null ) {
-			inputStream = new BoundedInputStream(inputStream, inputRegion.getEnd());
-			inputStream.skip(inputRegion.getStart());
-		}
-		try (final JsonParser jsonParser = JSON_FACTORY.createParser(inputStream)) {
+	public final void parse(ScanData scanData, Region inputRegion) throws ScanParsingException, IOException {
+		try (   final InputStream content = new RegionInputStream(
+					scanData.getInputStream(x -> x.endsWith(".sarif")),
+					inputRegion);
+				final JsonParser jsonParser = JSON_FACTORY.createParser(content)) {
 			jsonParser.nextToken();
 			assertStartObjectOrArray(jsonParser);
-			parseAndFinish(jsonParser, "/");
+			parse(jsonParser, "/");
+			finish();
 		}
 	}
 	
@@ -348,14 +343,14 @@ public abstract class AbstractParser {
 		return result;
 	}
 	
-	protected static final InputRegion getObjectOrArrayRegion(JsonParser jsonParser) throws ScanParsingException, IOException {
+	protected static final Region getObjectOrArrayRegion(JsonParser jsonParser) throws ScanParsingException, IOException {
 		assertStartObjectOrArray(jsonParser);
 		// TODO Do we need to take into account file encoding to determine number of bytes
 		//      for the '[' character?
 		long start = jsonParser.getCurrentLocation().getByteOffset()-"[".getBytes().length; 
 		jsonParser.skipChildren();
 		long end = jsonParser.getCurrentLocation().getByteOffset();
-		return new InputRegion(start, end);
+		return new Region(start, end);
 	}
 	
 	/**
@@ -419,21 +414,5 @@ public abstract class AbstractParser {
 	@FunctionalInterface
 	public interface ParserSupplier<T extends AbstractParser> {
 	    T get() throws ScanParsingException, IOException;
-	}
-	
-	public static final class InputRegion {
-		private final long start;
-		private final long end;
-		public InputRegion(long start, long end) {
-			super();
-			this.start = start;
-			this.end = end;
-		}
-		public long getStart() {
-			return start;
-		}
-		public long getEnd() {
-			return end;
-		}
 	}
 }

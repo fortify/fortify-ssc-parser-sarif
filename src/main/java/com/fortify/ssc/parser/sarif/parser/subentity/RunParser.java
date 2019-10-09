@@ -38,6 +38,7 @@ import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
 import com.fortify.ssc.parser.sarif.parser.subentity.RuleParser.Rule;
+import com.fortify.ssc.parser.sarif.parser.util.Region;
 
 /**
  * This class will parse an individual run from the runs array using a
@@ -62,7 +63,7 @@ import com.fortify.ssc.parser.sarif.parser.subentity.RuleParser.Rule;
  */
 public final class RunParser extends AbstractParser {
 	private final DB db;
-	private InputRegion resultsRegion;
+	private Region resultsRegion;
 	private final ResultDependencies resultDependencies;
 	private final ScanData scanData;
 	private final VulnerabilityHandler vulnerabilityHandler;

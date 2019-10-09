@@ -205,12 +205,26 @@ public abstract class AbstractParser {
 					inputRegion);
 				final JsonParser jsonParser = JSON_FACTORY.createParser(content)) {
 			jsonParser.nextToken();
-			assertStartObjectOrArray(jsonParser);
+			assertParseStart(jsonParser);
 			parse(jsonParser, "/");
 			finish();
 		}
 	}
 	
+	/**
+	 * This method is called by the {@link #parse(ScanData, Region)} method (and indirectly
+	 * by the {@link #parse(ScanData)} method) to verify that the given input document or
+	 * region starts with an expected JSON element type. By default, this method asserts 
+	 * that the given {@link JsonParser} points at the start of a JSON object. Subclasses
+	 * can override this method if they expect the document/region to start with another
+	 * JSON element, like a JSON array.
+	 * @param jsonParser
+	 * @throws ScanParsingException
+	 */
+	protected void assertParseStart(JsonParser jsonParser) throws ScanParsingException {
+		assertStartObject(jsonParser);
+	}
+
 	public final void parseAndFinish(final JsonParser jsonParser, String parentPath) throws ScanParsingException, IOException {
 		parse(jsonParser, parentPath);
 		finish();

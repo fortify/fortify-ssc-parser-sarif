@@ -31,7 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
+import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
@@ -51,6 +53,15 @@ public final class ResultsParser extends AbstractParser {
     protected void addHandlers(Map<String, Handler> pathToHandlerMap) {
 		pathToHandlerMap.put("/", jp->parseArrayEntries(jp, ()->new ResultParser()));
     }
+	
+	/** 
+	 * We expect the region for which this parser is invoked to point at a
+	 * JSON array.
+	 */
+	@Override
+	protected void assertParseStart(JsonParser jsonParser) throws ScanParsingException {
+		assertStartArray(jsonParser);
+	}
 	
 	private class ResultParser extends AbstractParser {
 		private final Logger LOG = LoggerFactory.getLogger(ResultParser.class);

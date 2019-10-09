@@ -26,6 +26,14 @@ package com.fortify.ssc.parser.sarif.parser.subentity;
 
 import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
 
+/**
+ * Define the possible values for SARIF level properties, together
+ * with the Fortify {@link Priority} that each SARIF level should
+ * be mapped to.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public enum SARIFLevel {
 	// TODO add mapping to Fortify priority
 	warning(Priority.High), 

@@ -1,5 +1,7 @@
 package com.fortify.ssc.parser.sarif.parser.util;
 
+import com.fasterxml.jackson.databind.util.Converter;
+
 /**
  * (c) Copyright [2017] Micro Focus or one of its affiliates.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +27,14 @@ import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalQueries;
 import java.util.Date;
 
-public class DateDeserializer extends StdConverter<String, Date> {
+/**
+ * This {@link Converter} implementation can convert JSON date strings
+ * into java {@link Date} objects.
+ *  
+ * @author Ruud Senden
+ *
+ */
+public class DateConverter extends StdConverter<String, Date> {
     private static final DateTimeFormatter[] DATE_TIME_FORMATTERS = {DateTimeFormatter.ISO_DATE_TIME};
 
     @Override

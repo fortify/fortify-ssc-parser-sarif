@@ -27,37 +27,55 @@ package com.fortify.ssc.parser.sarif.parser.subentity;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
-import com.fortify.ssc.parser.sarif.parser.util.CustomElsaSerializer;
+import com.fortify.ssc.parser.sarif.parser.util.CustomSerializerElsa;
 
+/**
+ * This class will parse individual rule entries from the
+ * /resources/rules array. Parsed data will be stored in 
+ * a {@link Rule} instance, which itself is added to the
+ * rules map provided in the constructor, under the objectId
+ * provided in the constructor.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public final class RuleParser extends AbstractParser {
-	private final Map<String, Rule> rules;
 	private final Rule rule;
 
+	/**
+	 * This constructor instantiates a new {@link Rule} object
+	 * with the given objectId, adds this new {@link Rule} to
+	 * the given rules map, and then calls the {@link #initializeHandlers()}
+	 * method to register the JSON handlers to write data to our {@link Rule}
+	 * instance.
+	 * 
+	 * @param rules
+	 * @param objectId
+	 */
 	public RuleParser(Map<String, Rule> rules, String objectId) {
 		super(false);
-		this.rules = rules;
 		this.rule = new Rule(objectId);
+		rules.put(objectId, rule);
 		initializeHandlers();
 	}
 	
+	/** 
+	 * This method simply adds property handlers for our {@link Rule} instance.
+	 */
 	@Override
 	protected void addHandlers(Map<String, Handler> pathToHandlerMap) {
 		addPropertyHandlers(pathToHandlerMap, rule);
 	}
 	
-	@Override
-	protected <T> T finish() {
-		System.err.println(new ReflectionToStringBuilder(rule).build());
-		rules.put(rule.getObjectId(), rule);
-		return null;
-	}
-	
+	/**
+	 * This data class holds all relevant rule-related information.
+	 * 
+	 * @author Ruud Senden
+	 */
 	public static final class Rule implements Serializable {
-		public static final CustomElsaSerializer<Rule> SERIALIZER = new CustomElsaSerializer<>(Rule.class, RuleConfiguration.class, SARIFLevel.class, Enum.class);
+		public static final CustomSerializerElsa<Rule> SERIALIZER = new CustomSerializerElsa<>(Rule.class, RuleConfiguration.class, SARIFLevel.class, Enum.class);
 		private static final long serialVersionUID = 1L;
 		private final String objectId;
 		@JsonProperty private String id;

@@ -11,7 +11,7 @@ import com.fortify.ssc.parser.sarif.parser.subentity.RunParser;
 /**
  * This is the top-level parser class for generating vulnerabilities
  * based on SARIF input data. It will look for the /runs array, and
- * parse each individual run using the embedded {@link RunParser} class. 
+ * parse each individual run using the {@link RunParser} class. 
  * 
  * @author Ruud Senden
  *

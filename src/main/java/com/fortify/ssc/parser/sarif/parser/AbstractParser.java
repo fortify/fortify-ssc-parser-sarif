@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -47,20 +48,22 @@ import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
-import com.fortify.ssc.parser.sarif.parser.util.DateDeserializer;
+import com.fortify.ssc.parser.sarif.parser.util.DateConverter;
 import com.fortify.ssc.parser.sarif.parser.util.Region;
 import com.fortify.ssc.parser.sarif.parser.util.RegionInputStream;
 
 /**
  * Abstract base class for parsing arbitrary JSON structures. 
- * TODO Add more information
+ * TODO Add more information/examples how to use the various
+ *      parse methods.
+ * 
  * @author Ruud Senden
  *
  */
 public abstract class AbstractParser {
 	private static final Logger LOG = LoggerFactory.getLogger(AbstractParser.class);
 	private static final JsonFactory JSON_FACTORY = new JsonFactory().disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
-	protected static final DateDeserializer DATE_DESERIALIZER = new DateDeserializer();
+	protected static final DateConverter DATE_CONVERTER = new DateConverter();
 	private final ObjectMapper objectMapper = getObjectMapper();
 	private final Map<String, Handler> pathToHandlerMap = new LinkedHashMap<>();
 
@@ -104,10 +107,18 @@ public abstract class AbstractParser {
 		addParentHandlers(pathToHandlerMap);
 	}
 	
-	private ObjectMapper getObjectMapper() {
+	/**
+	 * This method returns an {@link ObjectMapper} instance used for
+	 * mapping JSON data to Java objects/values. This default implementation
+	 * uses the default {@link ObjectMapper} implementation, but adds our
+	 * {@link DateConverter} for converting date strings. Subclasses may
+	 * override this method to add additional converters.
+	 * @return
+	 */
+	protected ObjectMapper getObjectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
-		module.addDeserializer(Date.class, new StdDelegatingDeserializer<Date>(DATE_DESERIALIZER));
+		module.addDeserializer(Date.class, new StdDelegatingDeserializer<Date>(DATE_CONVERTER));
 		mapper.registerModule(module);
 		return mapper;
 	}
@@ -225,11 +236,36 @@ public abstract class AbstractParser {
 		assertStartObject(jsonParser);
 	}
 
+	/**
+	 * This method simply calls the {@link #parse(JsonParser, String)} method
+	 * to parse the current JSON element, and then calls the {@link #finish()}
+	 * method.
+	 * 
+	 * @param jsonParser
+	 * @param parentPath
+	 * @throws ScanParsingException
+	 * @throws IOException
+	 */
 	public final void parseAndFinish(final JsonParser jsonParser, String parentPath) throws ScanParsingException, IOException {
 		parse(jsonParser, parentPath);
 		finish();
 	}
 
+	/**
+	 * This method checks whether a {@link Handler} has been registered for the 
+	 * current JSON element. If a {@link Handler} is found, this method will simply
+	 * invoke the {@link Handler} to parse the contents of the current JSON element.
+	 * If no {@link Handler} is found, this method will skip all children of the
+	 * current JSON element.
+	 * 
+	 * This method simply returns after handling the current JSON elements; recursive
+	 * parsing is handled by registered {@link Handler} instances.
+	 * 
+	 * @param jsonParser
+	 * @param parentPath
+	 * @throws ScanParsingException
+	 * @throws IOException
+	 */
 	protected final void parse(final JsonParser jsonParser, String parentPath) throws ScanParsingException, IOException {
 		JsonToken currentToken = jsonParser.getCurrentToken();
 		if ( currentToken != null && currentToken==JsonToken.START_ARRAY || currentToken==JsonToken.START_OBJECT || currentToken.isScalarValue()) {
@@ -245,6 +281,14 @@ public abstract class AbstractParser {
 		}
 	}
 	
+	/**
+	 * Append the given currentName to the given parentPath,
+	 * correctly handling the separator.
+	 * 
+	 * @param parentPath
+	 * @param currentName
+	 * @return
+	 */
 	protected final String getPath(String parentPath, String currentName) {
 		String result = parentPath;
 		if ( currentName!=null ) {
@@ -255,6 +299,14 @@ public abstract class AbstractParser {
 		return result;
 	}
 
+	/**
+	 * Parse the children of the current JSON object or JSON array.
+	 * 
+	 * @param jsonParser
+	 * @param currentPath
+	 * @throws ScanParsingException
+	 * @throws IOException
+	 */
 	protected final void parseObjectOrArrayChildren(JsonParser jsonParser, String currentPath) throws ScanParsingException, IOException {
 		JsonToken currentToken = jsonParser.getCurrentToken();
 		if ( currentToken==JsonToken.START_OBJECT ) {
@@ -264,19 +316,55 @@ public abstract class AbstractParser {
 		}
 	}
 	
+	/**
+	 * Parse the individual object properties of the current JSON object.
+	 * 
+	 * @param jsonParser
+	 * @param currentPath
+	 * @throws ScanParsingException
+	 * @throws IOException
+	 */
 	protected final void parseObjectProperties(JsonParser jsonParser, String currentPath) throws ScanParsingException, IOException {
 		parseChildren(jsonParser, currentPath, JsonToken.END_OBJECT);
 	}
 	
+	/**
+	 * Parse the individual object properties of the current JSON object
+	 * by calling the {@link #parseObjectProperties(JsonParser, String)}
+	 * method, then call the {@link #finish()} method once parsing has
+	 * finished.
+	 * 
+	 * @param jsonParser
+	 * @param currentPath
+	 * @throws ScanParsingException
+	 * @throws IOException
+	 */
 	public final void parseObjectPropertiesAndFinish(JsonParser jsonParser, String currentPath) throws ScanParsingException, IOException {
 		parseChildren(jsonParser, currentPath, JsonToken.END_OBJECT);
 		finish();
 	}
 	
+	/**
+	 * Parse the individual array entries of the current JSON array.
+	 * 
+	 * @param jsonParser
+	 * @param currentPath
+	 * @throws ScanParsingException
+	 * @throws IOException
+	 */
 	protected final void parseArrayEntries(JsonParser jsonParser, String currentPath) throws ScanParsingException, IOException {
 		parseChildren(jsonParser, currentPath, JsonToken.END_ARRAY);
 	}
 	
+	/**
+	 * Parse the children of the current JSON element, up to the given endToken
+	 * 
+	 * @param jsonParser
+	 * @param currentPath
+	 * @param endToken
+	 * @throws ScanParsingException
+	 * @throws IOException
+	 */
 	private final void parseChildren(JsonParser jsonParser, String currentPath, JsonToken endToken) throws ScanParsingException, IOException {
 		while (jsonParser.nextToken()!=endToken) {
 			parse(jsonParser, currentPath);
@@ -357,6 +445,14 @@ public abstract class AbstractParser {
 		return result;
 	}
 	
+	/**
+	 * Get the region (start and end position) of the current JSON element.
+	 * 
+	 * @param jsonParser
+	 * @return
+	 * @throws ScanParsingException
+	 * @throws IOException
+	 */
 	protected static final Region getObjectOrArrayRegion(JsonParser jsonParser) throws ScanParsingException, IOException {
 		assertStartObjectOrArray(jsonParser);
 		// TODO Do we need to take into account file encoding to determine number of bytes
@@ -420,11 +516,27 @@ public abstract class AbstractParser {
 		}
 	}
 
+	/**
+	 * Functional interface for handling the JSON element that the given
+	 * {@link JsonParser} is pointing at.
+	 * 
+	 * @author Ruud Senden
+	 */
 	@FunctionalInterface
 	public interface Handler {
 	    void handle(JsonParser jsonParser) throws ScanParsingException, IOException;
 	}
 	
+	/**
+	 * Functional interface for supplying {@link AbstractParser} instances.
+	 * Contrary to the standard {@link Supplier} interface, this interface
+	 * allows the {@link #get()} method to throw {@link ScanParsingException} 
+	 * or {@link IOException}.
+	 * 
+	 * @author Ruud Senden
+	 *
+	 * @param <T>
+	 */
 	@FunctionalInterface
 	public interface ParserSupplier<T extends AbstractParser> {
 	    T get() throws ScanParsingException, IOException;

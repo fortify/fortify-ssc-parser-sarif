@@ -25,27 +25,54 @@
 package com.fortify.ssc.parser.sarif.parser.util;
 
 import java.io.IOException;
-import java.io.InputStream;
 
-import org.apache.commons.io.input.BoundedInputStream;
+import org.mapdb.DataInput2;
+import org.mapdb.DataOutput2;
+import org.mapdb.Serializer;
+import org.mapdb.elsa.ElsaMaker;
+import org.mapdb.elsa.ElsaSerializer;
+import org.mapdb.serializer.GroupSerializerObjectArray;
 
 /**
- * This {@link InputStream} wrapper returns only the data between the start 
- * and end positions provided in a given {@link Region}. If no {@link Region} 
- * is provided, this implementation will return the full contents of the original
- * {@link InputStream}.
+ * This class wraps an {@link ElsaSerializer} instance as a MapDb {@link Serializer}.
+ * The constructor takes a set of {@link Class} objects to be added to the 
+ * {@link ElsaSerializer} class catalog for optimized (de-)serialization.
  * 
  * @author Ruud Senden
  *
+ * @param <T>
  */
-public class RegionInputStream extends BoundedInputStream {
+public class CustomSerializerElsa<T> extends GroupSerializerObjectArray<T> {
+	private final ElsaSerializer ser;
+	
+	/**
+	 * This constructor instantiates an {@link ElsaSerializer} instance,
+	 * registering the given set of {@link Class} instances to the
+	 * {@link ElsaSerializer} class catalog.
+	 *  
+	 * @param classes
+	 */
+	public CustomSerializerElsa(Class<?>... classes) {
+		this.ser = new ElsaMaker()
+			.registerClasses(classes)
+			.unknownClassNotification(clazz->System.out.println("Unknown class: "+clazz))
+			.make();
+	}
+	
+	/**
+	 * Serialize the given value using our {@link ElsaSerializer} instance
+	 */
+	@Override
+	public void serialize(DataOutput2 out, T value) throws IOException {
+		ser.serialize(out, value);
+	}
 
-	public RegionInputStream(InputStream in, Region region) throws IOException {
-		super(in, region==null?-1:region.getEnd());
-		if ( region!=null ) {
-			skip(region.getStart());
-		}
-		setPropagateClose(true);
+	/**
+	 * De-serialize the given input using our {@link ElsaSerializer} instance
+	 */
+	@Override
+	public T deserialize(DataInput2 input, int available) throws IOException {
+		return ser.deserialize(input);
 	}
 
 }

@@ -12,7 +12,7 @@ import com.fortify.plugin.api.ScanParsingException;
  * properties. If the input file contains multiple runs or invocations,
  * the corresponding {@link ScanBuilder} properties may be set multiple
  * times. As such, for example the scan date will be set to the end time 
- * of the last invocation of the last scan, based on the order of runs and
+ * of the last invocation of the last run, based on the order of runs and
  * invocations in the input file.
  * 
  * @author Ruud Senden
@@ -35,7 +35,7 @@ public class ScanParser extends AbstractParser {
 		pathToHandlerMap.put("/version", 
 				jp -> scanBuilder.setEngineVersion(jp.getValueAsString()));
 		pathToHandlerMap.put("/runs/invocations/endTime", 
-				jp -> scanBuilder.setScanDate(DATE_DESERIALIZER.convert(jp.getValueAsString())));
+				jp -> scanBuilder.setScanDate(DATE_CONVERTER.convert(jp.getValueAsString())));
 		pathToHandlerMap.put("/runs/invocations/machine", 
 				jp -> scanBuilder.setHostName(jp.getValueAsString()));
 		pathToHandlerMap.put("/runs/instanceGuid", 

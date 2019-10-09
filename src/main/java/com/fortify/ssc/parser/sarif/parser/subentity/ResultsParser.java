@@ -25,33 +25,50 @@
 package com.fortify.ssc.parser.sarif.parser.subentity;
 
 import java.util.Map;
-import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
+import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
-import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
-import com.fortify.ssc.parser.sarif.parser.subentity.RuleParser.Rule;
 import com.fortify.ssc.parser.sarif.parser.subentity.RunParser.ResultDependencies;
+import com.fortify.ssc.parser.sarif.parser.util.Region;
 
+/**
+ * <p>Given an array of result entries, this parser will create and invoke a
+ * new {@link ResultParser} instance to parse and process individual result
+ * entries.<p>
+ * 
+ * <p>This parser should usually be invoked using the 
+ * {@link #parse(ScanData, Region)} method, with the given {@link Region}
+ * pointing to the actual results array.</p>
+ * 
+ * @author Ruud Senden
+ *
+ */
 public final class ResultsParser extends AbstractParser {
 	private final VulnerabilityHandler vulnerabilityHandler;
 	private final ResultDependencies resultDependencies;
 	
+	/**
+	 * Constructor for setting {@link VulnerabilityHandler} and
+	 * {@link ResultDependencies}.
+	 * 
+	 * @param vulnerabilityHandler
+	 * @param resultDependencies
+	 */
 	public ResultsParser(final VulnerabilityHandler vulnerabilityHandler, final ResultDependencies resultDependencies) {
 		this.vulnerabilityHandler = vulnerabilityHandler;
 		this.resultDependencies = resultDependencies;
 	}
 	
+	/**
+	 * Add a handler for the root array, which will parse each array entry using a 
+	 * new {@link ResultParser} instance.
+	 */
 	@Override
     protected void addHandlers(Map<String, Handler> pathToHandlerMap) {
-		pathToHandlerMap.put("/", jp->parseArrayEntries(jp, ()->new ResultParser()));
+		pathToHandlerMap.put("/", jp->parseArrayEntries(jp, ()->new ResultParser(vulnerabilityHandler, resultDependencies)));
     }
 	
 	/** 
@@ -61,59 +78,6 @@ public final class ResultsParser extends AbstractParser {
 	@Override
 	protected void assertParseStart(JsonParser jsonParser) throws ScanParsingException {
 		assertStartArray(jsonParser);
-	}
-	
-	private class ResultParser extends AbstractParser {
-		private final Logger LOG = LoggerFactory.getLogger(ResultParser.class);
-		@JsonProperty private String analysisTarget_uri;
-		@JsonProperty private String ruleId;
-		@JsonProperty private String ruleMessageId;
-		@JsonProperty private SARIFLevel level;
-		@JsonProperty private String locations_physicalLocation_region_startLine;
-		
-		@Override
-		protected <T> T finish() {
-			Priority priority = getPriority();
-			if ( priority != null ) {
-				StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(UUID.randomUUID().toString());
-	    		vb.setEngineType("SARIF"); // TODO Get this dynamically from plugin.xml
-	    		vb.setPriority(priority);
-	    		//vb.setKingdom(FortifyKingdom.ENVIRONMENT.getKingdomName());
-	    		//vb.setAnalyzer(FortifyAnalyser.CONFIGURATION.getAnalyserName());
-	    		vb.setCategory(ruleId);
-	    		//vb.setSubCategory(name);
-	    		
-	    		// Set mandatory values to JavaDoc-recommended values
-	    		vb.setAccuracy(5.0f);
-	    		vb.setConfidence(2.5f);
-	    		vb.setLikelihood(2.5f);
-	    		vb.setImpact(2.5f);
-	    		vb.setProbability(2.5f);
-	    		
-	    		vb.setFileName(analysisTarget_uri);
-	    		vb.setVulnerabilityAbstract(ruleMessageId);
-	    		
-	    		vb.completeVulnerability();
-			}
-			return null;
-		}
-
-		private Priority getPriority() {
-			Priority result = null;
-			if ( level == null && ruleId!=null ) {
-				Rule rule = resultDependencies.getRules().get(ruleId);
-				if ( rule != null ) {
-					level = rule.getConfiguration().getDefaultLevel();
-				}
-			}
-			if ( level == null ) {
-				LOG.error("Level for vulnerability cannot be determined; ignoring vulnerability");
-			} else {
-				result = level.getFortifyPriority();
-			}
-			return result;
-		}
-		
 	}
 
 }

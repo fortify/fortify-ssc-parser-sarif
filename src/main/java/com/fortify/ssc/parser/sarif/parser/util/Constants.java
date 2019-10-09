@@ -24,32 +24,46 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.parser.util;
 
-import java.io.IOException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 
-import org.mapdb.DataInput2;
-import org.mapdb.DataOutput2;
-import org.mapdb.elsa.ElsaMaker;
-import org.mapdb.elsa.ElsaSerializer;
-import org.mapdb.serializer.GroupSerializerObjectArray;
+import org.w3c.dom.Document;
 
-public class CustomElsaSerializer<T> extends GroupSerializerObjectArray<T> {
-	private final ElsaSerializer ser;
+import com.fortify.ssc.parser.sarif.parser.subentity.ResultParser;
+
+/**
+ * This constants class provides some constants that can be used
+ * throughout the parser implementation.
+ * 
+ * @author Ruud Senden
+ *
+ */
+public class Constants {
+	private static final String DEFAULT_ENGINE_TYPE = "SARIF";
+	public static final String ENGINE_TYPE = getEngineType();
 	
-	public CustomElsaSerializer(Class<?>... classes) {
-		this.ser = new ElsaMaker()
-			.registerClasses(classes)
-			.unknownClassNotification(clazz->System.out.println("Unknown class: "+clazz))
-			.make();
-	}
+	private Constants() {}
 	
-	@Override
-	public void serialize(DataOutput2 out, T value) throws IOException {
-		ser.serialize(out, value);
-	}
+	/**
+	 * Get the engine type from plugin.xml, defaulting to 
+	 * {@value #DEFAULT_ENGINE_TYPE} if there is any error
+	 * parsing plugin.xml.
+	 * 
+	 * @return
+	 */
+	private static final String getEngineType() {
+		DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder builder = domFactory.newDocumentBuilder();
+            Document dDoc = builder.parse(ResultParser.class.getClassLoader().getResourceAsStream("plugin.xml"));
 
-	@Override
-	public T deserialize(DataInput2 input, int available) throws IOException {
-		return ser.deserialize(input);
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            return (String) xPath.evaluate("/plugin/issue-parser/engine-type/text()", dDoc, XPathConstants.STRING);
+        } catch (Exception e) {
+            return DEFAULT_ENGINE_TYPE;
+        }
 	}
-
 }

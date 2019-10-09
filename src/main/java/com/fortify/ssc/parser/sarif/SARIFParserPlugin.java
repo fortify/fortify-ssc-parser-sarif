@@ -12,7 +12,16 @@ import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.plugin.spi.ParserPlugin;
 import com.fortify.ssc.parser.sarif.parser.ScanParser;
 import com.fortify.ssc.parser.sarif.parser.VulnerabilitiesParser;
+import com.fortify.ssc.parser.sarif.parser.subentity.ResultParser.CustomVulnAttribute;
 
+/**
+ * Main {@link ParserPlugin} implementation for parsing SARIF results. This
+ * class simply defines the various parser plugin SPI methods; actual parsing
+ * is done by the appropriate dedicated parser classes.
+ * 
+ * @author Ruud Senden
+ *
+ */
 public class SARIFParserPlugin implements ParserPlugin<CustomVulnAttribute> {
     private static final Logger LOG = LoggerFactory.getLogger(SARIFParserPlugin.class);
 

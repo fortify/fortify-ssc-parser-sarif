@@ -22,33 +22,35 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.subentity;
+package com.fortify.ssc.parser.sarif.parser.domain;
 
-import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fortify.ssc.parser.sarif.parser.util.CustomSerializerElsa;
+
+import lombok.Getter;
 
 /**
- * Define the possible values for SARIF level properties, together
- * with the Fortify {@link Priority} that each SARIF level should
- * be mapped to.
+ * This data class holds all relevant rule-related information.
  * 
  * @author Ruud Senden
- *
  */
-public enum SARIFLevel {
-	// TODO add mapping to Fortify priority
-	warning(Priority.High), 
-	error(Priority.Critical), 
-	open(Priority.Medium), 
-	note(Priority.Low), 
-	pass(null), 
-	notApplicable(null);
+@Getter
+public final class ReportingDescriptor implements Serializable {
+	public static final CustomSerializerElsa<ReportingDescriptor> SERIALIZER = new CustomSerializerElsa<>(ReportingDescriptor.class);
+	private static final long serialVersionUID = 1L;
 	
-	private final Priority fortifyPriority;
-	SARIFLevel(Priority fortifyPriority) {
-		this.fortifyPriority = fortifyPriority;
-	}
+	@JsonProperty private String id;
+	@JsonProperty private String guid;
+	@JsonProperty private ReportingConfiguration defaultConfiguration = new ReportingConfiguration();
+	@JsonProperty private String name;
+	@JsonProperty private Map<String,MultiformatMessageString> messageStrings;
+	@JsonProperty private Message shortDescription;
+	@JsonProperty private Message fullDescription;
+	@JsonProperty private URI helpUri;
+	@JsonProperty private MultiformatMessageString help;
 	
-	public Priority getFortifyPriority() {
-		return fortifyPriority;
-	}
 }

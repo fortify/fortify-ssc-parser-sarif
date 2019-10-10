@@ -32,8 +32,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
 
-import com.fortify.ssc.parser.sarif.parser.subentity.ResultParser;
-
 /**
  * This constants class provides some constants that can be used
  * throughout the parser implementation.
@@ -59,7 +57,7 @@ public class Constants {
 		DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = domFactory.newDocumentBuilder();
-            Document dDoc = builder.parse(ResultParser.class.getClassLoader().getResourceAsStream("plugin.xml"));
+            Document dDoc = builder.parse(Constants.class.getClassLoader().getResourceAsStream("plugin.xml"));
 
             XPath xPath = XPathFactory.newInstance().newXPath();
             return (String) xPath.evaluate("/plugin/issue-parser/engine-type/text()", dDoc, XPathConstants.STRING);

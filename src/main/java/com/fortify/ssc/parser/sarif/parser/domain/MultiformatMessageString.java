@@ -22,20 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.subentity;
+package com.fortify.ssc.parser.sarif.parser.domain;
 
-import java.util.LinkedHashMap;
+import java.io.Serializable;
 
-public final class SARIFMessage extends LinkedHashMap<String, String> {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class MultiformatMessageString implements Serializable {
 	private static final long serialVersionUID = 1L;
-
-	public SARIFMessage() {}
 	
-	public SARIFMessage(String text) {
-		put("text", text);
-	}
-
-	public String getText() {
-		return get("text");
-	}
+	@JsonProperty private String text;
+	// @JsonProperty private String markdown;
 }

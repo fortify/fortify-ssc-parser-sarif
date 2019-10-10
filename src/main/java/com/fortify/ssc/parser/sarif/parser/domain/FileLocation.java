@@ -22,18 +22,21 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.subentity;
+package com.fortify.ssc.parser.sarif.parser.domain;
 
 import java.net.URI;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class SARIFFileLocation {
+import lombok.Getter;
+
+@Getter
+public final class FileLocation {
 	@JsonProperty private URI uri;
 	@JsonProperty private String uriBaseId;
 	
-	public URI resolveURI(Map<String, SARIFFileLocation> originalUriBaseIds) {
+	public URI resolveURI(Map<String, FileLocation> originalUriBaseIds) {
 		URI result = this.uri;
 		if ( uriBaseId!=null ) {
 			URI baseUri = originalUriBaseIds.get(uriBaseId).resolveURI(originalUriBaseIds);
@@ -42,7 +45,7 @@ public final class SARIFFileLocation {
 		return result;
 	}
 	
-	public String getFullFileName(Map<String, SARIFFileLocation> originalUriBaseIds) {
+	public String getFullFileName(Map<String, FileLocation> originalUriBaseIds) {
 		return resolveURI(originalUriBaseIds).getPath(); 
 	}
 }

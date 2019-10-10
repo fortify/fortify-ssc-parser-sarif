@@ -12,7 +12,7 @@ import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.plugin.spi.ParserPlugin;
 import com.fortify.ssc.parser.sarif.parser.ScanParser;
 import com.fortify.ssc.parser.sarif.parser.VulnerabilitiesParser;
-import com.fortify.ssc.parser.sarif.parser.subentity.ResultParser.CustomVulnAttribute;
+import com.fortify.ssc.parser.sarif.parser.subentity.ResultsParser.CustomVulnAttribute;
 
 /**
  * Main {@link ParserPlugin} implementation for parsing SARIF results; see

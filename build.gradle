@@ -1,4 +1,8 @@
-group 'com.thirdparty'
+plugins {
+  id "io.freefair.lombok" version "4.1.2"
+}
+
+group 'com.fortify.ssc.parser.sarif'
 
 apply plugin: 'java'
 apply plugin: 'idea'

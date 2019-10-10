@@ -25,6 +25,9 @@
 package com.fortify.ssc.parser.sarif.parser.util;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.mapdb.DataInput2;
 import org.mapdb.DataOutput2;
@@ -52,13 +55,13 @@ public class CustomSerializerElsa<T> extends GroupSerializerObjectArray<T> {
 	 *  
 	 * @param classes
 	 */
-	public CustomSerializerElsa(Class<?>... classes) {
+	public CustomSerializerElsa(Class<T> clazz) {
 		this.ser = new ElsaMaker()
-			.registerClasses(classes)
-			.unknownClassNotification(clazz->System.out.println("Unknown class: "+clazz))
+			.registerClasses(getReferencedClasses(clazz))
+			.unknownClassNotification(unknownClazz->System.out.println("Unknown class: "+unknownClazz))
 			.make();
 	}
-	
+
 	/**
 	 * Serialize the given value using our {@link ElsaSerializer} instance
 	 */
@@ -74,5 +77,27 @@ public class CustomSerializerElsa<T> extends GroupSerializerObjectArray<T> {
 	public T deserialize(DataInput2 input, int available) throws IOException {
 		return ser.deserialize(input);
 	}
+	
+	private static final Class<?>[] getReferencedClasses(Class<?> clazz) {
+		Set<Class<?>> result = new HashSet<>();
+		addReferencedClasses(result, clazz);
+		return result.toArray(new Class<?>[] {});
+	}
 
+	private static final void addReferencedClasses(Set<Class<?>> result, Class<?> clazz) {
+		if ( clazz!=null && !Object.class.equals(clazz) ) {
+			result.add(clazz);
+			addDeclaredFieldClasses(result, clazz);
+			addReferencedClasses(result, clazz.getSuperclass());
+		}
+	}
+
+	private static void addDeclaredFieldClasses(Set<Class<?>> result, Class<?> clazz) {
+		for (Field field : clazz.getDeclaredFields()) {
+			Class<?> type = field.getType();
+			if ( !result.contains(type) ) {
+				addReferencedClasses(result, type);
+			}
+		}
+	}
 }

@@ -27,11 +27,14 @@ package com.fortify.ssc.parser.sarif.parser;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.apache.commons.lang3.StringUtils;
@@ -382,31 +385,6 @@ public abstract class AbstractParser {
 	protected <T> T finish() throws ScanParsingException, IOException { return null; }
 	
 	/**
-	 * Assuming the given {@link JsonParser} instance is currently pointing at a JSON array
-	 * that contains JSON objects, for each array entry this method will:
-	 * <ul>
-	 *  <li>Request an {@link AbstractParser} instance from the given {@link ParserSupplier}</li>
-	 *  <li>Invoke the {@link AbstractParser#parseObjectProperties(JsonParser, String)} method
-	 *      on the current array entry</li>
-	 *  <li>Invoke the {@link AbstractParser#finish()} method
-	 * </ul> 
-	 * @param jsonParser
-	 * @param parserFactory
-	 * @throws ScanParsingException Thrown if the given JsonParser does not
-	 *         point at the start of an array, or the array contains non-object
-	 *         entries (i.e. contains scalar values or other arrays)
-	 * @throws IOException
-	 */
-	protected static final void parseArrayEntries(JsonParser jsonParser, ParserSupplier<? extends AbstractParser> parserFactory) throws ScanParsingException, IOException {
-		assertStartArray(jsonParser);
-		while (jsonParser.nextToken()!=JsonToken.END_ARRAY) {
-			assertStartObject(jsonParser);
-			AbstractParser abstractParser = parserFactory.get();
-			abstractParser.parseObjectPropertiesAndFinish(jsonParser, "/");
-		}
-	}
-	
-	/**
 	 * Assuming the given {@link JsonParser} instance is currently pointing at a JSON array,
 	 * this method will return the number of array entries.
 	 * 
@@ -542,4 +520,201 @@ public abstract class AbstractParser {
 	public interface ParserSupplier<T extends AbstractParser> {
 	    T get() throws ScanParsingException, IOException;
 	}
+	
+	/**
+	 * <p>This {@link Handler} implementation reads a JSON object
+	 * property value into a new instance of the given {@link Class},
+	 * and adds this instance to a {@link Map}, using the JSON object 
+	 * property name as the map key.</p>
+	 * 
+	 * <p>Example usage:</p>
+	 * 
+	 * <p>Given the example implementation and JSON input below, after 
+	 * parsing the <code>handler.getMap()</code> method will return a
+	 * map containing <code>prop1</code> and <code>prop2</code> as keys, 
+	 * with corresponding <code>MyClazz</code> instances as values.</p>
+	 * 
+	 * Class: <pre>
+	 * public final class MyClazz {
+	 *   @JsonProperty int x;
+	 *   @JsonProperty int y;
+	 * }
+	 * </pre>
+	 * 
+	 * JSON: <pre>
+	 * "someObject": {
+	 *   "prop1": {"x": 1, "y": 2},
+	 *   "prop2": {"x": 5, "y": 10}
+	 * }
+	 * </pre>
+	 * 
+	 * Parser configuration: <pre>
+	 * AddPropertyValueToMapHandler<MyClazz> handler = new AddPropertyValueToMapHandler<>(MyClazz.class);
+	 * protected void addHandlers(Map<String, Handler> pathToHandlerMap) {
+	 *   pathToHandlerMap.put("/someObject/*", handler);
+	 * }
+	 * </pre>
+	 *
+	 * @author Ruud Senden
+	 *
+	 * @param <T>
+	 */
+	public final class AddPropertyValueToMapHandler<T> implements Handler {
+    	private final Map<String,T> map;
+    	private final Class<T> clazz;
+    	
+    	public AddPropertyValueToMapHandler(Class<T> clazz) {
+			this(new LinkedHashMap<String,T>(), clazz);
+		}
+    	
+		public AddPropertyValueToMapHandler(Map<String,T> map, Class<T> clazz) {
+			this.map = map;
+			this.clazz = clazz;
+		}
+
+		@Override
+		public void handle(JsonParser jsonParser) throws ScanParsingException, IOException {
+			map.put(jsonParser.getCurrentName(), objectMapper.readValue(jsonParser, clazz));			
+		}
+
+		public final Map<String,T> getMap() {
+			return Collections.unmodifiableMap(map);
+		}
+    }
+	
+	/**
+	 * This {@link Handler} implementation reads the value that {@link JsonParser}
+	 * is currently pointing at into a new instance of the configured type using 
+	 * {@link ObjectMapper}, then calls the configured {@link Consumer} with the
+	 * mapped value.
+	 * 
+	 * @author Ruud Senden
+	 *
+	 */
+	public class MapperHandler<T> implements Handler {
+		private final Consumer<T> consumer;
+		private final Class<T> clazz;
+
+		public MapperHandler(Consumer<T> consumer, Class<T> clazz) {
+			this.consumer = consumer;
+			this.clazz = clazz;
+		}
+		
+		@Override
+		public void handle(JsonParser jsonParser) throws ScanParsingException, IOException {
+			consumer.accept(objectMapper.readValue(jsonParser, clazz));
+		}
+	}
+	
+	/**
+	 * This {@link Handler} implementation iterates over the
+	 * array that the given {@link JsonParser} is currently
+	 * pointing at, and calls the {@link Handler#handle(JsonParser)}
+	 * method of the configured array entry {@link Handler}. The
+	 * configured {@link Handler} is required to move the pointer to 
+	 * the end of the array entry.
+	 * 
+	 * @author Ruud Senden
+	 *
+	 */
+	public class ArrayHandler implements Handler {
+		private final Handler arrayEntryHandler;
+		
+		public ArrayHandler(Handler arrayEntryHandler) {
+			this.arrayEntryHandler = arrayEntryHandler;
+		}
+
+		@Override
+		public final void handle(JsonParser jsonParser) throws ScanParsingException, IOException {
+			assertStartArray(jsonParser);
+			while (jsonParser.nextToken()!=JsonToken.END_ARRAY) {
+				arrayEntryHandler.handle(jsonParser);
+			}
+			
+		}
+	}
+	
+	/**
+	 * This {@link Handler} implementation iterates over the
+	 * array that the given {@link JsonParser} is currently
+	 * pointing at. Each array entry will be read into a new instance
+	 * of the configured type using {@link ObjectMapper}; for each mapped
+	 * array entry the configured {@link Consumer} will be called.
+	 * 
+	 * @author Ruud Senden
+	 *
+	 */
+	public class MapperArrayHandler<T> extends ArrayHandler {
+		public MapperArrayHandler(Consumer<T> consumer, Class<T> clazz) {
+			super(new MapperHandler<>(consumer, clazz));
+		}
+	}
+	
+	/**
+	 * This {@link Handler} implementation iterates over the
+	 * array that the given {@link JsonParser} is currently
+	 * pointing at. Each array entry will be read into a new instance
+	 * of the configured type using {@link ObjectMapper}, and then
+	 * added to the map by invoking the configured keyFunction and
+	 * valueFunction to determine map key and value.
+	 * 
+	 * @author Ruud Senden
+	 *
+	 */
+	public class ArrayToMapHandler<T,K,V> extends MapperArrayHandler<T> {
+		private final Map<K,V> map;
+    	public ArrayToMapHandler(Class<T> clazz, Function<T, K> keyFunction, Function<T,V> valueFunction) {
+			this(new LinkedHashMap<K,V>(), clazz, keyFunction, valueFunction);
+		}
+    	
+		public ArrayToMapHandler(Map<K, V> map, Class<T> clazz, Function<T, K> keyFunction, Function<T, V> valueFunction) {
+			super(entry->map.put(keyFunction.apply(entry), valueFunction.apply(entry)), clazz);
+			this.map = map;
+		}
+		
+		public final Map<K, V> getMap() {
+			return Collections.unmodifiableMap(map);
+		}
+	}
+	
+	/**
+	 * This specialized implementation of {@link ArrayToMapHandler} uses
+	 * an identity lambda expression as the value function, essentially
+	 * storing mapped array entries as map values.
+	 * 
+	 * @author Ruud Senden
+	 *
+	 * @param <K>
+	 * @param <V>
+	 */
+	public class ArrayToObjectMapHandler<K,V> extends ArrayToMapHandler<V,K,V> {
+		public ArrayToObjectMapHandler(Class<V> clazz, Function<V, K> keyFunction) {
+			this(new LinkedHashMap<K,V>(), clazz, keyFunction);
+		}
+		public ArrayToObjectMapHandler(Map<K, V> map, Class<V> clazz, Function<V, K> keyFunction) {
+			super(map, clazz, keyFunction, v->v);
+		}
+	}
+	
+	/**
+	 * This {@link Handler} implementation iterates over the array that the 
+	 * given {@link JsonParser} is currently pointing at. For each array 
+	 * entry, the {@link AbstractParser#parseObjectPropertiesAndFinish(JsonParser, String)}
+	 * is invoked on a parser instance retrieved from the given 
+	 * {@link ParserSupplier}.
+	 * 
+	 * @author Ruud Senden
+	 *
+	 */
+	public final class InvokeParserForArrayEntriesHandler extends ArrayHandler {
+		public InvokeParserForArrayEntriesHandler(ParserSupplier<? extends AbstractParser> parserSupplier) {
+			super(jsonParser->{
+				assertStartObject(jsonParser);
+				AbstractParser abstractParser = parserSupplier.get();
+				abstractParser.parseObjectPropertiesAndFinish(jsonParser, "/");
+			});
+		}
+	}
+
+	
 }

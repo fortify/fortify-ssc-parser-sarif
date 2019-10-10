@@ -31,6 +31,6 @@ public final class VulnerabilitiesParser extends AbstractParser {
 	
 	@Override
 	protected void addHandlers(Map<String, Handler> pathToHandlerMap) {
-		pathToHandlerMap.put("/runs", jp->parseArrayEntries(jp, ()->new RunParser(scanData, vulnerabilityHandler)));
+		pathToHandlerMap.put("/runs", new InvokeParserForArrayEntriesHandler(()->new RunParser(scanData, vulnerabilityHandler)));
 	}
 }

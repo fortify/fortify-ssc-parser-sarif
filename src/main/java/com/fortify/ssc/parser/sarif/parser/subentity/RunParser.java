@@ -26,7 +26,6 @@ package com.fortify.ssc.parser.sarif.parser.subentity;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.mapdb.DB;
@@ -37,7 +36,8 @@ import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
-import com.fortify.ssc.parser.sarif.parser.subentity.RuleParser.Rule;
+import com.fortify.ssc.parser.sarif.parser.domain.FileLocation;
+import com.fortify.ssc.parser.sarif.parser.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.parser.util.Region;
 
 /**
@@ -124,12 +124,15 @@ public final class RunParser extends AbstractParser {
     }
     
     public final class ResultDependencies {
-    	private final Map<String, Rule> rules;
-    	private final Map<String,SARIFFileLocation> originalUriBaseIds;
+    	private final ArrayToObjectMapHandler<String, ReportingDescriptor> rulesHandler;
+    	private final AddPropertyValueToMapHandler<FileLocation> originalUriBaseIdHandler = 
+    			new AddPropertyValueToMapHandler<>(FileLocation.class);
     	
     	public ResultDependencies(final DB db) {
-    		rules = db.hashMap("rules", Serializer.STRING, Rule.SERIALIZER).create();
-    		originalUriBaseIds = new LinkedHashMap<>();
+    		rulesHandler = new ArrayToObjectMapHandler<String, ReportingDescriptor>(
+    			db.hashMap("rules", Serializer.STRING, ReportingDescriptor.SERIALIZER).create(),
+    			ReportingDescriptor.class,
+    			entry->entry.getId());
 		}
     	
     	
@@ -137,17 +140,17 @@ public final class RunParser extends AbstractParser {
          * Add the various parser handlers for collecting our data.
          */
         protected void addHandlers(Map<String, Handler> pathToHandlerMap) {
-        	pathToHandlerMap.put("/tool/driver/rules", jp->parseArrayEntries(jp, ()->new RuleParser(rules)));
-        	pathToHandlerMap.put("/originalUriBaseIds/*", jp->originalUriBaseIds.put(jp.getCurrentName(), objectMapper.readValue(jp, SARIFFileLocation.class)));
+        	pathToHandlerMap.put("/tool/driver/rules", rulesHandler);
+        	pathToHandlerMap.put("/originalUriBaseIds/*", originalUriBaseIdHandler);
         	addPropertyHandlers(pathToHandlerMap, this);
         }
 
-		public Map<String, SARIFFileLocation> getOriginalUriBaseIds() {
-			return Collections.unmodifiableMap(originalUriBaseIds);
+		public Map<String, FileLocation> getOriginalUriBaseIds() {
+			return Collections.unmodifiableMap(originalUriBaseIdHandler.getMap());
 		}
 		
-		public Map<String, Rule> getRules() {
-			return Collections.unmodifiableMap(rules);
+		public Map<String, ReportingDescriptor> getRules() {
+			return Collections.unmodifiableMap(rulesHandler.getMap());
 		}
     }
 }

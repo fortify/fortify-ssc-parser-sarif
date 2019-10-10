@@ -24,6 +24,7 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.parser.domain;
 
+import java.text.MessageFormat;
 import java.util.Map;
 
 import com.fortify.ssc.parser.sarif.parser.domain.Result.Kind;
@@ -84,6 +85,19 @@ public class ResultWithDependencies {
 		}
 		
 		return level;
+	}
+	
+	public String getResultMessage() {
+		Message msg = getMessage();
+		if ( msg.getText()!=null ) {
+			return msg.getText();
+		} else if ( msg.getId()!=null ) {
+			MultiformatMessageString msgString = getRule().getMessageStrings().get(msg.getId());
+			// TODO Do we need to improve handling of single quotes around arguments?
+			return MessageFormat.format(msgString.getText().replace("'", "''"), (Object[])msg.getArguments());
+		} else {
+			return null;
+		}
 	}
 	
 	

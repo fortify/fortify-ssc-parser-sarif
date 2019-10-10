@@ -122,7 +122,7 @@ public final class ResultsParser extends AbstractParser {
     		//vb.setSourceLine(sourceLine);
     		vb.setSubCategory(getSubCategory(result));
     		//vb.setTaintFlag(taintFlag);
-    		//vb.setVulnerabilityAbstract(vulnerabilityAbstract);
+    		vb.setVulnerabilityAbstract(result.getResultMessage());
     		//vb.setVulnerabilityRecommendation(vulnerabilityRecommendation);
     		addCustomAttributes(vb);
     		

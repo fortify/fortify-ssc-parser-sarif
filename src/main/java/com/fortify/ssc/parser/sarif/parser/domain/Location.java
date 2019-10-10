@@ -24,38 +24,16 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.parser.domain;
 
-import java.net.URI;
-import java.nio.file.Paths;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 
 @Getter
-public final class ArtifactLocation {
-	@JsonProperty private URI uri;
-	@JsonProperty private String uriBaseId;
-	// @JsonProperty private int index;
-	// @JsonProperty private Message description;
-	
-	public URI resolveURI(Map<String, ArtifactLocation> originalUriBaseIds) {
-		URI result = this.uri;
-		if ( uriBaseId!=null ) {
-			ArtifactLocation baseLocation = originalUriBaseIds.get(uriBaseId);
-			if (baseLocation!=null) {
-				URI baseUri = baseLocation.resolveURI(originalUriBaseIds);
-				result = baseUri.resolve(result);
-			}
-		}
-		return result;
-	}
-	
-	public String getFullFileName(Map<String, ArtifactLocation> originalUriBaseIds) {
-		URI resolvedURI = resolveURI(originalUriBaseIds);
-		if ( resolvedURI.getScheme()==null ) {
-			resolvedURI = resolvedURI.resolve("file:///");
-		}
-		return Paths.get(resolvedURI).toString(); 
-	}
+public final class Location {
+	@JsonProperty private int id = -1;
+	@JsonProperty PhysicalLocation physicalLocation;
+	//@JsonProperty LogicalLocation[] logicalLocations;
+	//@JsonProperty Message message;
+	//@JsonProperty Region[] regions;
+	//@JsonProperty LocationRelationship[] relationships;
 }

@@ -38,10 +38,10 @@ public final class Result {
 	// @JsonProperty private int ruleIndex;
 	// @JsonProperty private ReportingDescriptorReference rule;
 	// @JsonProperty private ReportingDescriptorReference[] taxa;
-	// @JsonProperty private Kind kind; // pass/open/informational/notApplicable/review/fail
+	// @JsonProperty private Result.Kind kind; // pass/open/informational/notApplicable/review/fail
 	@JsonProperty private Level level;
 	@JsonProperty private Message message; // Can contain message, or id pointing to rule.messageStrings
-	@JsonProperty private ArtifactLocation[] locations; // TODO Are fileLocation and location the same?
+	@JsonProperty private Location[] locations; 
 	@JsonProperty private ArtifactLocation analysisTarget;
 	// @JsonProperty private WebRequest webRequest;
 	// @JsonProperty private WebResponse webResponse;
@@ -51,7 +51,7 @@ public final class Result {
 	// @JsonProperty private Graph[] graphs;
 	// @JsonProperty private GraphTraversal[] graphTraversals;
 	// @JsonProperty private Stack[] stacks;
-	@JsonProperty private ArtifactLocation[] relatedLocations; // TODO Are fileLocation and location the same?
+	// @JsonProperty private Location[] relatedLocations;
 	// @JsonProperty private Suppression[] suppressions;
 	// @JsonProperty private String baselineState;
 	// @JsonProperty private float rank;

@@ -40,6 +40,7 @@ import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
 import com.fortify.ssc.parser.sarif.parser.domain.ArtifactLocation;
 import com.fortify.ssc.parser.sarif.parser.domain.Level;
+import com.fortify.ssc.parser.sarif.parser.domain.Location;
 import com.fortify.ssc.parser.sarif.parser.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.parser.domain.Result;
 import com.fortify.ssc.parser.sarif.parser.subentity.RunParser.ResultDependencies;
@@ -182,11 +183,15 @@ public final class ResultsParser extends AbstractParser {
 		}
 		
 		private String getFileName() {
-			ArtifactLocation analysisTarget = result.getAnalysisTarget();
-			// TODO If analysisTarget not defined, get file name from locations[]
-			return analysisTarget==null
-					? null 
-					: analysisTarget.getFullFileName(resultDependencies.getOriginalUriBaseIds());
+			String fileName = "Unknown";
+			Map<String, ArtifactLocation> originalUriBaseIds = resultDependencies.getOriginalUriBaseIds();
+			Location[] locations = result.getLocations();
+			if ( locations!=null && locations.length>0 && locations[0].getPhysicalLocation()!=null ) {
+				fileName = locations[0].getPhysicalLocation().getArtifactLocation().getFullFileName(originalUriBaseIds);
+			} else if ( result.getAnalysisTarget()!=null ) {
+				fileName = result.getAnalysisTarget().getFullFileName(originalUriBaseIds);
+			}
+			return fileName;
 		}
 		
 		private void addCustomAttributes(StaticVulnerabilityBuilder vb) {

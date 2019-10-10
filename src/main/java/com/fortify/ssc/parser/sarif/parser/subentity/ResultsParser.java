@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
@@ -38,11 +36,10 @@ import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
-import com.fortify.ssc.parser.sarif.parser.domain.ArtifactLocation;
-import com.fortify.ssc.parser.sarif.parser.domain.Level;
-import com.fortify.ssc.parser.sarif.parser.domain.Location;
+import com.fortify.ssc.parser.sarif.parser.domain.IResultDependencies;
 import com.fortify.ssc.parser.sarif.parser.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.parser.domain.Result;
+import com.fortify.ssc.parser.sarif.parser.domain.ResultWithDependencies;
 import com.fortify.ssc.parser.sarif.parser.subentity.RunParser.ResultDependencies;
 import com.fortify.ssc.parser.sarif.parser.util.Constants;
 import com.fortify.ssc.parser.sarif.parser.util.Region;
@@ -59,7 +56,7 @@ import com.fortify.ssc.parser.sarif.parser.util.Region;
  */
 public final class ResultsParser extends AbstractParser {
 	private final VulnerabilityHandler vulnerabilityHandler;
-	private final ResultDependencies resultDependencies;
+	private final IResultDependencies resultDependencies;
 	
 	/**
 	 * Constructor for setting {@link VulnerabilityHandler} and
@@ -68,7 +65,7 @@ public final class ResultsParser extends AbstractParser {
 	 * @param vulnerabilityHandler
 	 * @param resultDependencies
 	 */
-	public ResultsParser(final VulnerabilityHandler vulnerabilityHandler, final ResultDependencies resultDependencies) {
+	public ResultsParser(final VulnerabilityHandler vulnerabilityHandler, final IResultDependencies resultDependencies) {
 		this.vulnerabilityHandler = vulnerabilityHandler;
 		this.resultDependencies = resultDependencies;
 	}
@@ -93,111 +90,68 @@ public final class ResultsParser extends AbstractParser {
 		assertStartArray(jsonParser);
 	}
 	
-	private final void produceVulnerabilities(Result result) {
-		new VulnerabilityProducer(vulnerabilityHandler, resultDependencies, result).produceVulnerability();
+	private final void produceVulnerabilities(Result orgResult) {
+		ResultWithDependencies result = new ResultWithDependencies(orgResult, resultDependencies); 
+		Priority priority = result.getLevelOrDefault().getFortifyPriority();
+		if ( priority != null ) {
+			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(getVulnerabilityUuid());
+			vb.setAccuracy(5.0f);
+			vb.setAnalyzer("External");
+			vb.setCategory(getCategory(result));
+			vb.setClassName(null);
+			vb.setConfidence(2.5f);
+    		vb.setEngineType(Constants.ENGINE_TYPE);
+    		vb.setFileName(result.getFullFileName("Unknown"));
+    		//vb.setFunctionName(functionName);
+    		vb.setImpact(2.5f);
+    		//vb.setKingdom(kingdom);
+    		vb.setLikelihood(2.5f);
+    		//vb.setLineNumber(lineNumber);
+    		//vb.setMappedCategory(mappedCategory);
+    		//vb.setMinVirtualCallConfidence(minVirtualCallConfidence);
+    		//vb.setPackageName(packageName);
+    		vb.setPriority(priority);
+    		vb.setProbability(2.5f);
+    		//vb.setRemediationConstant(remediationConstant);
+    		//vb.setRuleGuid(ruleGuid);
+    		//vb.setSink(sink);
+    		//vb.setSinkContext(sinkContext);
+    		//vb.setSource(source);
+    		//vb.setSourceContext(sourceContext);
+    		//vb.setSourceFile(sourceFile);
+    		//vb.setSourceLine(sourceLine);
+    		vb.setSubCategory(getSubCategory(result));
+    		//vb.setTaintFlag(taintFlag);
+    		//vb.setVulnerabilityAbstract(vulnerabilityAbstract);
+    		//vb.setVulnerabilityRecommendation(vulnerabilityRecommendation);
+    		addCustomAttributes(vb);
+    		
+    		vb.completeVulnerability();
+		}
 	}
 	
-	private static final class VulnerabilityProducer {
-		private final Logger LOG = LoggerFactory.getLogger(VulnerabilityProducer.class);
-		private final VulnerabilityHandler vulnerabilityHandler;
-		private final ResultDependencies resultDependencies;
-		private final Result result;
-		public VulnerabilityProducer(VulnerabilityHandler vulnerabilityHandler, ResultDependencies resultDependencies, Result result) {
-			this.vulnerabilityHandler = vulnerabilityHandler;
-			this.resultDependencies = resultDependencies;
-			this.result = result;
-		}
-		
-		public final void produceVulnerability() {
-			ReportingDescriptor rule = getRule();
-			Priority priority = getPriority(rule);
-			if ( priority != null ) {
-				StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(getVulnerabilityUuid());
-				vb.setAccuracy(5.0f);
-				vb.setAnalyzer("External");
-				vb.setCategory(getCategory(rule));
-				vb.setClassName(null);
-				vb.setConfidence(2.5f);
-	    		vb.setEngineType(Constants.ENGINE_TYPE);
-	    		vb.setFileName(getFileName());
-	    		//vb.setFunctionName(functionName);
-	    		vb.setImpact(2.5f);
-	    		//vb.setKingdom(kingdom);
-	    		vb.setLikelihood(2.5f);
-	    		//vb.setLineNumber(lineNumber);
-	    		//vb.setMappedCategory(mappedCategory);
-	    		//vb.setMinVirtualCallConfidence(minVirtualCallConfidence);
-	    		//vb.setPackageName(packageName);
-	    		vb.setPriority(priority);
-	    		vb.setProbability(2.5f);
-	    		//vb.setRemediationConstant(remediationConstant);
-	    		//vb.setRuleGuid(ruleGuid);
-	    		//vb.setSink(sink);
-	    		//vb.setSinkContext(sinkContext);
-	    		//vb.setSource(source);
-	    		//vb.setSourceContext(sourceContext);
-	    		//vb.setSourceFile(sourceFile);
-	    		//vb.setSourceLine(sourceLine);
-	    		vb.setSubCategory(getSubCategory(rule));
-	    		//vb.setTaintFlag(taintFlag);
-	    		//vb.setVulnerabilityAbstract(vulnerabilityAbstract);
-	    		//vb.setVulnerabilityRecommendation(vulnerabilityRecommendation);
-	    		addCustomAttributes(vb);
-	    		
-	    		vb.completeVulnerability();
-			}
-		}
+	private String getVulnerabilityUuid() {
+		// TODO Generate UUID based on correlationGuid, fingerprints or partialFingerPrints properties
+		return UUID.randomUUID().toString();
+	}
 	
-		private ReportingDescriptor getRule() {
-			String ruleId = result.getRuleId();
-			return ruleId==null ? null : resultDependencies.getRules().get(ruleId);
-		}
+	private String getCategory(ResultWithDependencies result) {
+		ReportingDescriptor rule = result.getRule();
+		return rule==null || rule.getName()==null 
+				? Constants.ENGINE_TYPE 
+				: StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
+	}
 	
-		private Priority getPriority(ReportingDescriptor rule) {
-			Priority priority = null;
-			Level level = result.getLevel();
-			if ( level == null && rule!=null ) {
-				level = rule.getDefaultConfiguration().getLevel();
-			}
-			if ( level == null ) {
-				LOG.error("Level for vulnerability cannot be determined; ignoring vulnerability");
-			} else {
-				priority = level.getFortifyPriority();
-			}
-			return priority;
-		}
+	private String getSubCategory(ResultWithDependencies result) {
+		ReportingDescriptor rule = result.getRule();
+		return rule==null || rule.getName()==null 
+				? result.getRuleId() 
+				: null;
+	}
+
+	private void addCustomAttributes(StaticVulnerabilityBuilder vb) {
+		// TODO Add custom attributes
 		
-		private String getVulnerabilityUuid() {
-			// TODO Generate UUID based on correlationGuid, fingerprints or partialFingerPrints properties
-			return UUID.randomUUID().toString();
-		}
-		
-		private String getCategory(ReportingDescriptor rule) {
-			return rule==null || rule.getName()==null 
-					? Constants.ENGINE_TYPE 
-					: StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
-		}
-		
-		private String getSubCategory(ReportingDescriptor rule) {
-			return rule==null || rule.getName()==null ? result.getRuleId() : null;
-		}
-		
-		private String getFileName() {
-			String fileName = "Unknown";
-			Map<String, ArtifactLocation> originalUriBaseIds = resultDependencies.getOriginalUriBaseIds();
-			Location[] locations = result.getLocations();
-			if ( locations!=null && locations.length>0 && locations[0].getPhysicalLocation()!=null ) {
-				fileName = locations[0].getPhysicalLocation().getArtifactLocation().getFullFileName(originalUriBaseIds);
-			} else if ( result.getAnalysisTarget()!=null ) {
-				fileName = result.getAnalysisTarget().getFullFileName(originalUriBaseIds);
-			}
-			return fileName;
-		}
-		
-		private void addCustomAttributes(StaticVulnerabilityBuilder vb) {
-			// TODO Add custom attributes
-			
-		}
 	}
 	
 	/**

@@ -38,7 +38,7 @@ public final class Result {
 	// @JsonProperty private int ruleIndex;
 	// @JsonProperty private ReportingDescriptorReference rule;
 	// @JsonProperty private ReportingDescriptorReference[] taxa;
-	// @JsonProperty private Result.Kind kind; // pass/open/informational/notApplicable/review/fail
+	@JsonProperty private Result.Kind kind;
 	@JsonProperty private Level level;
 	@JsonProperty private Message message; // Can contain message, or id pointing to rule.messageStrings
 	@JsonProperty private Location[] locations; 
@@ -60,4 +60,8 @@ public final class Result {
 	// @JsonProperty private URI hostedViewerUri;
 	// @JsonProperty private ResultProvenance provenance;
 	// @JsonProperty private Fix[] fixes;
+	
+	public static enum Kind {
+		pass, open, informational, notApplicable, review, fail
+	}
 }

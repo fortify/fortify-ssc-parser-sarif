@@ -24,28 +24,15 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.parser.domain;
 
-import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
+import java.util.Map;
 
 /**
- * Define the possible values for SARIF level properties, together
- * with the Fortify {@link Priority} that each SARIF level should
- * be mapped to.
- * 
+ * This interface allows for resolving various domain objects that
+ * are relevant for interpreting {@link Result} data.
  * @author Ruud Senden
  *
  */
-public enum Level {
-	warning(Priority.High), 
-	error(Priority.Critical), 
-	note(Priority.Low), 
-	none(null);
-	
-	private final Priority fortifyPriority;
-	Level(Priority fortifyPriority) {
-		this.fortifyPriority = fortifyPriority;
-	}
-	
-	public Priority getFortifyPriority() {
-		return fortifyPriority;
-	}
+public interface IResultDependencies {
+	public Map<String, ArtifactLocation> getOriginalUriBaseIds();
+	public Map<String, ReportingDescriptor> getRules();
 }

@@ -37,6 +37,7 @@ import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
 import com.fortify.ssc.parser.sarif.parser.domain.ArtifactLocation;
+import com.fortify.ssc.parser.sarif.parser.domain.IResultDependencies;
 import com.fortify.ssc.parser.sarif.parser.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.parser.util.Region;
 
@@ -123,7 +124,7 @@ public final class RunParser extends AbstractParser {
     	return null;
     }
     
-    public final class ResultDependencies {
+    public final class ResultDependencies implements IResultDependencies {
     	private final ArrayToObjectMapHandler<String, ReportingDescriptor> rulesHandler;
     	private final AddPropertyValueToMapHandler<ArtifactLocation> originalUriBaseIdHandler = 
     			new AddPropertyValueToMapHandler<>(ArtifactLocation.class);
@@ -145,10 +146,18 @@ public final class RunParser extends AbstractParser {
         	addPropertyHandlers(pathToHandlerMap, this);
         }
 
+		/* (non-Javadoc)
+		 * @see com.fortify.ssc.parser.sarif.parser.subentity.IResultDependencies#getOriginalUriBaseIds()
+		 */
+		@Override
 		public Map<String, ArtifactLocation> getOriginalUriBaseIds() {
 			return Collections.unmodifiableMap(originalUriBaseIdHandler.getMap());
 		}
 		
+		/* (non-Javadoc)
+		 * @see com.fortify.ssc.parser.sarif.parser.subentity.IResultDependencies#getRules()
+		 */
+		@Override
 		public Map<String, ReportingDescriptor> getRules() {
 			return Collections.unmodifiableMap(rulesHandler.getMap());
 		}

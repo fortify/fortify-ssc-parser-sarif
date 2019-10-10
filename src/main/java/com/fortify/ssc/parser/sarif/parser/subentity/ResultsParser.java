@@ -38,7 +38,7 @@ import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
-import com.fortify.ssc.parser.sarif.parser.domain.FileLocation;
+import com.fortify.ssc.parser.sarif.parser.domain.ArtifactLocation;
 import com.fortify.ssc.parser.sarif.parser.domain.Level;
 import com.fortify.ssc.parser.sarif.parser.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.parser.domain.Result;
@@ -182,7 +182,7 @@ public final class ResultsParser extends AbstractParser {
 		}
 		
 		private String getFileName() {
-			FileLocation analysisTarget = result.getAnalysisTarget();
+			ArtifactLocation analysisTarget = result.getAnalysisTarget();
 			// TODO If analysisTarget not defined, get file name from locations[]
 			return analysisTarget==null
 					? null 

@@ -41,8 +41,8 @@ public final class Result {
 	// @JsonProperty private Kind kind; // pass/open/informational/notApplicable/review/fail
 	@JsonProperty private Level level;
 	@JsonProperty private Message message; // Can contain message, or id pointing to rule.messageStrings
-	@JsonProperty private FileLocation[] locations; // TODO Are fileLocation and location the same?
-	@JsonProperty private FileLocation analysisTarget;
+	@JsonProperty private ArtifactLocation[] locations; // TODO Are fileLocation and location the same?
+	@JsonProperty private ArtifactLocation analysisTarget;
 	// @JsonProperty private WebRequest webRequest;
 	// @JsonProperty private WebResponse webResponse;
 	@JsonProperty private Map<String,String> fingerprints;
@@ -51,7 +51,7 @@ public final class Result {
 	// @JsonProperty private Graph[] graphs;
 	// @JsonProperty private GraphTraversal[] graphTraversals;
 	// @JsonProperty private Stack[] stacks;
-	@JsonProperty private FileLocation[] relatedLocations; // TODO Are fileLocation and location the same?
+	@JsonProperty private ArtifactLocation[] relatedLocations; // TODO Are fileLocation and location the same?
 	// @JsonProperty private Suppression[] suppressions;
 	// @JsonProperty private String baselineState;
 	// @JsonProperty private float rank;

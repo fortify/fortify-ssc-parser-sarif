@@ -36,7 +36,7 @@ import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.parser.AbstractParser;
-import com.fortify.ssc.parser.sarif.parser.domain.FileLocation;
+import com.fortify.ssc.parser.sarif.parser.domain.ArtifactLocation;
 import com.fortify.ssc.parser.sarif.parser.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.parser.util.Region;
 
@@ -125,8 +125,8 @@ public final class RunParser extends AbstractParser {
     
     public final class ResultDependencies {
     	private final ArrayToObjectMapHandler<String, ReportingDescriptor> rulesHandler;
-    	private final AddPropertyValueToMapHandler<FileLocation> originalUriBaseIdHandler = 
-    			new AddPropertyValueToMapHandler<>(FileLocation.class);
+    	private final AddPropertyValueToMapHandler<ArtifactLocation> originalUriBaseIdHandler = 
+    			new AddPropertyValueToMapHandler<>(ArtifactLocation.class);
     	
     	public ResultDependencies(final DB db) {
     		rulesHandler = new ArrayToObjectMapHandler<String, ReportingDescriptor>(
@@ -145,7 +145,7 @@ public final class RunParser extends AbstractParser {
         	addPropertyHandlers(pathToHandlerMap, this);
         }
 
-		public Map<String, FileLocation> getOriginalUriBaseIds() {
+		public Map<String, ArtifactLocation> getOriginalUriBaseIds() {
 			return Collections.unmodifiableMap(originalUriBaseIdHandler.getMap());
 		}
 		

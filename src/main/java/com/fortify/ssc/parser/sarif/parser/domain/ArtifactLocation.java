@@ -32,11 +32,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public final class FileLocation {
+public final class ArtifactLocation {
 	@JsonProperty private URI uri;
 	@JsonProperty private String uriBaseId;
+	// @JsonProperty private int index;
+	// @JsonProperty private Message description;
 	
-	public URI resolveURI(Map<String, FileLocation> originalUriBaseIds) {
+	public URI resolveURI(Map<String, ArtifactLocation> originalUriBaseIds) {
 		URI result = this.uri;
 		if ( uriBaseId!=null ) {
 			URI baseUri = originalUriBaseIds.get(uriBaseId).resolveURI(originalUriBaseIds);
@@ -45,7 +47,7 @@ public final class FileLocation {
 		return result;
 	}
 	
-	public String getFullFileName(Map<String, FileLocation> originalUriBaseIds) {
+	public String getFullFileName(Map<String, ArtifactLocation> originalUriBaseIds) {
 		return resolveURI(originalUriBaseIds).getPath(); 
 	}
 }

@@ -24,15 +24,40 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.parser.domain;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 
 @Getter
 public final class Result {
-	@JsonProperty private FileLocation analysisTarget;
+	@JsonProperty private String guid;
+	@JsonProperty private String correlationGuid;
 	@JsonProperty private String ruleId;
-	@JsonProperty private String ruleMessageId;
+	// @JsonProperty private int ruleIndex;
+	// @JsonProperty private ReportingDescriptorReference rule;
+	// @JsonProperty private ReportingDescriptorReference[] taxa;
+	// @JsonProperty private Kind kind; // pass/open/informational/notApplicable/review/fail
 	@JsonProperty private Level level;
-	//@JsonProperty private String locations_physicalLocation_region_startLine;
+	@JsonProperty private Message message; // Can contain message, or id pointing to rule.messageStrings
+	@JsonProperty private FileLocation[] locations; // TODO Are fileLocation and location the same?
+	@JsonProperty private FileLocation analysisTarget;
+	// @JsonProperty private WebRequest webRequest;
+	// @JsonProperty private WebResponse webResponse;
+	@JsonProperty private Map<String,String> fingerprints;
+	@JsonProperty private Map<String,String> partialFingerprints;
+	// @JsonProperty private CodeFlow codeFlow;
+	// @JsonProperty private Graph[] graphs;
+	// @JsonProperty private GraphTraversal[] graphTraversals;
+	// @JsonProperty private Stack[] stacks;
+	@JsonProperty private FileLocation[] relatedLocations; // TODO Are fileLocation and location the same?
+	// @JsonProperty private Suppression[] suppressions;
+	// @JsonProperty private String baselineState;
+	// @JsonProperty private float rank;
+	// @JsonProperty private Attachment[] attachments;
+	// @JsonProperty private URI[] workItemUris;
+	// @JsonProperty private URI hostedViewerUri;
+	// @JsonProperty private ResultProvenance provenance;
+	// @JsonProperty private Fix[] fixes;
 }

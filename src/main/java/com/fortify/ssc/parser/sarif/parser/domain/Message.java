@@ -37,5 +37,5 @@ public final class Message implements Serializable {
 	@JsonProperty private String id;
 	@JsonProperty private String text;
 	// @JsonProperty private String markdown;
-	@JsonProperty private String arguments;
+	@JsonProperty private String[] arguments;
 }

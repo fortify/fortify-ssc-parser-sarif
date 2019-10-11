@@ -22,18 +22,27 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.domain;
+package com.fortify.util.json.handler;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.Function;
 
-import lombok.Getter;
-
-@Getter
-public final class LogicalLocation {
-	// @JsonProperty private int index;
-	@JsonProperty private String name;
-	@JsonProperty private String fullyQualifiedName;
-	@JsonProperty private String decoratedName;
-	@JsonProperty private String kind;
-	// @JsonProperty private int parentIndex;
+/**
+ * This specialized implementation of {@link JsonArrayToMapHandler} uses
+ * an identity lambda expression as the value function, essentially
+ * storing mapped array entries as map values.
+ * 
+ * @author Ruud Senden
+ *
+ * @param <K>
+ * @param <V>
+ */
+public class JsonArrayToObjectMapHandler<K,V> extends JsonArrayToMapHandler<V,K,V> {
+	public JsonArrayToObjectMapHandler(Class<V> clazz, Function<V, K> keyFunction) {
+		this(new LinkedHashMap<K,V>(), clazz, keyFunction);
+	}
+	public JsonArrayToObjectMapHandler(Map<K, V> map, Class<V> clazz, Function<V, K> keyFunction) {
+		super(map, clazz, keyFunction, v->v);
+	}
 }

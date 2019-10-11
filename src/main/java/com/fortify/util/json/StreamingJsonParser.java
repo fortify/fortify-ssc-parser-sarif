@@ -22,18 +22,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.domain;
+package com.fortify.util.json;
 
-import java.io.Serializable;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.Getter;
-
-@Getter
-public final class MultiformatMessageString implements Serializable {
-	private static final long serialVersionUID = 1L;
-	
-	@JsonProperty private String text;
-	// @JsonProperty private String markdown;
-}
+/**
+ * Concrete implementation for {@link AbstractStreamingJsonParser}; this just
+ * configures the concrete type.
+ *  
+ * @author Ruud Senden
+ *
+ */
+public class StreamingJsonParser extends AbstractStreamingJsonParser<StreamingJsonParser> {}

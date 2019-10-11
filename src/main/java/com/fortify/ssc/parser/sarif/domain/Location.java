@@ -22,17 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.domain;
+package com.fortify.ssc.parser.sarif.domain;
 
-import java.util.Map;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * This interface allows for resolving various domain objects that
- * are relevant for interpreting {@link Result} data.
- * @author Ruud Senden
- *
- */
-public interface IResultDependencies {
-	public Map<String, ArtifactLocation> getOriginalUriBaseIds();
-	public Map<String, ReportingDescriptor> getRules();
+import lombok.Getter;
+
+@Getter
+public final class Location {
+	@JsonProperty private int id = -1;
+	@JsonProperty PhysicalLocation physicalLocation;
+	//@JsonProperty LogicalLocation[] logicalLocations;
+	//@JsonProperty Message message;
+	//@JsonProperty Region[] regions;
+	//@JsonProperty LocationRelationship[] relationships;
 }

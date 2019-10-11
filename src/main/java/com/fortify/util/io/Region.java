@@ -22,35 +22,29 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.domain;
-
-import java.io.Serializable;
-import java.net.URI;
-import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fortify.ssc.parser.sarif.parser.util.CustomSerializerElsa;
-
-import lombok.Getter;
+package com.fortify.util.io;
 
 /**
- * This data class holds all relevant rule-related information.
+ * This class represents a region with a given start and end position.
+ * This can be used with {@link RegionInputStream} to create an input
+ * stream that returns only the data between the given start and end 
+ * positions.
  * 
  * @author Ruud Senden
+ *
  */
-@Getter
-public final class ReportingDescriptor implements Serializable {
-	public static final CustomSerializerElsa<ReportingDescriptor> SERIALIZER = new CustomSerializerElsa<>(ReportingDescriptor.class);
-	private static final long serialVersionUID = 1L;
-	
-	@JsonProperty private String id;
-	@JsonProperty private String guid;
-	@JsonProperty private ReportingConfiguration defaultConfiguration = new ReportingConfiguration();
-	@JsonProperty private String name;
-	@JsonProperty private Map<String,MultiformatMessageString> messageStrings;
-	@JsonProperty private Message shortDescription;
-	@JsonProperty private Message fullDescription;
-	@JsonProperty private URI helpUri;
-	@JsonProperty private MultiformatMessageString help;
-	
+public final class Region {
+	private final long start;
+	private final long end;
+	public Region(long start, long end) {
+		super();
+		this.start = start;
+		this.end = end;
+	}
+	public long getStart() {
+		return start;
+	}
+	public long getEnd() {
+		return end;
+	}
 }

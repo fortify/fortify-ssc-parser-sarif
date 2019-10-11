@@ -1,6 +1,6 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC, a Micro Focus company
- * 
+ * (c) Copyright 2017 EntIT Software LLC
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
  * "Software"), to deal in the Software without restriction, including without 
@@ -22,11 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-/**
- * This package contains SARIF domain classes. These classes are mostly named
- * after the objects described in the SARIF specification. These classes focus
- * on data that is actually used by our parser implementation (to optimize size),
- * so may not define all object properties as described in the specification.
- */
-package com.fortify.ssc.parser.sarif.parser.domain;
+package com.fortify.ssc.parser.sarif.domain;
 
+import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class MultiformatMessageString implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
+	@JsonProperty private String text;
+	// @JsonProperty private String markdown;
+}

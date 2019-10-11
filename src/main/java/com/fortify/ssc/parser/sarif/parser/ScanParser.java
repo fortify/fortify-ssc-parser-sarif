@@ -1,13 +1,14 @@
 package com.fortify.ssc.parser.sarif.parser;
 
 import java.io.IOException;
-import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fortify.plugin.api.ScanBuilder;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.ssc.parser.sarif.parser.util.Constants;
+import com.fortify.ssc.parser.sarif.parser.util.ScanDataStreamingJsonParser;
+import com.fortify.util.jackson.DateConverter;
+import com.fortify.util.json.StreamingJsonParser;
 
 /**
  * This class parses the SARIF JSON to set the various {@link ScanBuilder}
@@ -19,10 +20,10 @@ import com.fortify.ssc.parser.sarif.parser.util.Constants;
  * 
  * @author Ruud Senden
  */
-public class ScanParser extends AbstractParser {
+public class ScanParser extends StreamingJsonParser {
 	private final ScanData scanData;
     private final ScanBuilder scanBuilder;
-    @JsonProperty private String version;
+    private String version;
     private int numFiles = 0;
     
 	public ScanParser(final ScanData scanData, ScanBuilder scanBuilder) {
@@ -31,31 +32,20 @@ public class ScanParser extends AbstractParser {
 	}
 	
 	public final void parse() throws ScanParsingException, IOException {
-		super.parse(scanData);
-	}
-	
-	@Override
-	protected void addHandlers(Map<String, Handler> pathToHandlerMap) {
-		pathToHandlerMap.put("/runs/invocations/endTimeUtc", 
-				jp -> scanBuilder.setScanDate(DATE_CONVERTER.convert(jp.getValueAsString())));
-		pathToHandlerMap.put("/runs/invocations/machine", 
-				jp -> scanBuilder.setHostName(jp.getValueAsString()));
-		pathToHandlerMap.put("/runs/automationId/guid", 
-				jp -> scanBuilder.setBuildId(jp.getValueAsString()));
-		pathToHandlerMap.put("/runs/automationId/id", 
-				jp -> scanBuilder.setScanLabel(jp.getValueAsString()));
-		pathToHandlerMap.put("/runs/artifacts", 
-				jp -> numFiles+=countArrayEntries(jp));
-	}
-	
-	@Override
-	protected <T> T finish() throws ScanParsingException {
+		new ScanDataStreamingJsonParser()
+			.handler("/version", jp -> version=jp.getValueAsString())
+			.handler("/runs/invocations/endTimeUtc", jp -> scanBuilder.setScanDate(DateConverter.getInstance().convert(jp.getValueAsString())))
+			.handler("/runs/invocations/machine", jp -> scanBuilder.setHostName(jp.getValueAsString()))
+			.handler("/runs/automationId/guid", jp -> scanBuilder.setBuildId(jp.getValueAsString()))
+			.handler("/runs/automationId/id", jp -> scanBuilder.setScanLabel(jp.getValueAsString()))
+			.handler("/runs/artifacts", jp -> numFiles+=countArrayEntries(jp))
+			.parse(scanData);
+		
 		if ( !"2.1.0".equals(version) ) {
 			throw new ScanParsingException(Constants.MSG_UNSUPPORTED_INPUT_FILE_VERSION+": "+version);
 		}
 		scanBuilder.setEngineVersion(version);
 		scanBuilder.setNumFiles(numFiles);
 		scanBuilder.completeScan();
-		return null;
 	}
 }

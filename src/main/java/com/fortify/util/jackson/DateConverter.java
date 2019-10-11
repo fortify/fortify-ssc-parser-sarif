@@ -1,4 +1,4 @@
-package com.fortify.ssc.parser.sarif.parser.util;
+package com.fortify.util.jackson;
 
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -29,14 +29,23 @@ import java.util.Date;
 
 /**
  * This {@link Converter} implementation can convert JSON date strings
- * into java {@link Date} objects.
+ * into java {@link Date} objects. This class cannot be instantiated
+ * externally; a singleton instance is available through the {@link #INSTANCE}
+ * constant.
  *  
  * @author Ruud Senden
  *
  */
 public class DateConverter extends StdConverter<String, Date> {
+	private static final DateConverter INSTANCE = new DateConverter();
     private static final DateTimeFormatter[] DATE_TIME_FORMATTERS = {DateTimeFormatter.ISO_DATE_TIME};
 
+    private DateConverter() {}
+    
+    public static final DateConverter getInstance() {
+    	return INSTANCE;
+    }
+    
     @Override
     public Date convert(final String dateStr) {
         for (final DateTimeFormatter formatter : DATE_TIME_FORMATTERS) {

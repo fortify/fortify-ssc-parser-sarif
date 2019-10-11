@@ -22,30 +22,40 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.util;
+package com.fortify.util.json.handler;
 
 import java.io.IOException;
-import java.io.InputStream;
 
-import org.apache.commons.io.input.BoundedInputStream;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fortify.plugin.api.ScanParsingException;
+import com.fortify.util.json.JsonHandler;
+import com.fortify.util.json.AbstractStreamingJsonParser;
 
 /**
- * This {@link InputStream} wrapper returns only the data between the start 
- * and end positions provided in a given {@link Region}. If no {@link Region} 
- * is provided, this implementation will return the full contents of the original
- * {@link InputStream}.
+ * This {@link JsonHandler} implementation iterates over the
+ * array that the given {@link JsonParser} is currently
+ * pointing at, and calls the {@link JsonHandler#handle(JsonParser)}
+ * method of the configured array entry {@link JsonHandler}. The
+ * configured {@link JsonHandler} is required to move the pointer to 
+ * the end of the array entry.
  * 
  * @author Ruud Senden
  *
  */
-public class RegionInputStream extends BoundedInputStream {
-
-	public RegionInputStream(InputStream in, Region region) throws IOException {
-		super(in, region==null?-1:region.getEnd());
-		if ( region!=null ) {
-			skip(region.getStart());
-		}
-		setPropagateClose(true);
+public class JsonArrayHandler implements JsonHandler {
+	private final JsonHandler arrayEntryHandler;
+	
+	public JsonArrayHandler(JsonHandler arrayEntryHandler) {
+		this.arrayEntryHandler = arrayEntryHandler;
 	}
 
+	@Override
+	public final void handle(JsonParser jsonParser) throws ScanParsingException, IOException {
+		AbstractStreamingJsonParser.assertStartArray(jsonParser);
+		while (jsonParser.nextToken()!=JsonToken.END_ARRAY) {
+			arrayEntryHandler.handle(jsonParser);
+		}
+		
+	}
 }

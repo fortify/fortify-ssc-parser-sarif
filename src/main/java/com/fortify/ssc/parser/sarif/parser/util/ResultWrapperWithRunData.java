@@ -22,36 +22,43 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.domain;
+package com.fortify.ssc.parser.sarif.parser.util;
 
 import java.text.MessageFormat;
 import java.util.Map;
+import java.util.UUID;
 
-import com.fortify.ssc.parser.sarif.parser.domain.Result.Kind;
+import org.apache.commons.lang3.StringUtils;
 
-import lombok.experimental.Delegate;
+import com.fortify.ssc.parser.sarif.domain.ArtifactLocation;
+import com.fortify.ssc.parser.sarif.domain.Level;
+import com.fortify.ssc.parser.sarif.domain.Location;
+import com.fortify.ssc.parser.sarif.domain.Message;
+import com.fortify.ssc.parser.sarif.domain.MultiformatMessageString;
+import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
+import com.fortify.ssc.parser.sarif.domain.Result;
+import com.fortify.ssc.parser.sarif.domain.Result.Kind;
 
 /**
- * This {@link Result} wrapper class provides access to the original
+ * This {@link Result} wrapper class provides access to the configured
  * {@link Result} methods, but adds various utility methods that 
- * utilize information provided by the {@link IResultDependencies}
+ * utilize information provided by the configured {@link RunData}
  * object.
  * 
  * @author Ruud Senden
  *
  */
-public class ResultWithDependencies {
-	@Delegate private final Result result;
-	private final IResultDependencies dependencies;
+public class ResultWrapperWithRunData extends AbstractResultWrapper {
+	private final RunData runData;
 	private volatile ReportingDescriptor rule;
 	
-	public ResultWithDependencies(Result result, IResultDependencies dependencies) {
-		this.result = result;
-		this.dependencies = dependencies;
+	public ResultWrapperWithRunData(Result result, RunData runData) {
+		super(result);
+		this.runData = runData;
 	}
 	
 	public String getFullFileName(String defaultValue) {
-		final Map<String,ArtifactLocation> originalUriBaseIds = dependencies.getOriginalUriBaseIds();
+		final Map<String,ArtifactLocation> originalUriBaseIds = runData.getOriginalUriBaseIds();
 		Location[] locations = getLocations();
 		if ( locations!=null && locations.length>0 && locations[0].getPhysicalLocation()!=null ) {
 			defaultValue = locations[0].getPhysicalLocation().getArtifactLocation().getFullFileName(originalUriBaseIds);
@@ -64,7 +71,7 @@ public class ResultWithDependencies {
 	public ReportingDescriptor getRule() {
 		if ( this.rule == null ) {
 			String ruleId = getRuleId();
-			this.rule = ruleId==null ? null : dependencies.getRules().get(ruleId);
+			this.rule = ruleId==null ? null : runData.getRules().get(ruleId);
 		}
 		return this.rule;
 	}
@@ -98,6 +105,25 @@ public class ResultWithDependencies {
 		} else {
 			return null;
 		}
+	}
+	
+	public String getVulnerabilityUuid() {
+		// TODO Generate UUID based on correlationGuid, fingerprints or partialFingerPrints properties
+		return UUID.randomUUID().toString();
+	}
+	
+	public String getCategory() {
+		ReportingDescriptor rule = getRule();
+		return rule==null || rule.getName()==null 
+				? Constants.ENGINE_TYPE 
+				: StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
+	}
+	
+	public String getSubCategory() {
+		ReportingDescriptor rule = getRule();
+		return rule==null || rule.getName()==null 
+				? result.getRuleId() 
+				: null;
 	}
 	
 	

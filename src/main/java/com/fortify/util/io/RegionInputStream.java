@@ -22,16 +22,30 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.domain;
+package com.fortify.util.io;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.IOException;
+import java.io.InputStream;
 
-import lombok.Getter;
+import org.apache.commons.io.input.BoundedInputStream;
 
-@Getter
-public final class PhysicalLocation {
-	@JsonProperty private ArtifactLocation artifactLocation;
-	// @JsonProperty private Region region;
-	// @JsonProperty private Region contextRegion;
-	// @JsonProperty private Address address;
+/**
+ * This {@link InputStream} wrapper returns only the data between the start 
+ * and end positions provided in a given {@link Region}. If no {@link Region} 
+ * is provided, this implementation will return the full contents of the original
+ * {@link InputStream}.
+ * 
+ * @author Ruud Senden
+ *
+ */
+public class RegionInputStream extends BoundedInputStream {
+
+	public RegionInputStream(InputStream in, Region region, boolean propagateClose) throws IOException {
+		super(in, region==null?-1:region.getEnd());
+		if ( region!=null ) {
+			skip(region.getStart());
+		}
+		setPropagateClose(propagateClose);
+	}
+
 }

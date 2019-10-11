@@ -22,29 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.util;
+package com.fortify.ssc.parser.sarif.domain;
 
-/**
- * This class represents a region with a given start and end position.
- * This can be used with {@link RegionInputStream} to create an input
- * stream that returns only the data between the given start and end 
- * positions.
- * 
- * @author Ruud Senden
- *
- */
-public final class Region {
-	private final long start;
-	private final long end;
-	public Region(long start, long end) {
-		super();
-		this.start = start;
-		this.end = end;
-	}
-	public long getStart() {
-		return start;
-	}
-	public long getEnd() {
-		return end;
-	}
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+
+@Getter
+public final class LogicalLocation {
+	// @JsonProperty private int index;
+	@JsonProperty private String name;
+	@JsonProperty private String fullyQualifiedName;
+	@JsonProperty private String decoratedName;
+	@JsonProperty private String kind;
+	// @JsonProperty private int parentIndex;
 }

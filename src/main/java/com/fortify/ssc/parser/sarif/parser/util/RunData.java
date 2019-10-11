@@ -53,6 +53,7 @@ public final class RunData {
 	private final JsonArrayToObjectMapHandler<String, ReportingDescriptor> rulesHandler;
 	private final AddJsonPropertyValueToMapJsonHandler<ArtifactLocation> originalUriBaseIdHandler;
 	private Region resultsRegion = null;
+	private String toolName;
 	
 	/**
 	 * Private constructor; instances can be created through the {@link #parseRunData(DB, JsonParser)}
@@ -82,6 +83,7 @@ public final class RunData {
 		new StreamingJsonParser()
 			.handler("/originalUriBaseIds/*", runData.originalUriBaseIdHandler)
 			.handler("/tool/driver/rules", runData.rulesHandler)
+			.handler("/tool/driver/name", jp -> runData.toolName = jp.getValueAsString())
 			.handler("/results", jp -> runData.resultsRegion = getObjectOrArrayRegion(jp))
 			.parseObjectProperties(jsonParser, "/");
 		return runData;
@@ -97,5 +99,9 @@ public final class RunData {
 	
 	public Region getResultsRegion() {
 		return resultsRegion;
+	}
+	
+	public String getToolName() {
+		return toolName;
 	}
 }

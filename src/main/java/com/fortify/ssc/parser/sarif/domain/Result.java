@@ -24,6 +24,7 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.domain;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -45,8 +46,8 @@ public final class Result {
 	@JsonProperty private ArtifactLocation analysisTarget;
 	// @JsonProperty private WebRequest webRequest;
 	// @JsonProperty private WebResponse webResponse;
-	@JsonProperty private Map<String,String> fingerprints;
-	@JsonProperty private Map<String,String> partialFingerprints;
+	private final Map<String,String> fingerprints = new LinkedHashMap<>();
+	private final Map<String,String> partialFingerprints = new LinkedHashMap<>();
 	// @JsonProperty private CodeFlow codeFlow;
 	// @JsonProperty private Graph[] graphs;
 	// @JsonProperty private GraphTraversal[] graphTraversals;
@@ -60,6 +61,16 @@ public final class Result {
 	// @JsonProperty private URI hostedViewerUri;
 	// @JsonProperty private ResultProvenance provenance;
 	// @JsonProperty private Fix[] fixes;
+	
+	@JsonProperty
+	public void setFingerprints(Map<String, String> fingerprints) {
+		this.fingerprints.putAll(fingerprints);
+	}
+	
+	@JsonProperty 
+	public void setPartialFingerprints(Map<String, String> partialFingerprints) {
+		this.partialFingerprints.putAll(partialFingerprints);
+	}
 	
 	public static enum Kind {
 		pass, open, informational, notApplicable, review, fail

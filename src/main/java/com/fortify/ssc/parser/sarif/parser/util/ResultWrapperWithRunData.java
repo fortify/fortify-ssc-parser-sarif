@@ -112,6 +112,12 @@ public class ResultWrapperWithRunData {
 		}
 	}
 	
+	// TODO In order to avoid duplicate id's (also see getCalculatedIdString())
+	//      we could potentially store the list of already processed uuidStrings
+	//      in some global (scan-specific) variable, and either ignore the result
+	//      if a duplicate exists, or append some sequence number (although this
+	//      could result in sequence numbers changing in-between scans of the same
+	//      application if JSON order is different).
 	public String getVulnerabilityUuid() {
 		String uuidString = null;
 		if ( StringUtils.isNotBlank(getGuid()) ) {
@@ -130,9 +136,9 @@ public class ResultWrapperWithRunData {
 	//      rule id and partial finger prints if available. To increase chances
 	//      of generating a unique id, we also include the result message.
 	//      However, this could potentially still result in duplicate id strings. 
-	//      Possibly we could add information from other properties like region or 
-	//      logical location, but these may either not be available, or still result 
-	//      in duplicate uuid strings.
+	//      Possibly we could add information from other properties like region, 
+	//      logical location or code flows, but these may either not be available, or 
+	//      still result in duplicate uuid strings.
 	private String getCalculatedIdString() {
 		if ( getFingerprints()!=null && getFingerprints().size()>0 ) {
 			return new TreeMap<>(getFingerprints()).toString();

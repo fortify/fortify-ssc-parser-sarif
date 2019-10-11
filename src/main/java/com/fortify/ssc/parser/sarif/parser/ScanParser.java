@@ -6,9 +6,9 @@ import com.fortify.plugin.api.ScanBuilder;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.ssc.parser.sarif.parser.util.Constants;
-import com.fortify.ssc.parser.sarif.parser.util.ScanDataStreamingJsonParser;
 import com.fortify.util.jackson.DateConverter;
 import com.fortify.util.json.StreamingJsonParser;
+import com.fortify.util.ssc.parser.ScanDataStreamingJsonParser;
 
 /**
  * This class parses the SARIF JSON to set the various {@link ScanBuilder}

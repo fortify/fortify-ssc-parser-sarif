@@ -28,7 +28,6 @@ import java.text.MessageFormat;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fortify.ssc.parser.sarif.domain.ArtifactLocation;
@@ -118,16 +117,14 @@ public class ResultWrapperWithRunData {
 	//      if a duplicate exists, or append some sequence number (although this
 	//      could result in sequence numbers changing in-between scans of the same
 	//      application if JSON order is different).
-	public String getVulnerabilityUuid() {
-		String uuidString = null;
+	public String getVulnerabilityId() {
 		if ( StringUtils.isNotBlank(getGuid()) ) {
-			uuidString = getGuid();
+			return getGuid();
 		} else if ( StringUtils.isNotBlank(getCorrelationGuid()) ) {
-			uuidString = getCorrelationGuid();
+			return getCorrelationGuid();
 		} else {
-			uuidString = getCalculatedIdString();
+			return getCalculatedIdString();
 		}
-		return DigestUtils.sha256Hex(uuidString);
 	}
 	
 	// TODO This may need improvement

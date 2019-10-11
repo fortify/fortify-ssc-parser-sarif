@@ -11,15 +11,16 @@ import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
-import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.domain.Result;
 import com.fortify.ssc.parser.sarif.parser.util.Constants;
 import com.fortify.ssc.parser.sarif.parser.util.ResultWrapperWithRunData;
 import com.fortify.ssc.parser.sarif.parser.util.RunData;
-import com.fortify.ssc.parser.sarif.parser.util.ScanDataStreamingJsonParser;
 import com.fortify.util.io.Region;
 import com.fortify.util.json.handler.JsonArrayHandler;
 import com.fortify.util.json.handler.JsonArrayMapperHandler;
+import com.fortify.util.ssc.parser.ScanDataStreamingJsonParser;
+import com.fortify.util.ssc.parser.VulnerabilityBuilder;
+import com.fortify.util.ssc.parser.VulnerabilityBuilder.CustomStaticVulnerabilityBuilder;
 
 /**
  * This class parses a SARIF JSON input document to generate Fortify vulnerabilities.
@@ -49,16 +50,16 @@ import com.fortify.util.json.handler.JsonArrayMapperHandler;
  */
 public final class VulnerabilitiesParser {
 	private final ScanData scanData;
-	private final VulnerabilityHandler vulnerabilityHandler;
+	private final VulnerabilityBuilder vulnerabilityBuilder;
 	
 	/**
-	 * Constructor for storing {@link ScanData} and {@link VulnerabilityHandler}
+	 * Constructor for storing {@link ScanData} and {@link VulnerabilityBuilder}
 	 * instances.
 	 * @param scanData
-	 * @param vulnerabilityHandler
+	 * @param vulnerabilityBuilder
 	 */
-	public VulnerabilitiesParser(final ScanData scanData, final VulnerabilityHandler vulnerabilityHandler) {
-		this.vulnerabilityHandler = vulnerabilityHandler;
+	public VulnerabilitiesParser(final ScanData scanData, final VulnerabilityBuilder vulnerabilityBuilder) {
+		this.vulnerabilityBuilder = vulnerabilityBuilder;
 		this.scanData = scanData;
 	}
 	
@@ -130,7 +131,8 @@ public final class VulnerabilitiesParser {
 	private final void produceVulnerability(ResultWrapperWithRunData result) {
 		Priority priority = result.getLevelOrDefault().getFortifyPriority();
 		if ( priority != null ) {
-			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(result.getVulnerabilityUuid());
+			CustomStaticVulnerabilityBuilder vb = vulnerabilityBuilder.startStaticVulnerability();
+			vb.setInstanceId(result.getVulnerabilityId());
 			vb.setAccuracy(5.0f);
 			vb.setAnalyzer("External");
 			vb.setCategory(result.getCategory());

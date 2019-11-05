@@ -27,7 +27,7 @@ public class ScanParser {
     private String version;
     private int numFiles = 0;
     
-	public ScanParser(final ScanData scanData, ScanBuilder scanBuilder) {
+	public ScanParser(final ScanData scanData, final ScanBuilder scanBuilder) {
 		this.scanData = scanData;
 		this.scanBuilder = scanBuilder;
 	}

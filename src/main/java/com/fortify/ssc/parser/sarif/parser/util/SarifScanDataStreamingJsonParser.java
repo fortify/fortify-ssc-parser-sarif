@@ -22,40 +22,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.util.json.handler;
+package com.fortify.ssc.parser.sarif.parser.util;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.function.Function;
+import com.fortify.util.ssc.parser.AbstractScanDataStreamingJsonParser;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fortify.util.json.JsonHandler;
-
-/**
- * This {@link JsonHandler} implementation iterates over the
- * array that the given {@link JsonParser} is currently
- * pointing at. Each array entry will be read into a new instance
- * of the configured type using {@link ObjectMapper}, and then
- * added to the map by invoking the configured keyFunction and
- * valueFunction to determine map key and value.
- * 
- * @author Ruud Senden
- *
- */
-public class JsonArrayToMapHandler<T,K,V> extends JsonArrayMapperHandler<T> {
-	private final Map<K,V> map;
-	public JsonArrayToMapHandler(Class<T> clazz, Function<T, K> keyFunction, Function<T,V> valueFunction) {
-		this(new LinkedHashMap<K,V>(), clazz, keyFunction, valueFunction);
-	}
-	
-	public JsonArrayToMapHandler(Map<K, V> map, Class<T> clazz, Function<T, K> keyFunction, Function<T, V> valueFunction) {
-		super(entry->map.put(keyFunction.apply(entry), valueFunction.apply(entry)), clazz);
-		this.map = map;
-	}
-	
-	public final Map<K, V> getMap() {
-		return Collections.unmodifiableMap(map);
+public class SarifScanDataStreamingJsonParser extends AbstractScanDataStreamingJsonParser<SarifScanDataStreamingJsonParser> {
+	public SarifScanDataStreamingJsonParser() {
+		super(".sarif", ".json");
 	}
 }

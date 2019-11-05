@@ -15,10 +15,10 @@ import com.fortify.ssc.parser.sarif.domain.Result;
 import com.fortify.ssc.parser.sarif.parser.util.Constants;
 import com.fortify.ssc.parser.sarif.parser.util.ResultWrapperWithRunData;
 import com.fortify.ssc.parser.sarif.parser.util.RunData;
+import com.fortify.ssc.parser.sarif.parser.util.SarifScanDataStreamingJsonParser;
 import com.fortify.util.io.Region;
 import com.fortify.util.json.handler.JsonArrayHandler;
 import com.fortify.util.json.handler.JsonArrayMapperHandler;
-import com.fortify.util.ssc.parser.ScanDataStreamingJsonParser;
 import com.fortify.util.ssc.parser.VulnerabilityBuilder;
 import com.fortify.util.ssc.parser.VulnerabilityBuilder.CustomStaticVulnerabilityBuilder;
 
@@ -70,7 +70,7 @@ public final class VulnerabilitiesParser {
 	 * @throws IOException
 	 */
 	public final void parse() throws ScanParsingException, IOException {
-		new ScanDataStreamingJsonParser()
+		new SarifScanDataStreamingJsonParser()
 			.handler("/runs", new JsonArrayHandler(jp->parseRun(jp)))
 			.parse(scanData);
 	}
@@ -115,7 +115,7 @@ public final class VulnerabilitiesParser {
 	 * @throws IOException
 	 */
 	private final void parseResults(final RunData runData) throws ScanParsingException, IOException {
-		new ScanDataStreamingJsonParser()
+		new SarifScanDataStreamingJsonParser()
 			.expectedStartTokens(JsonToken.START_ARRAY)
 			.handler("/", new JsonArrayMapperHandler<>(result->produceVulnerability(new ResultWrapperWithRunData(result, runData)), Result.class))
 			.parse(scanData, runData.getResultsRegion());

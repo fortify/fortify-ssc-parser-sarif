@@ -6,9 +6,9 @@ import com.fortify.plugin.api.ScanBuilder;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.ssc.parser.sarif.parser.util.Constants;
+import com.fortify.ssc.parser.sarif.parser.util.SarifScanDataStreamingJsonParser;
 import com.fortify.util.jackson.DateConverter;
 import com.fortify.util.json.StreamingJsonParser;
-import com.fortify.util.ssc.parser.ScanDataStreamingJsonParser;
 
 /**
  * This class parses the SARIF JSON to set the various {@link ScanBuilder}
@@ -32,7 +32,7 @@ public class ScanParser extends StreamingJsonParser {
 	}
 	
 	public final void parse() throws ScanParsingException, IOException {
-		new ScanDataStreamingJsonParser()
+		new SarifScanDataStreamingJsonParser()
 			.handler("/version", jp -> version=jp.getValueAsString())
 			.handler("/runs/invocations/endTimeUtc", jp -> scanBuilder.setScanDate(DateConverter.getInstance().convert(jp.getValueAsString())))
 			.handler("/runs/invocations/machine", jp -> scanBuilder.setHostName(jp.getValueAsString()))

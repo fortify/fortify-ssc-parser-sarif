@@ -27,6 +27,9 @@ repositories {
     maven {
         url  "http://dl.bintray.com/fortify/maven-public"
     }
+    maven {
+        url  "https://dl.bintray.com/fortify-ps/maven" 
+    }
     mavenCentral()
 }
 
@@ -43,15 +46,8 @@ dependencies {
     // dependencies provided by plugin runtime
     compile 'com.fortify.plugin:plugin-api:1.0.1'
     compile 'org.slf4j:slf4j-api:1.7.21'
-
-    // plugin specific dependencies
-    compileExport(group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: "$jacksonVersion") { transitive = false }
-    compileExport(group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: "$jacksonVersion") { transitive = false }
-    compileExport(group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: "$jacksonVersion") { transitive = false }
-    compileExport(group: 'org.apache.commons', name: 'commons-lang3', version: "3.9") { transitive = false }
-    compileExport(group: 'commons-codec', name: 'commons-codec', version: '1.13') { transitive = false }
-    compileExport(group: 'commons-io', name: 'commons-io', version: '2.6') { transitive = false }
-    compileExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.7') { transitive = true }
+    
+    compileExport(group: 'com.fortify.ssc.parser.util', name: 'fortify-ssc-parser-util', version:'0.0.1') { transitive = true }
     
     //testImplementation 'org.junit.platform:junit-jupiter-api:5.3.1'
     

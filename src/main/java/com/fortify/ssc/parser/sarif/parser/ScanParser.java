@@ -1,5 +1,7 @@
 package com.fortify.ssc.parser.sarif.parser;
 
+import static com.fortify.util.json.AbstractStreamingJsonParser.countArrayEntries;
+
 import java.io.IOException;
 
 import com.fortify.plugin.api.ScanBuilder;
@@ -8,7 +10,6 @@ import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.ssc.parser.sarif.parser.util.Constants;
 import com.fortify.ssc.parser.sarif.parser.util.SarifScanDataStreamingJsonParser;
 import com.fortify.util.jackson.DateConverter;
-import com.fortify.util.json.StreamingJsonParser;
 
 /**
  * This class parses the SARIF JSON to set the various {@link ScanBuilder}
@@ -20,7 +21,7 @@ import com.fortify.util.json.StreamingJsonParser;
  * 
  * @author Ruud Senden
  */
-public class ScanParser extends StreamingJsonParser {
+public class ScanParser {
 	private final ScanData scanData;
     private final ScanBuilder scanBuilder;
     private String version;

@@ -2,7 +2,7 @@ plugins {
   id "io.freefair.lombok" version "4.1.2"
 }
 
-group 'com.fortify.ps.ssc.parser.sarif'
+group 'com.fortify.ssc.parser.sarif'
 
 apply plugin: 'java'
 apply plugin: 'idea'
@@ -24,12 +24,12 @@ if (!project.hasProperty('release')) {
 
 repositories {
     // repository with fortify artifacts
-    maven {
-        url  "http://dl.bintray.com/fortify/maven-public"
-    }
-    maven {
-        url  "https://dl.bintray.com/fortify-ps/maven" 
-    }
+    maven { url "http://dl.bintray.com/fortify/maven-public" }
+    // repository with fortify-ps releases
+    maven { url "https://dl.bintray.com/fortify-ps/maven" }
+    // repository with fortify-ps snapshots
+    maven { url "https://oss.jfrog.org/artifactory/oss-snapshot-local" }
+    mavenLocal()
     mavenCentral()
 }
 
@@ -47,7 +47,7 @@ dependencies {
     compile 'com.fortify.plugin:plugin-api:1.0.1'
     compile 'org.slf4j:slf4j-api:1.7.21'
     
-    compileExport(group: 'com.fortify.ps.ssc.parser.util', name: 'fortify-ssc-parser-util', version:'0.0.4') { transitive = true }
+    compileExport(group: 'com.fortify.ssc.parser.util', name: 'fortify-ssc-parser-util', version:'1.0.0') { transitive = true }
     compileExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.7') { transitive = true }
     
     //testImplementation 'org.junit.platform:junit-jupiter-api:5.3.1'

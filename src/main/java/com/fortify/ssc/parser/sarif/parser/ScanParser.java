@@ -1,15 +1,13 @@
 package com.fortify.ssc.parser.sarif.parser;
 
-import static com.fortify.util.json.AbstractStreamingJsonParser.countArrayEntries;
-
 import java.io.IOException;
+import java.util.Date;
 
 import com.fortify.plugin.api.ScanBuilder;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.ssc.parser.sarif.parser.util.Constants;
 import com.fortify.ssc.parser.sarif.parser.util.SarifScanDataStreamingJsonParser;
-import com.fortify.util.jackson.DateConverter;
 
 /**
  * This class parses the SARIF JSON to set the various {@link ScanBuilder}
@@ -35,11 +33,11 @@ public class ScanParser {
 	public final void parse() throws ScanParsingException, IOException {
 		new SarifScanDataStreamingJsonParser()
 			.handler("/version", jp -> version=jp.getValueAsString())
-			.handler("/runs/invocations/endTimeUtc", jp -> scanBuilder.setScanDate(DateConverter.getInstance().convert(jp.getValueAsString())))
+			.handler("/runs/invocations/endTimeUtc", jp -> scanBuilder.setScanDate(jp.readValueAs(Date.class)))
 			.handler("/runs/invocations/machine", jp -> scanBuilder.setHostName(jp.getValueAsString()))
 			.handler("/runs/automationId/guid", jp -> scanBuilder.setBuildId(jp.getValueAsString()))
 			.handler("/runs/automationId/id", jp -> scanBuilder.setScanLabel(jp.getValueAsString()))
-			.handler("/runs/artifacts", jp -> numFiles+=countArrayEntries(jp))
+			.handler("/runs/artifacts", jp -> numFiles+=jp.countArrayEntries())
 			.parse(scanData);
 		
 		if ( !"2.1.0".equals(version) ) {

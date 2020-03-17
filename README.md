@@ -15,3 +15,8 @@ This project provides an SSC parser plugin for parsing SARIF input files.
   artifact to an SSC application version, selecting the `3rd party results` 
   checkbox and `SARIF` as the scan type in the SSC artifact upload 
   dialog
+
+# Licensing
+
+See [LICENSE.TXT](LICENSE.TXT)
+

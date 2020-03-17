@@ -17,8 +17,7 @@ import com.fortify.ssc.parser.sarif.parser.util.ResultWrapperWithRunData;
 import com.fortify.ssc.parser.sarif.parser.util.RunData;
 import com.fortify.ssc.parser.sarif.parser.util.SarifScanDataStreamingJsonParser;
 import com.fortify.util.io.Region;
-import com.fortify.util.json.handler.JsonArrayHandler;
-import com.fortify.util.json.handler.JsonArrayMapperHandler;
+import com.fortify.util.json.ExtendedJsonParser;
 import com.fortify.util.ssc.parser.VulnerabilityBuilder;
 import com.fortify.util.ssc.parser.VulnerabilityBuilder.CustomStaticVulnerabilityBuilder;
 
@@ -66,12 +65,11 @@ public final class VulnerabilitiesParser {
 	/**
 	 * Main method to commence parsing the SARIF document provided by the
 	 * configured {@link ScanData}.
-	 * @throws ScanParsingException
 	 * @throws IOException
 	 */
 	public final void parse() throws ScanParsingException, IOException {
 		new SarifScanDataStreamingJsonParser()
-			.handler("/runs", new JsonArrayHandler(jp->parseRun(jp)))
+			.handler("/runs/*", this::parseRun)
 			.parse(scanData);
 	}
 
@@ -86,10 +84,9 @@ public final class VulnerabilitiesParser {
 	 *       SARIF <code>results</code> array</li>
 	 *   <li>Close the temporary database once parsing has completed</li>
 	 * @param jsonParser
-	 * @throws ScanParsingException
 	 * @throws IOException
 	 */
-	private final void parseRun(JsonParser jsonParser) throws ScanParsingException, IOException {
+	private final void parseRun(ExtendedJsonParser jsonParser) throws IOException {
 		try ( DB db = DBMaker.tempFileDB()
 				.closeOnJvmShutdown().fileDeleteAfterClose()
 				.fileMmapEnableIfSupported()
@@ -114,11 +111,15 @@ public final class VulnerabilitiesParser {
 	 * @throws ScanParsingException
 	 * @throws IOException
 	 */
-	private final void parseResults(final RunData runData) throws ScanParsingException, IOException {
+	private final void parseResults(final RunData runData) throws IOException {
 		new SarifScanDataStreamingJsonParser()
 			.expectedStartTokens(JsonToken.START_ARRAY)
-			.handler("/", new JsonArrayMapperHandler<>(result->produceVulnerability(new ResultWrapperWithRunData(result, runData)), Result.class))
+			.handler("/*", jp->produceVulnerability(runData, jp))
 			.parse(scanData, runData.getResultsRegion());
+	}
+	
+	private final void produceVulnerability(RunData runData, JsonParser jp) throws IOException {
+		produceVulnerability(new ResultWrapperWithRunData(jp.readValueAs(Result.class), runData));
 	}
 	
 	/**

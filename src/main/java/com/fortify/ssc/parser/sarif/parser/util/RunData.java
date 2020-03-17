@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright 2017 EntIT Software LLC
+ * (c) Copyright 2020 Micro Focus or one of its affiliates
  *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
@@ -38,6 +38,7 @@ import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.ssc.parser.sarif.domain.ArtifactLocation;
 import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
 import com.fortify.util.io.Region;
+import com.fortify.util.json.ExtendedJsonParser;
 import com.fortify.util.json.StreamingJsonParser;
 import com.fortify.util.json.handler.AddJsonPropertyValueToMapJsonHandler;
 import com.fortify.util.json.handler.JsonArrayToObjectMapHandler;
@@ -78,7 +79,7 @@ public final class RunData {
 	 * @throws ScanParsingException
 	 * @throws IOException
 	 */
-	public static final RunData parseRunData(final DB db, final JsonParser jsonParser) throws ScanParsingException, IOException {
+	public static final RunData parseRunData(final DB db, final ExtendedJsonParser jsonParser) throws IOException {
 		RunData runData = new RunData(db);
 		new StreamingJsonParser()
 			.handler("/originalUriBaseIds/*", runData.originalUriBaseIdHandler)

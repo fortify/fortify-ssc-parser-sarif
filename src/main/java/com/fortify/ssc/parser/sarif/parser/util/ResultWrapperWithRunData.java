@@ -30,6 +30,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
 import com.fortify.ssc.parser.sarif.domain.ArtifactLocation;
 import com.fortify.ssc.parser.sarif.domain.Level;
 import com.fortify.ssc.parser.sarif.domain.Location;
@@ -190,15 +191,44 @@ public class ResultWrapperWithRunData {
 	
 	public String getCategory() {
 		ReportingDescriptor rule = resolveRule();
-		return rule==null || rule.getName()==null 
-				? runData.getEngineType()
-				: StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
+		if ( rule != null ) {
+			if ( StringUtils.isNotBlank(rule.getName()) ) {
+				return StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
+			} else if ( rule.getProperties()!=null && rule.getProperties().containsKey("Type") ) {
+				return rule.getProperties().get("Type").toString();
+			}
+		} else {
+			String ruleId = resolveRuleId();
+			if ( StringUtils.isNotBlank(ruleId) ) {
+				return ruleId;
+			} 
+		}
+		return runData.getEngineType();
 	}
 	
 	public String getSubCategory() {
-		ReportingDescriptor rule = resolveRule();
-		return rule==null || rule.getName()==null 
-				? result.getRuleId() 
-				: null;
+		return null;
 	}
+
+	public Priority resolvePriority() {
+		if ( "Fortify".equalsIgnoreCase(runData.getToolName()) && result.getProperties()!=null && result.getProperties().containsKey("priority")) {
+			return Priority.valueOf(result.getProperties().get("priority").toString());
+		} else {
+			return resolveLevel().getFortifyPriority();
+		}
+	}
+	
+	public String resolveKingdom() {
+		if ( result.getProperties()!=null && result.getProperties().containsKey("kingdom") ) {
+			return result.getProperties().get("kingdom").toString();
+		} else {
+			ReportingDescriptor rule = resolveRule();
+			if ( rule!=null && rule.getProperties()!=null && rule.getProperties().containsKey("Kingdom") ) {
+				return rule.getProperties().get("Kingdom").toString();
+			}
+		}
+		return null;
+	}
+	
+	
 }

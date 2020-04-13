@@ -61,6 +61,7 @@ public final class Result {
 	// @JsonProperty private URI hostedViewerUri;
 	// @JsonProperty private ResultProvenance provenance;
 	// @JsonProperty private Fix[] fixes;
+	@JsonProperty private Map<String, Object> properties;
 	
 	@JsonProperty
 	public void setFingerprints(Map<String, String> fingerprints) {

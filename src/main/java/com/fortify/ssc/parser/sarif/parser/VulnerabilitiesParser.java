@@ -130,7 +130,7 @@ public final class VulnerabilitiesParser {
 	 * @param result
 	 */
 	private final void produceVulnerability(ResultWrapperWithRunData result) {
-		Priority priority = result.resolveLevel().getFortifyPriority();
+		Priority priority = result.resolvePriority();
 		if ( priority != null ) {
 			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(DigestUtils.sha256Hex(result.getVulnerabilityId()));
 			vb.setAccuracy(5.0f);
@@ -142,7 +142,7 @@ public final class VulnerabilitiesParser {
     		vb.setFileName(result.resolveFullFileName("Unknown"));
     		//vb.setFunctionName(functionName);
     		vb.setImpact(2.5f);
-    		//vb.setKingdom(kingdom);
+    		vb.setKingdom(result.resolveKingdom());
     		vb.setLikelihood(2.5f);
     		//vb.setLineNumber(lineNumber);
     		//vb.setMappedCategory(mappedCategory);

@@ -52,5 +52,5 @@ public final class ReportingDescriptor implements Serializable {
 	@JsonProperty private Message fullDescription;
 	@JsonProperty private URI helpUri;
 	@JsonProperty private MultiformatMessageString help;
-	
+	@JsonProperty private Map<String, Object> properties;
 }

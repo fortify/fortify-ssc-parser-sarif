@@ -13,7 +13,6 @@ import com.fortify.plugin.spi.ParserPlugin;
 import com.fortify.ssc.parser.sarif.parser.CustomVulnAttribute;
 import com.fortify.ssc.parser.sarif.parser.ScanParser;
 import com.fortify.ssc.parser.sarif.parser.VulnerabilitiesParser;
-import com.fortify.util.ssc.parser.VulnerabilityBuilder;
 
 /**
  * Main {@link ParserPlugin} implementation for parsing SARIF results; see
@@ -50,6 +49,6 @@ public class SARIFParserPlugin implements ParserPlugin<CustomVulnAttribute> {
 
 	@Override
 	public void parseVulnerabilities(final ScanData scanData, final VulnerabilityHandler vulnerabilityHandler) throws ScanParsingException, IOException {
-		new VulnerabilitiesParser(scanData, new VulnerabilityBuilder(vulnerabilityHandler)).parse();
+		new VulnerabilitiesParser(scanData, vulnerabilityHandler).parse();
 	}
 }

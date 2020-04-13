@@ -45,17 +45,20 @@ import com.fortify.plugin.api.ScanEntry;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
-import com.fortify.ssc.parser.sarif.SARIFParserPlugin;
-import com.fortify.ssc.parser.sarif.parser.util.Constants;
+import com.fortify.ssc.parser.sarif.parser.ScanParser;
 
 class SARIFParserPluginTest {
-	private static final String[] SAMPLE_FILES = {
+	private static final String[] SAMPLE_FILES_2_1_0 = {
+			"EightBall.fpr.sarif",
+			"EightBall.xml.sarif",
+			"WebGoat5.0.fpr.sarif",
+			"WebGoat5.0.xml.sarif",
 			"spec-minimal.sarif", 
 			"spec-minimal-without-source.sarif",
 			"spec-minimal-with-source.sarif",
 			"spec-comprehensive.sarif",
-			"github.com_microsoft_sarif-sdk_blob_master_src_Samples_Sarif.WorkItems.Sample_SampleTestFiles_Current.sarif"};
-	
+			"github.com_microsoft_sarif-sdk_blob_master_src_Samples_Sarif.WorkItems.Sample_SampleTestFiles_Current.sarif",
+			"github.com_microsoft_sarif-sdk_blob_master_src_Test.FunctionalTests.Sarif_v2_ConverterTestData_ContrastSecurity_WebGoat.xml.sarif"};
 	
 	private final ScanData getScanData(String fileName) {
 		return new ScanData() {
@@ -113,18 +116,18 @@ class SARIFParserPluginTest {
 	
 	@Test
 	void testParseScan() throws Exception {
-		for ( String file : SAMPLE_FILES ) {
+		for ( String file : SAMPLE_FILES_2_1_0 ) {
 			System.err.println("\n\n---- "+file+" - parseScan");
-			new SARIFParserPlugin().parseScan(getScanData(file), scanBuilder);
+			new SARIFParserPlugin().parseScan(getScanData("2.1.0/"+file), scanBuilder);
 			// TODO Check actual output
 		}
 	}
 	
 	@Test
 	void testParseVulnerabilities() throws Exception {
-		for ( String file : SAMPLE_FILES ) {
+		for ( String file : SAMPLE_FILES_2_1_0 ) {
 			System.err.println("\n\n---- "+file+" - parseVulnerabilities");
-			new SARIFParserPlugin().parseVulnerabilities(getScanData(file), vulnerabilityHandler);
+			new SARIFParserPlugin().parseVulnerabilities(getScanData("2.1.0/"+file), vulnerabilityHandler);
 			// TODO Check actual output
 		}
 	}
@@ -132,10 +135,10 @@ class SARIFParserPluginTest {
 	@Test
 	void testParseScanUnsupportedVersion() throws Exception {
 		try {
-			new SARIFParserPlugin().parseScan(getScanData("spec-comprehensive-2.0.0.sarif"), scanBuilder);
+			new SARIFParserPlugin().parseScan(getScanData("2.0.0/spec-comprehensive-2.0.0.sarif"), scanBuilder);
 			fail("Parser plugin didn't throw exception for unsupported input file version");
 		} catch (ScanParsingException e) {
-			assertTrue(e.getMessage().startsWith(Constants.MSG_UNSUPPORTED_INPUT_FILE_VERSION), "Exception message starts with '"+Constants.MSG_UNSUPPORTED_INPUT_FILE_VERSION+"'");
+			assertTrue(e.getMessage().startsWith(ScanParser.MSG_UNSUPPORTED_INPUT_FILE_VERSION), "Exception message starts with '"+ScanParser.MSG_UNSUPPORTED_INPUT_FILE_VERSION+"'");
 		}
 	}
 

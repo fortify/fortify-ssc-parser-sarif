@@ -1,0 +1,289 @@
+{
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleId": "Path Manipulation",
+          "message": {
+            "text": "Attackers are able to control the file system path argument to FileReader() at EightBall.java line 12, which allows them to access or modify otherwise protected files."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "EightBall.java",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "InstanceId": "176CC0B182267DD538992E87EF41815F"
+          },
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "EightBall.java",
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 4
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "EightBall.java",
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 12
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "kingdom": "Input Validation and Representation",
+            "priority": "High",
+            "fortifyRuleId": "823FE039-A7FE-4AAD-B976-9EC53FFE4A59"
+          }
+        },
+        {
+          "ruleId": "Path Manipulation",
+          "message": {
+            "text": "Attackers are able to control the file system path argument to FileReader() at EightBall.java line 12, which allows them to access or modify otherwise protected files."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "EightBall.java",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "InstanceId": "6291C6A33303ED270C269917AA8A1005"
+          },
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "EightBall.java",
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 4
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "uri": "EightBall.java",
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 12
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "properties": {
+            "kingdom": "Input Validation and Representation",
+            "priority": "High",
+            "fortifyRuleId": "0B15E7B7-B74B-47F9-B383-DA739797D00C"
+          }
+        },
+        {
+          "ruleId": "Poor Logging Practice: Use of a System Output Stream",
+          "message": {
+            "text": "Using println() rather than a dedicated logging facility makes it difficult to monitor the behavior of the program."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "EightBall.java",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 10
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "InstanceId": "F3F7CB3AFCD65AA5D29BE8AD28042549"
+          },
+          "properties": {
+            "kingdom": "Encapsulation",
+            "priority": "Low",
+            "fortifyRuleId": "F972FE42-6C15-47D2-BD5C-448166A574C2"
+          }
+        },
+        {
+          "ruleId": "Poor Logging Practice: Use of a System Output Stream",
+          "message": {
+            "text": "Using println() rather than a dedicated logging facility makes it difficult to monitor the behavior of the program."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "EightBall.java",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 13
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "InstanceId": "2171CBD908A22C86FD80A41AEAE1CF2C"
+          },
+          "properties": {
+            "kingdom": "Encapsulation",
+            "priority": "Low",
+            "fortifyRuleId": "F972FE42-6C15-47D2-BD5C-448166A574C2"
+          }
+        },
+        {
+          "ruleId": "J2EE Bad Practices: Leftover Debug Code",
+          "message": {
+            "text": "The class EightBall contains debug code, which can create unintended entry points in a deployed web application."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "EightBall.java",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 4
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "InstanceId": "BB9F74FFA0FF75C9921D0093A0665BEB"
+          },
+          "properties": {
+            "kingdom": "Encapsulation",
+            "priority": "Low",
+            "fortifyRuleId": "625EEE1F-464F-42DC-85D6-269A637EF747"
+          }
+        },
+        {
+          "ruleId": "Unchecked Return Value",
+          "message": {
+            "text": "The method main() in EightBall.java ignores the value returned by read() on line 12, which could cause the program to overlook unexpected states and conditions."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "EightBall.java",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "InstanceId": "F7A138CDE5235351F6A4405BA4AD7C53"
+          },
+          "properties": {
+            "kingdom": "API Abuse",
+            "priority": "Low",
+            "fortifyRuleId": "F5479615-A5E9-4BC9-BDBF-6FAC2B062F80"
+          }
+        },
+        {
+          "ruleId": "Unreleased Resource: Streams",
+          "message": {
+            "text": "The function main() in EightBall.java sometimes fails to release a system resource allocated by FileReader() on line 12."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "EightBall.java",
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12
+                }
+              }
+            }
+          ],
+          "partialFingerprints": {
+            "InstanceId": "E4B3ACF92911ED6D98AAC15876739EC7"
+          },
+          "properties": {
+            "kingdom": "Code Quality",
+            "priority": "High",
+            "fortifyRuleId": "74714BFC-EDF7-445B-8672-0996214D5845"
+          }
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "Fortify"
+        }
+      },
+      "artifacts": [
+        {
+          "location": {
+            "uri": "EightBall.java"
+          }
+        }
+      ],
+      "automationDetails": {
+        "description": {
+          "text": "On Apr 10, 2020, a source code review was performed over the EightBall code base. 1 files, 7 LOC (Executable) were scanned and reviewed for defects that could lead to potential security vulnerabilities. A total of 7 reviewed findings were uncovered during the analysis."
+        }
+      },
+      "columnKind": "utf16CodeUnits"
+    }
+  ]
+}

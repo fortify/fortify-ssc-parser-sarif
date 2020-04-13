@@ -38,6 +38,7 @@ import com.fortify.ssc.parser.sarif.domain.MultiformatMessageString;
 import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.domain.Result;
 import com.fortify.ssc.parser.sarif.domain.Result.Kind;
+import com.fortify.util.ssc.parser.EngineTypeHelper;
 
 import lombok.experimental.Delegate;
 
@@ -52,7 +53,7 @@ import lombok.experimental.Delegate;
  */
 public class ResultWrapperWithRunData {
 	@Delegate private final Result result;
-	private final RunData runData;
+	@Delegate private final RunData runData;
 	private volatile ReportingDescriptor rule;
 	
 	public ResultWrapperWithRunData(Result result, RunData runData) {
@@ -75,7 +76,7 @@ public class ResultWrapperWithRunData {
 	public ReportingDescriptor getRule() {
 		if ( this.rule == null ) {
 			String ruleId = getRuleId();
-			this.rule = ruleId==null ? null : runData.getRules().get(ruleId);
+			this.rule = ruleId==null ? null : runData.getRulesById().get(ruleId);
 		}
 		return this.rule;
 	}
@@ -94,7 +95,6 @@ public class ResultWrapperWithRunData {
 				level = Level.none;
 			}
 		}
-		
 		return level;
 	}
 	
@@ -103,20 +103,21 @@ public class ResultWrapperWithRunData {
 		if ( msg.getText()!=null ) {
 			return msg.getText();
 		} else if ( msg.getId()!=null ) {
-			MultiformatMessageString msgString = getRule().getMessageStrings().get(msg.getId());
+			MultiformatMessageString msgString = getMultiformatMessageStringForId(msg.getId());
 			// TODO Do we need to improve handling of single quotes around arguments?
-			return MessageFormat.format(msgString.getText().replace("'", "''"), (Object[])msg.getArguments());
+			// TODO Should we throw an exception if msgString==null, instead of just returning null?
+			return msgString==null ? null : MessageFormat.format(msgString.getText().replace("'", "''"), (Object[])msg.getArguments());
 		} else {
 			return null;
 		}
 	}
+
+	private MultiformatMessageString getMultiformatMessageStringForId(String id) {
+		ReportingDescriptor rule = getRule();
+		Map<String, MultiformatMessageString> messageStrings = rule==null ? null : rule.getMessageStrings();
+		return messageStrings==null ? null : messageStrings.get(id);
+	}
 	
-	// TODO In order to avoid duplicate id's (also see getCalculatedIdString())
-	//      we could potentially store the list of already processed uuidStrings
-	//      in some global (scan-specific) variable, and either ignore the result
-	//      if a duplicate exists, or append some sequence number (although this
-	//      could result in sequence numbers changing in-between scans of the same
-	//      application if JSON order is different).
 	public String getVulnerabilityId() {
 		if ( StringUtils.isNotBlank(getGuid()) ) {
 			return getGuid();
@@ -153,7 +154,7 @@ public class ResultWrapperWithRunData {
 	public String getCategory() {
 		ReportingDescriptor rule = getRule();
 		return rule==null || rule.getName()==null 
-				? Constants.ENGINE_TYPE 
+				? runData.getEngineType()
 				: StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
 	}
 	

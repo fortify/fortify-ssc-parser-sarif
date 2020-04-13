@@ -6,7 +6,6 @@ import java.util.Date;
 import com.fortify.plugin.api.ScanBuilder;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
-import com.fortify.ssc.parser.sarif.parser.util.Constants;
 import com.fortify.ssc.parser.sarif.parser.util.SarifScanDataStreamingJsonParser;
 
 /**
@@ -20,6 +19,7 @@ import com.fortify.ssc.parser.sarif.parser.util.SarifScanDataStreamingJsonParser
  * @author Ruud Senden
  */
 public class ScanParser {
+	public static final String MSG_UNSUPPORTED_INPUT_FILE_VERSION = "Unsupported input file version";
 	private final ScanData scanData;
     private final ScanBuilder scanBuilder;
     private String version;
@@ -41,7 +41,7 @@ public class ScanParser {
 			.parse(scanData);
 		
 		if ( !"2.1.0".equals(version) ) {
-			throw new ScanParsingException(Constants.MSG_UNSUPPORTED_INPUT_FILE_VERSION+": "+version);
+			throw new ScanParsingException(MSG_UNSUPPORTED_INPUT_FILE_VERSION+": "+version);
 		}
 		scanBuilder.setEngineVersion(version);
 		scanBuilder.setNumFiles(numFiles);

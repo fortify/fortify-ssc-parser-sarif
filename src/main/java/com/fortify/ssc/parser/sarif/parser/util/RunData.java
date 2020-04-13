@@ -24,10 +24,9 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.parser.util;
 
-import static com.fortify.util.json.AbstractStreamingJsonParser.getObjectOrArrayRegion;
-
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.mapdb.DB;
@@ -40,8 +39,7 @@ import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
 import com.fortify.util.io.Region;
 import com.fortify.util.json.ExtendedJsonParser;
 import com.fortify.util.json.StreamingJsonParser;
-import com.fortify.util.json.handler.AddJsonPropertyValueToMapJsonHandler;
-import com.fortify.util.json.handler.JsonArrayToObjectMapHandler;
+import com.fortify.util.ssc.parser.EngineTypeHelper;
 
 /**
  * This class stores auxiliary data for a <code>run</code> entry in the SARIF 
@@ -51,8 +49,8 @@ import com.fortify.util.json.handler.JsonArrayToObjectMapHandler;
  *
  */
 public final class RunData {
-	private final JsonArrayToObjectMapHandler<String, ReportingDescriptor> rulesHandler;
-	private final AddJsonPropertyValueToMapJsonHandler<ArtifactLocation> originalUriBaseIdHandler;
+	private final Map<String, ArtifactLocation> originalUriBaseIds;
+	private final Map<String, ReportingDescriptor> rulesById;
 	private Region resultsRegion = null;
 	private String toolName;
 	
@@ -63,10 +61,8 @@ public final class RunData {
 	 * @param db
 	 */
 	private RunData(final DB db) {
-		originalUriBaseIdHandler = 
-    			new AddJsonPropertyValueToMapJsonHandler<>(ArtifactLocation.class);
-		rulesHandler = new JsonArrayToObjectMapHandler<String, ReportingDescriptor>(
-			db.hashMap("rules", Serializer.STRING, ReportingDescriptor.SERIALIZER).create(), ReportingDescriptor.class, entry->entry.getId());
+		this.originalUriBaseIds = new HashMap<>();
+		this.rulesById = db.hashMap("rules", Serializer.STRING, ReportingDescriptor.SERIALIZER).create();
 	}
 	
 	/**
@@ -82,20 +78,28 @@ public final class RunData {
 	public static final RunData parseRunData(final DB db, final ExtendedJsonParser jsonParser) throws IOException {
 		RunData runData = new RunData(db);
 		new StreamingJsonParser()
-			.handler("/originalUriBaseIds/*", runData.originalUriBaseIdHandler)
-			.handler("/tool/driver/rules", runData.rulesHandler)
+			.handler("/originalUriBaseIds/*", runData::addOriginalUriBaseId)
+			.handler("/tool/driver/rules/*", ReportingDescriptor.class, runData::addRule)
 			.handler("/tool/driver/name", jp -> runData.toolName = jp.getValueAsString())
-			.handler("/results", jp -> runData.resultsRegion = getObjectOrArrayRegion(jp))
+			.handler("/results", jp -> runData.resultsRegion = jp.getObjectOrArrayRegion())
 			.parseObjectProperties(jsonParser, "/");
 		return runData;
 	}
+	
+	private final void addOriginalUriBaseId(ExtendedJsonParser jp) throws IOException {
+		originalUriBaseIds.put(jp.getCurrentName(), jp.readValueAs(ArtifactLocation.class));
+	}
 
-	public final Map<String, ArtifactLocation> getOriginalUriBaseIds() {
-		return Collections.unmodifiableMap(originalUriBaseIdHandler.getMap());
+	private final void addRule(ReportingDescriptor reportingDescriptor) {
+		rulesById.put(reportingDescriptor.getId(), reportingDescriptor);
 	}
 	
-	public final Map<String, ReportingDescriptor> getRules() {
-		return Collections.unmodifiableMap(rulesHandler.getMap());
+	public final Map<String, ArtifactLocation> getOriginalUriBaseIds() {
+		return Collections.unmodifiableMap(originalUriBaseIds);
+	}
+	
+	public final Map<String, ReportingDescriptor> getRulesById() {
+		return Collections.unmodifiableMap(rulesById);
 	}
 	
 	public Region getResultsRegion() {
@@ -104,5 +108,9 @@ public final class RunData {
 	
 	public String getToolName() {
 		return toolName;
+	}
+	
+	public String getEngineType() {
+		return toolName!=null ? toolName : EngineTypeHelper.getEngineType();
 	}
 }

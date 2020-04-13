@@ -1,41 +1,46 @@
 plugins {
   id "io.freefair.lombok" version "4.1.2"
+  id "com.jfrog.bintray" version "1.8.4"
+  id 'org.ajoberstar.grgit' version "4.0.0"
+  id 'com.github.jk1.dependency-license-report' version '1.12'
+  id "org.kordamp.gradle.markdown" version "2.0.0"
 }
 
 group 'com.fortify.ssc.parser.sarif'
 
-apply plugin: 'java'
-apply plugin: 'idea'
-
 ext {
-    versionRegex = '(\\d+)(\\.\\d+)*'
-    jacksonVersion = "2.8.4"
+	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/master"
 }
 
-// plugin version, note the version must match versionRegex.
-version = '1.0'
+apply from: "${gradleHelpersLocation}/repo-helper.gradle"
+apply from: "${gradleHelpersLocation}/junit-helper.gradle"
+apply from: "${gradleHelpersLocation}/version-helper.gradle"
+apply from: "${gradleHelpersLocation}/fortify-helper.gradle"
 
-if (!project.hasProperty('release')) {
-    // Gradle has been run without option -Prelease - auto increment plugin version
-    def time = System.currentTimeMillis().intdiv(1000)
-    def hours = time.intdiv(3600)
-    version = String.format('%s.%d', version, hours)
+// Project and plugin version based on SCM information
+version = getProjectVersionAsBetaOrRelease(true)
+ext {
+	sscParserPluginVersion = getProjectVersionAsPlainVersionNumber()
+	betaOrReleaseLabel = getBetaOrReleaseLabel()
+	bintrayPkgName = "${rootProject.name}-${betaOrReleaseLabel}"
+	bintrayDownloadContainerName = getProjectVersionAsBetaOrRelease(false)
+	projectLicense = 'MIT'
 }
 
-repositories {
-	mavenLocal()
-    // repository with fortify artifacts
-    maven { url "http://dl.bintray.com/fortify/maven-public" }
-    // repository with fortify-ps releases
-    maven { url "https://dl.bintray.com/fortify-ps/maven" }
-    // repository with fortify-ps snapshots
-    maven { url "https://oss.jfrog.org/artifactory/oss-snapshot-local" }
-    mavenCentral()
-}
+apply from: "${gradleHelpersLocation}/ssc-parser-plugin-helper.gradle"
+apply from: "${gradleHelpersLocation}/thirdparty-helper.gradle"
+apply from: "${gradleHelpersLocation}/bintray-binaries-helper.gradle"
+apply from: "${gradleHelpersLocation}/readme2html.gradle"
 
-configurations {
-    compileExport
-    compile.extendsFrom (compileExport)
+apply plugin: 'java'
+sourceCompatibility = 1.8
+
+sourceSets {
+    test {
+        resources {
+            srcDir "sampleData"
+        }
+    }
 }
 
 configurations.all {
@@ -43,40 +48,31 @@ configurations.all {
 	resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-test {
-    useJUnitPlatform()
-}
-
 dependencies {
-    // dependencies provided by plugin runtime
-    compile 'com.fortify.plugin:plugin-api:1.0.1'
-    compile 'org.slf4j:slf4j-api:1.7.21'
-    
-    compileExport(group: 'com.fortify.ssc.parser.util', name: 'fortify-ssc-parser-util', version:'1.1.0-SNAPSHOT', changing: true) { transitive = true }
-    compileExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.7') { transitive = true }
-    
-    //testImplementation 'org.junit.platform:junit-jupiter-api:5.3.1'
-    
-    testImplementation(group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.1')
-    testImplementation(group: 'org.junit.platform', name: 'junit-platform-launcher', version: "1.1.0")
-    testRuntimeOnly(group: 'org.junit.jupiter', name:'junit-jupiter-engine', version: '5.3.1')
-    testRuntimeOnly(group: 'org.slf4j', name: 'slf4j-simple', version: '1.6.1')
+	compileExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.7') { transitive = true }
+    compileExport(group: 'com.fortify.ssc.parser.util', name: 'fortify-ssc-parser-util', version:'1.1', changing: false) { transitive = true }
 }
 
-jar {
-    doFirst {
-        // check if version matches requirements
-        if (!version.matches(versionRegex)) {
-            throw new InvalidUserDataException("Plugin version '$version' does not match '$versionRegex'")
-        }
-    }
-    // replace version placeholders in plugin.xml
-    filesMatching('plugin.xml') {
-        filter {
-            it.replaceAll('<!--VERSION-->.*?<!--/VERSION-->', version)
-        }
-    }
-    // include files from compileExport dependencies
-    from { configurations.compileExport.collect { it.isDirectory() ? it : zipTree(it).matching { exclude('META-INF/*', '/*.txt', '/*.html') } } }
+task dist(type: Zip) {
+	dependsOn 'build', 'readme2html'
+	archiveFileName = "${rootProject.name}-${project.version}.zip"
+	destinationDirectory = file("$buildDir/dist")
+	from("${libsDir}") {
+		include "${rootProject.name}-${project.version}.jar"
+	}
+	from "${buildDir}/html"
+	from("${projectDir}") {
+		include "sampleData/**/*"
+		include "LICENSE.TXT"
+	}
 }
 
+bintray {
+    filesSpec {
+       from("${buildDir}/dist") {
+          include "*.zip"
+       }
+       into '.'
+    }
+}
+_bintrayRecordingCopy.dependsOn 'clean', 'dist', 'distThirdParty'

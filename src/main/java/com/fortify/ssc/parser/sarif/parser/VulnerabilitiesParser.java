@@ -2,6 +2,7 @@ package com.fortify.ssc.parser.sarif.parser;
 
 import java.io.IOException;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
@@ -11,15 +12,14 @@ import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
+import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.domain.Result;
-import com.fortify.ssc.parser.sarif.parser.util.Constants;
 import com.fortify.ssc.parser.sarif.parser.util.ResultWrapperWithRunData;
 import com.fortify.ssc.parser.sarif.parser.util.RunData;
 import com.fortify.ssc.parser.sarif.parser.util.SarifScanDataStreamingJsonParser;
 import com.fortify.util.io.Region;
 import com.fortify.util.json.ExtendedJsonParser;
-import com.fortify.util.ssc.parser.VulnerabilityBuilder;
-import com.fortify.util.ssc.parser.VulnerabilityBuilder.CustomStaticVulnerabilityBuilder;
+import com.fortify.util.ssc.parser.HandleDuplicateIdVulnerabilityHandler;
 
 /**
  * This class parses a SARIF JSON input document to generate Fortify vulnerabilities.
@@ -49,7 +49,7 @@ import com.fortify.util.ssc.parser.VulnerabilityBuilder.CustomStaticVulnerabilit
  */
 public final class VulnerabilitiesParser {
 	private final ScanData scanData;
-	private final VulnerabilityBuilder vulnerabilityBuilder;
+	private final VulnerabilityHandler vulnerabilityHandler;
 	
 	/**
 	 * Constructor for storing {@link ScanData} and {@link VulnerabilityBuilder}
@@ -57,9 +57,9 @@ public final class VulnerabilitiesParser {
 	 * @param scanData
 	 * @param vulnerabilityBuilder
 	 */
-	public VulnerabilitiesParser(final ScanData scanData, final VulnerabilityBuilder vulnerabilityBuilder) {
-		this.vulnerabilityBuilder = vulnerabilityBuilder;
+	public VulnerabilitiesParser(final ScanData scanData, final VulnerabilityHandler vulnerabilityHandler) {
 		this.scanData = scanData;
+		this.vulnerabilityHandler = new HandleDuplicateIdVulnerabilityHandler(vulnerabilityHandler);
 	}
 	
 	/**
@@ -132,14 +132,13 @@ public final class VulnerabilitiesParser {
 	private final void produceVulnerability(ResultWrapperWithRunData result) {
 		Priority priority = result.getLevelOrDefault().getFortifyPriority();
 		if ( priority != null ) {
-			CustomStaticVulnerabilityBuilder vb = vulnerabilityBuilder.startStaticVulnerability();
-			vb.setInstanceId(result.getVulnerabilityId());
+			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(DigestUtils.sha256Hex(result.getVulnerabilityId()));
 			vb.setAccuracy(5.0f);
 			vb.setAnalyzer("External");
 			vb.setCategory(result.getCategory());
 			vb.setClassName(null);
 			vb.setConfidence(2.5f);
-    		vb.setEngineType(Constants.ENGINE_TYPE);
+			vb.setEngineType(result.getEngineType());
     		vb.setFileName(result.getFullFileName("Unknown"));
     		//vb.setFunctionName(functionName);
     		vb.setImpact(2.5f);

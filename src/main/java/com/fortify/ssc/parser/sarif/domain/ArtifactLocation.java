@@ -45,7 +45,9 @@ public final class ArtifactLocation {
 			ArtifactLocation baseLocation = originalUriBaseIds.get(uriBaseId);
 			if (baseLocation!=null) {
 				URI baseUri = baseLocation.resolveURI(originalUriBaseIds);
-				result = baseUri.resolve(result);
+				if ( baseUri != null ) {
+					result = baseUri.resolve(result);
+				}
 			}
 		}
 		return result;
@@ -53,6 +55,7 @@ public final class ArtifactLocation {
 	
 	public String getFullFileName(Map<String, ArtifactLocation> originalUriBaseIds) {
 		URI resolvedURI = resolveURI(originalUriBaseIds);
+		if ( resolvedURI==null ) { return null; }
 		if ( resolvedURI.getScheme()==null ) {
 			resolvedURI = resolvedURI.resolve("file:///");
 		}

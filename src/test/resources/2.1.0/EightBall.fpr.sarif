@@ -1,0 +1,1246 @@
+{
+  "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "results": [
+        {
+          "ruleIndex": 5,
+          "level": "note",
+          "message": {
+            "text": "Using println() rather than a dedicated logging facility makes it difficult to monitor the behavior of the program.\r\nUsing `System.out` or `System.err` rather than a dedicated logging facility makes it difficult to monitor the behavior of the program."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 13,
+                  "snippet": {
+                    "text": "\t\tSystem.out.println(buffer);"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 10,
+                  "endLine": 15,
+                  "snippet": {
+                    "text": "\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                  }
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 13,
+                            "snippet": {
+                              "text": "\t\tSystem.out.println(buffer);"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 10,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "FunctionCall: println"
+                        }
+                      },
+                      "kinds": [
+                        "unknown"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "relatedLocations": [
+            {
+              "id": 1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 14
+                }
+              }
+            }
+          ],
+          "properties": {
+            "InstanceSeverity": "2.0",
+            "Confidence": "5.0"
+          }
+        },
+        {
+          "ruleIndex": 4,
+          "message": {
+            "text": "The class EightBall contains debug code, which can create unintended entry points in a deployed web application.\r\nDebug code can create unintended entry points in a deployed web application."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 4,
+                  "endLine": 14,
+                  "snippet": {
+                    "text": "\tpublic static void main(String args[]) throws Exception {\r\n\t\tchar[] buffer = new char[1024];\r\n\t\tString filename = args[0];\r\n\t\ttry {\r\n\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);\r\n\t\t} catch (Exception e) {\r\n\t\t\tSystem.out.println(\"Invalid input.\");\r\n\t\t}\r\n\t\tnew FileReader(filename).read(buffer);\r\n\t\tSystem.out.println(buffer);\r\n\t}"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 1,
+                  "endLine": 15,
+                  "snippet": {
+                    "text": "import java.io.FileReader;\n\npublic class EightBall {\n\tpublic static void main(String args[]) throws Exception {\n\t\tchar[] buffer = new char[1024];\n\t\tString filename = args[0];\n\t\ttry {\n\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);\n\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                  }
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 4,
+                            "endLine": 14,
+                            "snippet": {
+                              "text": "\tpublic static void main(String args[]) throws Exception {\r\n\t\tchar[] buffer = new char[1024];\r\n\t\tString filename = args[0];\r\n\t\ttry {\r\n\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);\r\n\t\t} catch (Exception e) {\r\n\t\t\tSystem.out.println(\"Invalid input.\");\r\n\t\t}\r\n\t\tnew FileReader(filename).read(buffer);\r\n\t\tSystem.out.println(buffer);\r\n\t}"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 1,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "import java.io.FileReader;\n\npublic class EightBall {\n\tpublic static void main(String args[]) throws Exception {\n\t\tchar[] buffer = new char[1024];\n\t\tString filename = args[0];\n\t\ttry {\n\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);\n\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "Function: main"
+                        }
+                      },
+                      "kinds": [
+                        "unknown"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "relatedLocations": [
+            {
+              "id": 1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 4,
+                  "startColumn": 2,
+                  "endLine": 14
+                }
+              }
+            }
+          ],
+          "properties": {
+            "InstanceSeverity": "2.0",
+            "Confidence": "5.0"
+          }
+        },
+        {
+          "ruleIndex": 1,
+          "message": {
+            "text": "The function main() in [EightBall.java](1) sometimes fails to release a system resource allocated by FileReader() on line 12.\r\nThe program can potentially fail to release a system resource."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12,
+                  "snippet": {
+                    "text": "\t\tnew FileReader(filename).read(buffer);"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 9,
+                  "endLine": 15,
+                  "snippet": {
+                    "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                  }
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 12,
+                            "snippet": {
+                              "text": "\t\tnew FileReader(filename).read(buffer);"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 9,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "new FileReader(...)"
+                        }
+                      },
+                      "kinds": [
+                        "call",
+                        "function"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 14,
+                            "snippet": {
+                              "text": "\t}"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 11,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "end scope : Resource leaked"
+                        }
+                      },
+                      "kinds": [
+                        "exit",
+                        "scope"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 12,
+                            "snippet": {
+                              "text": "\t\tnew FileReader(filename).read(buffer);"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 9,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "new FileReader(...)"
+                        }
+                      },
+                      "kinds": [
+                        "call",
+                        "function"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 12,
+                            "snippet": {
+                              "text": "\t\tnew FileReader(filename).read(buffer);"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 9,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "java.io.IOException thrown"
+                        }
+                      },
+                      "kinds": [
+                        "unknown"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 12,
+                            "snippet": {
+                              "text": "\t\tnew FileReader(filename).read(buffer);"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 9,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "throw"
+                        }
+                      },
+                      "kinds": [
+                        "return",
+                        "function"
+                      ]
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 12,
+                            "snippet": {
+                              "text": "\t\tnew FileReader(filename).read(buffer);"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 9,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "end scope : Resource leaked : java.io.IOException thrown"
+                        }
+                      },
+                      "kinds": [
+                        "exit",
+                        "scope"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "relatedLocations": [
+            {
+              "id": 1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 3
+                }
+              }
+            }
+          ],
+          "properties": {
+            "InstanceSeverity": "3.0",
+            "Confidence": "5.0"
+          }
+        },
+        {
+          "ruleIndex": 2,
+          "message": {
+            "text": "The method main() in [EightBall.java](1) ignores the value returned by read() on line [12](1), which could cause the program to overlook unexpected states and conditions.\r\nIgnoring a method's return value can cause the program to overlook unexpected states and conditions."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12,
+                  "snippet": {
+                    "text": "\t\tnew FileReader(filename).read(buffer);"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 9,
+                  "endLine": 15,
+                  "snippet": {
+                    "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                  }
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 12,
+                            "snippet": {
+                              "text": "\t\tnew FileReader(filename).read(buffer);"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 9,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "read()"
+                        }
+                      },
+                      "kinds": [
+                        "call",
+                        "function"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "relatedLocations": [
+            {
+              "id": 1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "InstanceSeverity": "2.0",
+            "Confidence": "5.0"
+          }
+        },
+        {
+          "ruleIndex": 5,
+          "level": "note",
+          "message": {
+            "text": "Using println() rather than a dedicated logging facility makes it difficult to monitor the behavior of the program.\r\nUsing `System.out` or `System.err` rather than a dedicated logging facility makes it difficult to monitor the behavior of the program."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 10,
+                  "snippet": {
+                    "text": "\t\t\tSystem.out.println(\"Invalid input.\");"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 7,
+                  "endLine": 13,
+                  "snippet": {
+                    "text": "\t\ttry {\n\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);\n\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n"
+                  }
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 10,
+                            "snippet": {
+                              "text": "\t\t\tSystem.out.println(\"Invalid input.\");"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 7,
+                            "endLine": 13,
+                            "snippet": {
+                              "text": "\t\ttry {\n\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);\n\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "FunctionCall: println"
+                        }
+                      },
+                      "kinds": [
+                        "unknown"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "relatedLocations": [
+            {
+              "id": 1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 15
+                }
+              }
+            }
+          ],
+          "properties": {
+            "InstanceSeverity": "2.0",
+            "Confidence": "5.0"
+          }
+        },
+        {
+          "ruleIndex": 3,
+          "message": {
+            "text": "Attackers are able to control the file system path argument to FileReader() at [EightBall.java](1) line [12](1), which allows them to access or modify otherwise protected files.\r\nAllowing user input to control paths used in file system operations could enable an attacker to access or modify otherwise protected system resources."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12,
+                  "snippet": {
+                    "text": "\t\tnew FileReader(filename).read(buffer);"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 9,
+                  "endLine": 15,
+                  "snippet": {
+                    "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                  }
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "index": 0
+                    },
+                    {
+                      "index": 1
+                    },
+                    {
+                      "index": 2
+                    },
+                    {
+                      "index": 3
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 12,
+                            "snippet": {
+                              "text": "\t\tnew FileReader(filename).read(buffer);"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 9,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "FileReader(0)"
+                        }
+                      },
+                      "kinds": [
+                        "call",
+                        "function"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "relatedLocations": [
+            {
+              "id": 1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 18
+                }
+              }
+            }
+          ],
+          "properties": {
+            "InstanceSeverity": "3.0",
+            "Confidence": "5.0"
+          }
+        },
+        {
+          "ruleIndex": 0,
+          "message": {
+            "text": "Attackers are able to control the file system path argument to FileReader() at [EightBall.java](1) line [12](1), which allows them to access or modify otherwise protected files.\r\nAllowing user input to control paths used in file system operations could enable an attacker to access or modify otherwise protected system resources."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12,
+                  "snippet": {
+                    "text": "\t\tnew FileReader(filename).read(buffer);"
+                  }
+                },
+                "contextRegion": {
+                  "startLine": 9,
+                  "endLine": 15,
+                  "snippet": {
+                    "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                  }
+                }
+              }
+            }
+          ],
+          "codeFlows": [
+            {
+              "threadFlows": [
+                {
+                  "locations": [
+                    {
+                      "index": 0
+                    },
+                    {
+                      "index": 1
+                    },
+                    {
+                      "location": {
+                        "physicalLocation": {
+                          "artifactLocation": {
+                            "index": 0
+                          },
+                          "region": {
+                            "startLine": 12,
+                            "snippet": {
+                              "text": "\t\tnew FileReader(filename).read(buffer);"
+                            }
+                          },
+                          "contextRegion": {
+                            "startLine": 9,
+                            "endLine": 15,
+                            "snippet": {
+                              "text": "\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n\t\tnew FileReader(filename).read(buffer);\n\t\tSystem.out.println(buffer);\n\t}\n}\n"
+                            }
+                          }
+                        },
+                        "message": {
+                          "text": "FileReader(0)"
+                        }
+                      },
+                      "kinds": [
+                        "call",
+                        "function"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "relatedLocations": [
+            {
+              "id": 1,
+              "physicalLocation": {
+                "artifactLocation": {
+                  "index": 0
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 18
+                }
+              }
+            }
+          ],
+          "properties": {
+            "InstanceSeverity": "3.0",
+            "Confidence": "5.0"
+          }
+        }
+      ],
+      "tool": {
+        "driver": {
+          "name": "Micro Focus Fortify Static Code Analyzer",
+          "rules": [
+            {
+              "id": "823FE039-A7FE-4AAD-B976-9EC53FFE4A59",
+              "guid": "823FE039-A7FE-4AAD-B976-9EC53FFE4A59",
+              "shortDescription": {
+                "text": "Attackers are able to control the file system path argument to <Replace key=\"PrimaryCall.name\"/> at <Replace key=\"PrimaryLocation.file\"/> line <Replace key=\"PrimaryLocation.line\"/>, which allows them to access or modify otherwise protected files.\r\nAllowing user input to control paths used in file system operations could enable an attacker to access or modify otherwise protected system resources."
+              },
+              "fullDescription": {
+                "text": "Path manipulation errors occur when the following two conditions are met:\r\n\r\n1. An attacker is able to specify a path used in an operation on the file system.\r\n\r\n2. By specifying the resource, the attacker gains a capability that would not otherwise be permitted.\r\n\r\nFor example, the program may give the attacker the ability to overwrite the specified file or run with a configuration controlled by the attacker.\r\n\r\nIn this case, the attacker may specify the value that enters the program at <Replace key=\"SourceFunction\" link=\"SourceLocation\"/> in <Replace key=\"SourceLocation.file\"/> at line <Replace key=\"SourceLocation.line\"/>, and this value is used to access a file system resource at <Replace key=\"SinkFunction\" link=\"SinkLocation\"/> in <Replace key=\"SinkLocation.file\"/> at line <Replace key=\"SinkLocation.line\"/>.\r\n\r\nEven though the data in this case is a number, it is unvalidated and thus still considered malicious, hence the vulnerability is still reported but with reduced priority values.\r\n\r\n**Example 1:** The following code uses input from an HTTP request to create a file name. The programmer has not considered the possibility that an attacker could provide a file name such as \"`../../tomcat/conf/server.xml`\", which causes the application to delete one of its own configuration files.\r\n\r\n`\nString rName = request.getParameter(\"reportName\");\nFile rFile = new File(\"/usr/local/apfr/reports/\" + rName);\n...\nrFile.delete();\n`\r\n\r\n**Example 2:** The following code uses input from a configuration file to determine which file to open and echo back to the user. If the program runs with adequate privileges and malicious users can change the configuration file, they can use the program to read any file on the system that ends with the extension `.txt`.\r\n\r\n`\nfis = new FileInputStream(cfg.getProperty(\"sub\")+\".txt\");\namt = fis.read(arr);\nout.println(arr);\n`\r\n\r\nSome think that in the mobile world, classic vulnerabilities, such as path manipulation, do not make sense -- why would the user attack themself? However, keep in mind that the essence of mobile platforms is applications that are downloaded from various sources and run alongside each other on the same device. The likelihood of running a piece of malware next to a banking application is high, which necessitates expanding the attack surface of mobile applications to include inter-process communication.\r\n\r\n**Example 3:** The following code adapts `Example 1` to the Android platform.\r\n\r\n`\n...\n        String rName = this.getIntent().getExtras().getString(\"reportName\");\n        File rFile = getBaseContext().getFileStreamPath(rName);\n...\n        rFile.delete();\n...\n`"
+              },
+              "defaultConfiguration": {
+                "properties": {
+                  "DefaultSeverity": "3.0"
+                }
+              },
+              "relationships": [
+                {
+                  "target": {
+                    "id": "22",
+                    "toolComponent": {
+                      "name": "CWE",
+                      "guid": "25F72D7E-8A92-459D-AD67-64853F788765"
+                    }
+                  },
+                  "kinds": [
+                    "relevant"
+                  ]
+                },
+                {
+                  "target": {
+                    "id": "73",
+                    "toolComponent": {
+                      "name": "CWE",
+                      "guid": "25F72D7E-8A92-459D-AD67-64853F788765"
+                    }
+                  },
+                  "kinds": [
+                    "relevant"
+                  ]
+                }
+              ],
+              "properties": {
+                "Accuracy": "4.0",
+                "Impact": "3.0",
+                "Probability": "4.0",
+                "Kingdom": "Input Validation and Representation",
+                "Type": "Path Manipulation"
+              }
+            },
+            {
+              "id": "74714BFC-EDF7-445B-8672-0996214D5845",
+              "guid": "74714BFC-EDF7-445B-8672-0996214D5845",
+              "shortDescription": {
+                "text": "The function <Replace key=\"EnclosingFunction.name\"/> in <Replace key=\"PrimaryLocation.file\"/> sometimes fails to release a system resource allocated by <Replace key=\"FirstTransitionFunction\"/> on line <Replace key=\"FirstTraceLocation.line\"/>.\r\nThe program can potentially fail to release a system resource."
+              },
+              "fullDescription": {
+                "text": "The program can potentially fail to release a system resource.\r\n\r\nIn this case, there are program paths on which the resource allocated in <Replace key=\"FirstTraceLocation.file\"/> at line <Replace key=\"FirstTraceLocation.line\"/> is not released.\r\n\r\nResource leaks have at least two common causes:\r\n\r\n- Error conditions and other exceptional circumstances.\r\n\r\n- Confusion over which part of the program is responsible for releasing the resource.\r\n\r\nMost unreleased resource issues result in general software reliability problems. However, if an attacker can intentionally trigger a resource leak, the attacker may be able to launch a denial of service attack by depleting the resource pool.\r\n\r\n**Example:** The following method never closes the file handle it opens. The `finalize()` method for `FileInputStream` eventually calls `close()`, but there is no guarantee as to how long it will take before the `finalize()` method will be invoked. In a busy environment, this can result in the JVM using up all of its file handles.\n`\nprivate void processFile(String fName) throws FileNotFoundException, IOException {\n  FileInputStream fis = new FileInputStream(fName);\n  int sz;\n  byte[] byteArray = new byte[BLOCK_SIZE];\n  while ((sz = fis.read(byteArray)) != -1) {\n    processBytes(byteArray, sz);\n  }\n}\n`"
+              },
+              "defaultConfiguration": {
+                "properties": {
+                  "DefaultSeverity": "3.0"
+                }
+              },
+              "relationships": [
+                {
+                  "target": {
+                    "id": "772",
+                    "toolComponent": {
+                      "name": "CWE",
+                      "guid": "25F72D7E-8A92-459D-AD67-64853F788765"
+                    }
+                  },
+                  "kinds": [
+                    "relevant"
+                  ]
+                }
+              ],
+              "properties": {
+                "Accuracy": "3.0",
+                "Impact": "2.5",
+                "Probability": "1.0",
+                "Kingdom": "Code Quality",
+                "Type": "Unreleased Resource",
+                "Subtype": "Streams"
+              }
+            },
+            {
+              "id": "F5479615-A5E9-4BC9-BDBF-6FAC2B062F80",
+              "guid": "F5479615-A5E9-4BC9-BDBF-6FAC2B062F80",
+              "shortDescription": {
+                "text": "The method <Replace key=\"EnclosingFunction.name\"/> in <Replace key=\"PrimaryLocation.file\"/> ignores the value returned by <Replace key=\"PrimaryCall.name\"/> on line <Replace key=\"PrimaryLocation.line\"/>, which could cause the program to overlook unexpected states and conditions.\r\nIgnoring a method's return value can cause the program to overlook unexpected states and conditions."
+              },
+              "fullDescription": {
+                "text": "It is not uncommon for Java programmers to misunderstand `read()` and related methods that are part of many `java.io` classes. Most errors and unusual events in Java result in an exception being thrown. (This is one of the advantages that Java has over languages like C: Exceptions make it easier for programmers to think about what can go wrong.) But the stream and reader classes do not consider it unusual or exceptional if only a small amount of data becomes available. These classes simply add the small amount of data to the return buffer, and set the return value to the number of bytes or characters read. There is no guarantee that the amount of data returned is equal to the amount of data requested.\r\n\r\nThis behavior makes it important for programmers to examine the return value from `read()` and other IO methods to ensure that they receive the amount of data they expect.\r\n\r\nIn this case, the value of <Replace key=\"PrimaryCall.name\" link=\"PrimaryLocation\"/> is unchecked in <Replace key=\"PrimaryLocation.file\"/> at line <Replace key=\"PrimaryLocation.line\"/>.\r\n\r\n**Example:** The following code loops through a set of users, reading a private data file for each user. The programmer assumes that the files are always exactly 1 kilobyte in size and therefore ignores the return value from `read()`. If an attacker can create a smaller file, the program will recycle the remainder of the data from the previous user and handle it as though it belongs to the attacker.\r\n\r\n`\nFileInputStream fis;\nbyte[] byteArray = new byte[1024];\nfor (Iterator i=users.iterator(); i.hasNext();) {\n    String userName = (String) i.next();\n    String pFileName = PFILE_ROOT + \"/\" + userName;\n    FileInputStream fis = new FileInputStream(pFileName);\n    fis.read(byteArray); // the file is always 1k bytes\n    fis.close();\n    processPFile(userName, byteArray);\n}\n`"
+              },
+              "defaultConfiguration": {
+                "properties": {
+                  "DefaultSeverity": "2.0"
+                }
+              },
+              "relationships": [
+                {
+                  "target": {
+                    "id": "252",
+                    "toolComponent": {
+                      "name": "CWE",
+                      "guid": "25F72D7E-8A92-459D-AD67-64853F788765"
+                    }
+                  },
+                  "kinds": [
+                    "relevant"
+                  ]
+                },
+                {
+                  "target": {
+                    "id": "754",
+                    "toolComponent": {
+                      "name": "CWE",
+                      "guid": "25F72D7E-8A92-459D-AD67-64853F788765"
+                    }
+                  },
+                  "kinds": [
+                    "relevant"
+                  ]
+                }
+              ],
+              "properties": {
+                "Accuracy": "4.0",
+                "Impact": "2.0",
+                "Probability": "1.0",
+                "Kingdom": "API Abuse",
+                "Type": "Unchecked Return Value"
+              }
+            },
+            {
+              "id": "0B15E7B7-B74B-47F9-B383-DA739797D00C",
+              "guid": "0B15E7B7-B74B-47F9-B383-DA739797D00C",
+              "shortDescription": {
+                "text": "Attackers are able to control the file system path argument to <Replace key=\"PrimaryCall.name\"/> at <Replace key=\"PrimaryLocation.file\"/> line <Replace key=\"PrimaryLocation.line\"/>, which allows them to access or modify otherwise protected files.\r\nAllowing user input to control paths used in file system operations could enable an attacker to access or modify otherwise protected system resources."
+              },
+              "fullDescription": {
+                "text": "Path manipulation errors occur when the following two conditions are met:\r\n\r\n1. An attacker is able to specify a path used in an operation on the file system.\r\n\r\n2. By specifying the resource, the attacker gains a capability that would not otherwise be permitted.\r\n\r\nFor example, the program may give the attacker the ability to overwrite the specified file or run with a configuration controlled by the attacker.\r\n\r\nIn this case, the attacker may specify the value that enters the program at <Replace key=\"SourceFunction\" link=\"SourceLocation\"/> in <Replace key=\"SourceLocation.file\"/> at line <Replace key=\"SourceLocation.line\"/>, and this value is used to access a file system resource at <Replace key=\"SinkFunction\" link=\"SinkLocation\"/> in <Replace key=\"SinkLocation.file\"/> at line <Replace key=\"SinkLocation.line\"/>.\r\n\r\nEven though the data in this case is a number, it is unvalidated and thus still considered malicious, hence the vulnerability is still reported but with reduced priority values.\r\n\r\n**Example 1:** The following code uses input from an HTTP request to create a file name. The programmer has not considered the possibility that an attacker could provide a file name such as \"`../../tomcat/conf/server.xml`\", which causes the application to delete one of its own configuration files.\r\n\r\n`\nString rName = request.getParameter(\"reportName\");\nFile rFile = new File(\"/usr/local/apfr/reports/\" + rName);\n...\nrFile.delete();\n`\r\n\r\n**Example 2:** The following code uses input from a configuration file to determine which file to open and echo back to the user. If the program runs with adequate privileges and malicious users can change the configuration file, they can use the program to read any file on the system that ends with the extension `.txt`.\r\n\r\n`\nfis = new FileInputStream(cfg.getProperty(\"sub\")+\".txt\");\namt = fis.read(arr);\nout.println(arr);\n`\r\n\r\nSome think that in the mobile world, classic vulnerabilities, such as path manipulation, do not make sense -- why would the user attack themself? However, keep in mind that the essence of mobile platforms is applications that are downloaded from various sources and run alongside each other on the same device. The likelihood of running a piece of malware next to a banking application is high, which necessitates expanding the attack surface of mobile applications to include inter-process communication.\r\n\r\n**Example 3:** The following code adapts `Example 1` to the Android platform.\r\n\r\n`\n...\n        String rName = this.getIntent().getExtras().getString(\"reportName\");\n        File rFile = getBaseContext().getFileStreamPath(rName);\n...\n        rFile.delete();\n...\n`"
+              },
+              "defaultConfiguration": {
+                "properties": {
+                  "DefaultSeverity": "3.0"
+                }
+              },
+              "relationships": [
+                {
+                  "target": {
+                    "id": "22",
+                    "toolComponent": {
+                      "name": "CWE",
+                      "guid": "25F72D7E-8A92-459D-AD67-64853F788765"
+                    }
+                  },
+                  "kinds": [
+                    "relevant"
+                  ]
+                },
+                {
+                  "target": {
+                    "id": "73",
+                    "toolComponent": {
+                      "name": "CWE",
+                      "guid": "25F72D7E-8A92-459D-AD67-64853F788765"
+                    }
+                  },
+                  "kinds": [
+                    "relevant"
+                  ]
+                }
+              ],
+              "properties": {
+                "Impact": "3",
+                "Probability": "1",
+                "Accuracy": "4.0",
+                "Kingdom": "Input Validation and Representation",
+                "Type": "Path Manipulation"
+              }
+            },
+            {
+              "id": "625EEE1F-464F-42DC-85D6-269A637EF747",
+              "guid": "625EEE1F-464F-42DC-85D6-269A637EF747",
+              "shortDescription": {
+                "text": "The class <Replace key=\"EnclosingClass.name\"/> contains debug code, which can create unintended entry points in a deployed web application.\r\nDebug code can create unintended entry points in a deployed web application."
+              },
+              "fullDescription": {
+                "text": "A common development practice is to add \"back door\" code specifically designed for debugging or testing purposes that is not intended to be shipped or deployed with the application. When this sort of debug code is accidentally left in the application, the application is open to unintended modes of interaction. These back door entry points create security risks because they are not considered during design or testing and fall outside of the expected operating conditions of the application.\r\n\r\nThe most common example of forgotten debug code is a `main()` method appearing in a web application. Although this is an acceptable practice during product development, classes that are part of a production J2EE application should not define a `main()`."
+              },
+              "defaultConfiguration": {
+                "properties": {
+                  "DefaultSeverity": "2.0"
+                }
+              },
+              "relationships": [
+                {
+                  "target": {
+                    "id": "489",
+                    "toolComponent": {
+                      "name": "CWE",
+                      "guid": "25F72D7E-8A92-459D-AD67-64853F788765"
+                    }
+                  },
+                  "kinds": [
+                    "relevant"
+                  ]
+                }
+              ],
+              "properties": {
+                "Accuracy": "4.0",
+                "Impact": "2.0",
+                "Probability": "1.0",
+                "Kingdom": "Encapsulation",
+                "Type": "J2EE Bad Practices",
+                "Subtype": "Leftover Debug Code"
+              }
+            },
+            {
+              "id": "F972FE42-6C15-47D2-BD5C-448166A574C2",
+              "guid": "F972FE42-6C15-47D2-BD5C-448166A574C2",
+              "shortDescription": {
+                "text": "Using <Replace key=\"PrimaryCall.name\"/> rather than a dedicated logging facility makes it difficult to monitor the behavior of the program.\r\nUsing `System.out` or `System.err` rather than a dedicated logging facility makes it difficult to monitor the behavior of the program."
+              },
+              "fullDescription": {
+                "text": "**Example 1:** The first Java program that a developer learns to write is the following:\r\n\r\n`\npublic class MyClass\n  public static void main(String[] args) {\n    System.out.println(\"hello world\");\n  }\n}\n`\r\n\r\nWhile most programmers go on to learn many nuances and subtleties about Java, a surprising number hang on to this first lesson and never give up on writing messages to standard output using `System.out.println()`.\r\n\r\nThe problem is that writing directly to standard output or standard error is often used as an unstructured form of logging. Structured logging facilities provide features like logging levels, uniform formatting, a logger identifier, timestamps, and, perhaps most critically, the ability to direct the log messages to the right place. When the use of system output streams is jumbled together with the code that uses loggers properly, the result is often a well-kept log that is missing critical information.\r\n\r\nDevelopers widely accept the need for structured logging, but many continue to use system output streams in their \"pre-production\" development. If the code you are reviewing is past the initial phases of development, use of `System.out` or `System.err` may indicate an oversight in the move to a structured logging system."
+              },
+              "defaultConfiguration": {
+                "level": "note",
+                "properties": {
+                  "DefaultSeverity": "2.0"
+                }
+              },
+              "relationships": [
+                {
+                  "target": {
+                    "id": "398",
+                    "toolComponent": {
+                      "name": "CWE",
+                      "guid": "25F72D7E-8A92-459D-AD67-64853F788765"
+                    }
+                  },
+                  "kinds": [
+                    "relevant"
+                  ]
+                }
+              ],
+              "properties": {
+                "Accuracy": "5.0",
+                "Impact": "1.0",
+                "Probability": "1.0",
+                "Kingdom": "Encapsulation",
+                "Type": "Poor Logging Practice",
+                "Subtype": "Use of a System Output Stream"
+              }
+            },
+            {
+              "id": "F0B4AD7A-22C9-4C6A-B665-FCE9FD033A69",
+              "guid": "F0B4AD7A-22C9-4C6A-B665-FCE9FD033A69"
+            }
+          ],
+          "supportedTaxonomies": [
+            {
+              "name": "CWE",
+              "index": 0,
+              "guid": "25F72D7E-8A92-459D-AD67-64853F788765"
+            }
+          ]
+        }
+      },
+      "invocations": [
+        {
+          "commandLine": "[REMOVED]insourceanalyzer.exe -b EightBall -scan -f EightBall.fpr",
+          "startTimeUtc": "2020-04-10T18:09:19.000Z",
+          "toolExecutionNotifications": [
+            {
+              "message": {
+                "text": "Assuming Java source level to be 1.8 as it was not specified. Note that the default value may change in future versions."
+              },
+              "level": "error",
+              "descriptor": {
+                "id": "12003"
+              }
+            }
+          ],
+          "executionSuccessful": true,
+          "machine": "NLsendenr03",
+          "account": "sendenr",
+          "properties": {
+            "Platform": "Windows 10"
+          }
+        }
+      ],
+      "originalUriBaseIds": {
+        "SRCROOT": {
+          "uri": "file:///C:/WORK/Programs/_Fortify/SCA/19.2.0/Samples/basic/eightball/"
+        }
+      },
+      "artifacts": [
+        {
+          "location": {
+            "uri": "EightBall.java",
+            "uriBaseId": "SRCROOT"
+          },
+          "length": 383,
+          "mimeType": "text/x-java-source",
+          "encoding": "windows-1252"
+        }
+      ],
+      "automationDetails": {
+        "id": "EightBall/"
+      },
+      "columnKind": "utf16CodeUnits",
+      "threadFlowLocations": [
+        {
+          "location": {
+            "physicalLocation": {
+              "artifactLocation": {
+                "index": 0
+              },
+              "region": {
+                "startLine": 4,
+                "snippet": {
+                  "text": "\tpublic static void main(String args[]) throws Exception {"
+                }
+              },
+              "contextRegion": {
+                "startLine": 1,
+                "endLine": 7,
+                "snippet": {
+                  "text": "import java.io.FileReader;\n\npublic class EightBall {\n\tpublic static void main(String args[]) throws Exception {\n\t\tchar[] buffer = new char[1024];\n\t\tString filename = args[0];\n\t\ttry {\n"
+                }
+              }
+            },
+            "message": {
+              "text": "main(0)"
+            }
+          },
+          "kinds": [
+            "call",
+            "function"
+          ]
+        },
+        {
+          "location": {
+            "physicalLocation": {
+              "artifactLocation": {
+                "index": 0
+              },
+              "region": {
+                "startLine": 6,
+                "snippet": {
+                  "text": "\t\tString filename = args[0];"
+                }
+              },
+              "contextRegion": {
+                "startLine": 3,
+                "endLine": 9,
+                "snippet": {
+                  "text": "public class EightBall {\n\tpublic static void main(String args[]) throws Exception {\n\t\tchar[] buffer = new char[1024];\n\t\tString filename = args[0];\n\t\ttry {\n\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);\n\t\t} catch (Exception e) {\n"
+                }
+              }
+            },
+            "message": {
+              "text": "Assignment to filename"
+            }
+          },
+          "kinds": [
+            "acquire",
+            "resource"
+          ]
+        },
+        {
+          "location": {
+            "physicalLocation": {
+              "artifactLocation": {
+                "index": 0
+              },
+              "region": {
+                "startLine": 8,
+                "snippet": {
+                  "text": "\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);"
+                }
+              },
+              "contextRegion": {
+                "startLine": 5,
+                "endLine": 11,
+                "snippet": {
+                  "text": "\t\tchar[] buffer = new char[1024];\n\t\tString filename = args[0];\n\t\ttry {\n\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);\n\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n"
+                }
+              }
+            },
+            "message": {
+              "text": "parseInt(0 : return)"
+            }
+          },
+          "kinds": [
+            "call",
+            "function",
+            "return"
+          ]
+        },
+        {
+          "location": {
+            "physicalLocation": {
+              "artifactLocation": {
+                "index": 0
+              },
+              "region": {
+                "startLine": 8,
+                "snippet": {
+                  "text": "\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);"
+                }
+              },
+              "contextRegion": {
+                "startLine": 5,
+                "endLine": 11,
+                "snippet": {
+                  "text": "\t\tchar[] buffer = new char[1024];\n\t\tString filename = args[0];\n\t\ttry {\n\t\t\tfilename = \"\" + (Integer.parseInt(filename) % 3);\n\t\t} catch (Exception e) {\n\t\t\tSystem.out.println(\"Invalid input.\");\n\t\t}\n"
+                }
+              }
+            },
+            "message": {
+              "text": "Assignment to filename"
+            }
+          },
+          "kinds": [
+            "acquire",
+            "resource"
+          ]
+        }
+      ],
+      "taxonomies": [
+        {
+          "guid": "25F72D7E-8A92-459D-AD67-64853F788765",
+          "name": "CWE",
+          "organization": "MITRE",
+          "shortDescription": {
+            "text": "The MITRE Common Weakness Enumeration"
+          },
+          "taxa": [
+            {
+              "id": "22"
+            },
+            {
+              "id": "73"
+            },
+            {
+              "id": "489"
+            },
+            {
+              "id": "772"
+            },
+            {
+              "id": "252"
+            },
+            {
+              "id": "754"
+            },
+            {
+              "id": "398"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

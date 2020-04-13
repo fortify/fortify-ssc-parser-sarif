@@ -12,7 +12,7 @@ stages:
 jobs:
   include:
     - stage: build
-      script: /bin/sh ./gradlew build --stacktrace
+      script: /bin/sh ./gradlew build
     - stage: snapshotBranch
       script: /bin/sh ./gradlew "-PoverrideVersion=$TRAVIS_BRANCH" bintrayUpload -x test -Dbuild.number=$TRAVIS_BUILD_NUMBER
     - stage: releaseTag

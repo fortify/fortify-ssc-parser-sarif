@@ -38,7 +38,6 @@ import com.fortify.ssc.parser.sarif.domain.MultiformatMessageString;
 import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.domain.Result;
 import com.fortify.ssc.parser.sarif.domain.Result.Kind;
-import com.fortify.util.ssc.parser.EngineTypeHelper;
 
 import lombok.experimental.Delegate;
 

@@ -59,6 +59,11 @@ public final class ArtifactLocation {
 		if ( resolvedURI.getScheme()==null ) {
 			resolvedURI = resolvedURI.resolve("file:///");
 		}
-		return Paths.get(resolvedURI).toString(); 
+		try {
+			return Paths.get(resolvedURI).toString();
+		} catch ( IllegalArgumentException iae ) {
+			// Call above fails on Linux if resolvedURI points to an UNC path
+			return resolvedURI.toString();
+		}
 	}
 }

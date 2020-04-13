@@ -36,8 +36,8 @@ public final class Result {
 	@JsonProperty private String guid;
 	@JsonProperty private String correlationGuid;
 	@JsonProperty private String ruleId;
-	// @JsonProperty private int ruleIndex;
-	// @JsonProperty private ReportingDescriptorReference rule;
+	@JsonProperty private Integer ruleIndex;
+	@JsonProperty private ReportingDescriptorReference rule;
 	// @JsonProperty private ReportingDescriptorReference[] taxa;
 	@JsonProperty private Result.Kind kind;
 	@JsonProperty private Level level;

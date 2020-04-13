@@ -125,12 +125,12 @@ public final class VulnerabilitiesParser {
 	/**
 	 * This method produces a Fortify vulnerability based on the given
 	 * {@link ResultWrapperWithRunData} instance. No vulnerability will be produced 
-	 * if {@link ResultWrapperWithRunData#getLevelOrDefault()} returns a level that
+	 * if {@link ResultWrapperWithRunData#resolveLevel()} returns a level that
 	 * indicates that the result is not interesting from a Fortify perspective.
 	 * @param result
 	 */
 	private final void produceVulnerability(ResultWrapperWithRunData result) {
-		Priority priority = result.getLevelOrDefault().getFortifyPriority();
+		Priority priority = result.resolveLevel().getFortifyPriority();
 		if ( priority != null ) {
 			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(DigestUtils.sha256Hex(result.getVulnerabilityId()));
 			vb.setAccuracy(5.0f);
@@ -139,7 +139,7 @@ public final class VulnerabilitiesParser {
 			vb.setClassName(null);
 			vb.setConfidence(2.5f);
 			vb.setEngineType(result.getEngineType());
-    		vb.setFileName(result.getFullFileName("Unknown"));
+    		vb.setFileName(result.resolveFullFileName("Unknown"));
     		//vb.setFunctionName(functionName);
     		vb.setImpact(2.5f);
     		//vb.setKingdom(kingdom);

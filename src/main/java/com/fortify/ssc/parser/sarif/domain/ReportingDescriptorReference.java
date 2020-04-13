@@ -24,23 +24,25 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.domain;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fortify.ssc.parser.sarif.parser.util.RunData;
+import com.fortify.util.mapdb.CustomSerializerElsa;
 
 import lombok.Getter;
 
+/**
+ * This data class holds all relevant rule-related information.
+ * 
+ * @author Ruud Senden
+ */
 @Getter
-public final class PhysicalLocation {
-	@JsonProperty private ArtifactLocation artifactLocation;
-	// @JsonProperty private Region region;
-	// @JsonProperty private Region contextRegion;
-	// @JsonProperty private Address address;
-
-	public ArtifactLocation resolveArtifactLocation(RunData runData) {
-		if ( artifactLocation!=null ) {
-			Artifact artifact = runData.getArtifactByIndex(artifactLocation.getIndex());
-			if ( artifact!=null ) { return artifact.getLocation(); }
-		}
-		return artifactLocation;
-	}
+public final class ReportingDescriptorReference implements Serializable {
+	public static final CustomSerializerElsa<ReportingDescriptorReference> SERIALIZER = new CustomSerializerElsa<>(ReportingDescriptorReference.class);
+	private static final long serialVersionUID = 1L;
+	
+	@JsonProperty private String id;
+	@JsonProperty private Integer index;
+	@JsonProperty private String guid;
+	//@JsonProperty private ToolComponentReference toolComponent;
 }

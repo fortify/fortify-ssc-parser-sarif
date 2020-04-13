@@ -60,29 +60,67 @@ public class ResultWrapperWithRunData {
 		this.runData = runData;
 	}
 	
-	public String getFullFileName(final String defaultValue) {
+	public String resolveFullFileName(final String defaultValue) {
 		String value = defaultValue;
 		final Map<String,ArtifactLocation> originalUriBaseIds = runData.getOriginalUriBaseIds();
 		Location[] locations = getLocations();
 		if ( locations!=null && locations.length>0 && locations[0].getPhysicalLocation()!=null ) {
-			value = locations[0].getPhysicalLocation().getArtifactLocation().getFullFileName(originalUriBaseIds);
+			value = locations[0].getPhysicalLocation().resolveArtifactLocation(runData).getFullFileName(originalUriBaseIds);
 		} else if ( getAnalysisTarget()!=null ) {
 			value = getAnalysisTarget().getFullFileName(originalUriBaseIds);
 		}
 		return value;
 	}
 	
-	public ReportingDescriptor getRule() {
+	public ReportingDescriptor resolveRule() {
 		if ( this.rule == null ) {
-			String ruleId = getRuleId();
-			this.rule = ruleId==null ? null : runData.getRulesById().get(ruleId);
+			this.rule = resolveRuleByIndex();
+			if ( this.rule == null ) {
+				this.rule = resolveRuleById();
+				if ( this.rule == null ) {
+					this.rule = resolveRuleByGuid();
+				}
+			}
 		}
 		return this.rule;
 	}
 	
-	public Level getLevelOrDefault() {
+	private ReportingDescriptor resolveRuleByIndex() {
+		Integer ruleIndex = resolveRuleIndex();
+		return ruleIndex==null ? null : runData.getRuleByIndex(ruleIndex);
+	}
+	
+	private Integer resolveRuleIndex() {
+		if ( result.getRuleIndex()!=null ) { 
+			return result.getRuleIndex(); 
+		} else if ( result.getRule()!=null && result.getRule().getIndex()!=null ) {
+			return result.getRule().getIndex();
+		}
+		return null;
+	}
+	
+	private ReportingDescriptor resolveRuleById() {
+		String ruleId = resolveRuleId();
+		return ruleId==null ? null : runData.getRuleById(ruleId);
+	}
+	
+	private String resolveRuleId() {
+		if ( StringUtils.isNotBlank(result.getRuleId()) ) { 
+			return result.getRuleId(); 
+		} else if ( result.getRule()!=null && StringUtils.isNotBlank(result.getRule().getId()) ) {
+			return result.getRule().getId();
+		}
+		return null;
+	}
+	
+	private ReportingDescriptor resolveRuleByGuid() {
+		String ruleGuid = result.getRule()==null ? null : result.getRule().getGuid(); 
+		return ruleGuid==null ? null : runData.getRuleByGuid(ruleGuid);
+	}
+
+	public Level resolveLevel() {
 		Level level = result.getLevel();
-		ReportingDescriptor rule = getRule();
+		ReportingDescriptor rule = resolveRule();
 		// TODO Currently we don't check for level overrides;
 		//      See https://docs.oasis-open.org/sarif/sarif/v2.1.0/cs01/sarif-v2.1.0-cs01.html#_Toc16012604 
 		if ( level == null ) {
@@ -112,7 +150,7 @@ public class ResultWrapperWithRunData {
 	}
 
 	private MultiformatMessageString getMultiformatMessageStringForId(String id) {
-		ReportingDescriptor rule = getRule();
+		ReportingDescriptor rule = resolveRule();
 		Map<String, MultiformatMessageString> messageStrings = rule==null ? null : rule.getMessageStrings();
 		return messageStrings==null ? null : messageStrings.get(id);
 	}
@@ -143,7 +181,7 @@ public class ResultWrapperWithRunData {
 			String partialFingerPrints = getPartialFingerprints()==null?"":new TreeMap<>(getPartialFingerprints()).toString();
 			return String.join("|", 
 				runData.getToolName(),
-				getFullFileName("Unknown"),
+				resolveFullFileName("Unknown"),
 				getRuleId(),
 				partialFingerPrints,
 				getResultMessage());
@@ -151,14 +189,14 @@ public class ResultWrapperWithRunData {
 	}
 	
 	public String getCategory() {
-		ReportingDescriptor rule = getRule();
+		ReportingDescriptor rule = resolveRule();
 		return rule==null || rule.getName()==null 
 				? runData.getEngineType()
 				: StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
 	}
 	
 	public String getSubCategory() {
-		ReportingDescriptor rule = getRule();
+		ReportingDescriptor rule = resolveRule();
 		return rule==null || rule.getName()==null 
 				? result.getRuleId() 
 				: null;

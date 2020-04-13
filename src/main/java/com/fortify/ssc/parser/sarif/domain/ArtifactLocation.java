@@ -24,6 +24,7 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.domain;
 
+import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -33,10 +34,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public final class ArtifactLocation {
+public final class ArtifactLocation implements Serializable {
+	private static final long serialVersionUID = 1L;
 	@JsonProperty private URI uri;
 	@JsonProperty private String uriBaseId;
-	// @JsonProperty private int index;
+	@JsonProperty private Integer index;
 	// @JsonProperty private Message description;
 	
 	public URI resolveURI(Map<String, ArtifactLocation> originalUriBaseIds) {
@@ -57,7 +59,7 @@ public final class ArtifactLocation {
 		URI resolvedURI = resolveURI(originalUriBaseIds);
 		if ( resolvedURI==null ) { return null; }
 		if ( resolvedURI.getScheme()==null ) {
-			resolvedURI = resolvedURI.resolve("file:///");
+			//resolvedURI = URI.create("file:///").resolve(resolvedURI);
 		}
 		try {
 			return Paths.get(resolvedURI).toString();

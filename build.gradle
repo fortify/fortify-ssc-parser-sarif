@@ -51,6 +51,7 @@ configurations.all {
 dependencies {
 	compileExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.7') { transitive = true }
     compileExport(group: 'com.fortify.ssc.parser.util', name: 'fortify-ssc-parser-util', version:'1.1', changing: false) { transitive = true }
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.6.0")
 }
 
 task dist(type: Zip) {

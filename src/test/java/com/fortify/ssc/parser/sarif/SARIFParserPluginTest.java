@@ -38,6 +38,8 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.fortify.plugin.api.ScanBuilder;
 import com.fortify.plugin.api.ScanData;
@@ -114,22 +116,24 @@ class SARIFParserPluginTest {
 		}
 	};
 	
-	@Test
-	void testParseScan() throws Exception {
-		for ( String file : SAMPLE_FILES_2_1_0 ) {
-			System.err.println("\n\n---- "+file+" - parseScan");
-			new SARIFParserPlugin().parseScan(getScanData("2.1.0/"+file), scanBuilder);
-			// TODO Check actual output
-		}
+	@ParameterizedTest
+	@MethodSource("getSampleFiles2_1_0")
+	void testParseScan(String file) throws Exception {
+		System.err.println("\n\n---- "+file+" - parseScan");
+		new SARIFParserPlugin().parseScan(getScanData("2.1.0/"+file), scanBuilder);
+		// TODO Check actual output
 	}
 	
-	@Test
-	void testParseVulnerabilities() throws Exception {
-		for ( String file : SAMPLE_FILES_2_1_0 ) {
-			System.err.println("\n\n---- "+file+" - parseVulnerabilities");
-			new SARIFParserPlugin().parseVulnerabilities(getScanData("2.1.0/"+file), vulnerabilityHandler);
-			// TODO Check actual output
-		}
+	@ParameterizedTest
+	@MethodSource("getSampleFiles2_1_0")
+	void testParseVulnerabilities(String file) throws Exception {
+		System.err.println("\n\n---- "+file+" - parseVulnerabilities");
+		new SARIFParserPlugin().parseVulnerabilities(getScanData("2.1.0/"+file), vulnerabilityHandler);
+		// TODO Check actual output
+	}
+	
+	public static List<String> getSampleFiles2_1_0() {
+		return Arrays.asList(SAMPLE_FILES_2_1_0);
 	}
 	
 	@Test

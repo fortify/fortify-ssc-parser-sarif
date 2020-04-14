@@ -13,28 +13,34 @@ This Fortify SSC parser plugin allows for importing SARIF (Static Analysis Resul
 * **Automated builds**: https://travis-ci.com/fortify-ps/fortify-ssc-parser-sarif
 * **SARIF resources**:
 	* Specification: https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html
-	* Microsoft SARIF SDK: https://github.com/microsoft/sarif-sdk
+	* Microsoft SARIF SDK: https://github.com/microsoft/sarif-sdk  
+	Note that this SDK is not used by the parser plugin, but it provides some useful examples
 
 ## <a name="limitations">Limitations</a>
 
-The plugin should be able to parse any SARIF files that adhere to the SARIF 2.1.0 specification. Other versions of the
-specification are currently not supported. At the moment, the plugin only parses and displays basic issue information.
-Future versions of the plugin may display more information like code flows, thread flows, web requests, web responses, ...
+* **SARIF 2.1.0 only**  
+  The plugin should be able to parse any SARIF files that adhere to the SARIF 2.1.0 specification. Other versions of the
+  specification are currently not supported. 
 
-Actual results may vary due to the flexibility of the SARIF specification. Some examples:
+* **Only basic issue information**  
+  At the moment, the plugin only parses and displays basic issue information. Future versions of the plugin may display 
+  more information like code flows, thread flows, web requests, web responses, ...
 
-* The plugin may be unable to calculate consistent, unique issue instance id's because the input file doesn't provide sufficient 
+* **Actual results may vary depending on input**  
+  For example, due to the flexibility of the SARIF specification:  
+    * The plugin may be unable to calculate consistent, unique issue instance id's because the input file doesn't provide sufficient 
 details to uniquely identify an issue
-* The plugin may not be able to determine Fortify Priority Order because the input file does not provide issue severity levels
-* The plugin may be unable to determine Fortify Priority Order because the input file uses custom properties to specify issue severity
-* The plugin may be unable to display appropriate issue category or description because the input file is lacking this information, or 
+    * The plugin may not be able to determine Fortify Priority Order because the input file does not provide issue severity levels
+    * The plugin may be unable to determine Fortify Priority Order because the input file uses custom properties to specify issue severity
+    * The plugin may be unable to display appropriate issue category or description because the input file is lacking this information, or 
 providing this information in a non-standard way 
 
-Being a generic format, you may have multiple tools generating SARIF files that you want to import into SSC. Due to limitations
-in the SSC parser framework, it is currently not possible to import SARIF files from different sources into a single SSC
-application version. Independent of which tool was actually used to generate the SARIF file, SSC will assume that all SARIF files 
-originate from the scan engine. SSC will try to merge these uploads, thereby basically marking all issues from a previously uploaded
-SARIF file as 'removed'.
+* **SARIF results from multiple tools cannot be uploaded to single SSC application version**  
+  Being a generic format, you may have multiple tools generating SARIF files that you want to import into SSC. Due to limitations
+  in the SSC parser framework, it is currently not possible to import SARIF files from different sources into a single SSC
+  application version. Independent of which tool was actually used to generate the SARIF file, SSC will assume that all SARIF files 
+  originate from the scan engine. SSC will try to merge these uploads, thereby basically marking all issues from a previously uploaded
+  SARIF file as 'removed'.
 
 ## <a name="usage">Usage</a>
 
@@ -66,24 +72,52 @@ about how to install and use SSC parser plugins, please see the Fortify SSC docu
 
 Some products provide native support for producing analysis results in SARIF format, these results can be
 directly uploaded to SSC. The SARIF MultiTool can be used to convert various other output formats into 
-SARIF format. The following example illustrates how to install the SARIF MultiTool, and how to use this
-tool to generate SARIF output for the Fortify EightBall example. This example is for Windows only at the 
-moment.
+SARIF format. 
+
+The following example illustrates how to install the SARIF MultiTool. This example is for Windows only at the moment:
 
 * Download & install: https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.201-windows-x64-installer
 * Download & install: https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-2.1.17-windows-hosting-bundle-installer
 * Run the following command in an Administrator command prompt:  
   `dotnet tool install --global Sarif.Multitool --version 2.2.2`
-* Open a new command prompt (to use updated environment variables) and run the following commands:   
-```
-cd \path\to\Fortify\SCA\Samples\EightBall
-sourceanalyzer -b EightBall -clean
-sourceanalyzer -b EightBall EightBall.java
-sourceanalyzer -b EightBall -scan -f EightBall.fpr
-sarif convert EightBall.fpr --tool FortifyFpr --output EightBall.fpr.sarif --pretty-print --force
-reportgenerator -format xml -f EightBall.xml -source EightBall.fpr
-sarif convert EightBall.xml --tool Fortify --output EightBall.xml.sarif --pretty-print --force
-```
+  
+As an example, SARIF MultiTool can be used to convert Fortify scan results into SARIF format. The resulting
+SARIF file can then be uploaded to SSC and processed by the SARIF parser plugin. Obviously this use case is
+for demonstration purposes only; uploading an FPR file directly will yield much better results than uploading
+a SARIF file converted from an FPR file.
+
+SARIF MultiTool supports two Fortify formats for conversion into SARIF format; either the FPR file can be 
+converted directly, or the XML output of the __Fortify Security Report__ legacy report can be converted.
+There are some small variations between these approaches:
+
+* Converting from an FPR file directly is more straightforward; no need to generate intermediate report
+* Converting from an FPR file directly provides more low-level details like accuracy, impact, probability, ...
+* Converting from an FPR file directly lacks the issue instance id, so the parser plugin needs to calculate an instance id
+* Converting from an XML report provides the issue instance id, but does not provide some other low-level details
+* Contents of an XML report are configurable; search expressions and filter sets can be used to select the issues to be exported
+
+In preparation for generating SARIF files for the Fortify SCA EightBall example, perform the following 
+steps: 
+
+* Open a new command prompt (to use updated environment variables if you just installed SARIF MultiTool)
+* Navigate to `<Fortify SCA Installation Directory>\Samples\basic\EightBall`
+* Follow the instructions in the README.txt file in that directory to scan the code
+
+The following command can be used to generate a SARIF file for EightBall.fpr directly. Obviously the same
+approach can be used for any other FPR file.
+
+* `sarif convert EightBall.fpr --tool FortifyFpr --output EightBall.fpr.sarif --pretty-print --force`
+
+An XML legacy report can be generated either from Audit WorkBench, or using the following command. Note 
+that by default, this report will only output one issue per category, and will output only Critical and
+High issues. You can adjust and save these settings in Audit WorkBench. See the SCA and AWB user guides
+for more details. 
+
+* `reportgenerator -format xml -f EightBall.xml -source EightBall.fpr`
+
+Once you have an XML report, the following command can be used to generate a SARIF file:
+
+* `sarif convert EightBall.xml --tool Fortify --output EightBall.xml.sarif --pretty-print --force`
 
 
 ### <a name="upload-results">Upload results</a>

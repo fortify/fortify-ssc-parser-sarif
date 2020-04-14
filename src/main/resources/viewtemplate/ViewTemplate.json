@@ -2,35 +2,34 @@
 	[
 		{
 			"type": "template",
-			"title": "Description",
-			"key": "brief",
-			"templateId": "SIMPLE",
-			"dataType": "string"
-		}
-	],
-	[
-		{
-			"type": "fieldset",
-			"htmlClass": "container-spacer-bottom",
+			"title": "Issue Details",
+			"templateId": "TITLEBOX",
 			"items": [
 				{
 					"type": "template",
-					"title": "File name",
+					"title": "File",
 					"key": "fullFileName",
 					"templateId": "SIMPLE",
 					"dataType": "string"
 				},
 				{
 					"type": "template",
-					"title": "Impact",
-					"key": "impact",
+					"title": "Category",
+					"key": "customAttributes.categoryAndSubCategory",
 					"templateId": "SIMPLE",
-					"dataType": "float"
+					"dataType": "string"
 				},
 				{
 					"type": "template",
-					"title": "Criticality",
+					"title": "Priority",
 					"key": "friority",
+					"templateId": "SIMPLE",
+					"dataType": "string"
+				},
+				{
+					"type": "template",
+					"title": "Tool Name",
+					"key": "customAttributes.toolName",
 					"templateId": "SIMPLE",
 					"dataType": "string"
 				}
@@ -40,24 +39,10 @@
 	[
 		{
 			"type": "template",
-			"title": "Other Information",
-			"templateId": "TITLEBOX",
-			"items": [
-				{
-					"type": "template",
-					"title": "Custom1",
-					"key": "customAttributes.custom1",
-					"templateId": "SIMPLE",
-					"dataType": "string"
-				},
-				{
-					"type": "template",
-					"title": "Custom2",
-					"key": "customAttributes.custom2",
-					"templateId": "SIMPLE",
-					"dataType": "string"
-				}
-			]
+			"title": "Description",
+			"key": "brief",
+			"templateId": "COLLAPSE",
+			"dataType": "string"
 		}
 	]
 ]

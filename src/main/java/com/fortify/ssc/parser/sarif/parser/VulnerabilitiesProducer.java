@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
+import com.fortify.ssc.parser.sarif.CustomVulnAttribute;
 import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.domain.Result;
 import com.fortify.ssc.parser.sarif.domain.RunData;
@@ -80,6 +81,9 @@ public final class VulnerabilitiesProducer {
     		//vb.setVulnerabilityRecommendation(vulnerabilityRecommendation);
 			
 			//vb.set*CustomAttributeValue(...)
+			
+			vb.setStringCustomAttributeValue(CustomVulnAttribute.categoryAndSubCategory, getCategoryAndSubCategory(runData, result));
+			vb.setStringCustomAttributeValue(CustomVulnAttribute.toolName, runData.getToolName());
     		
     		vb.completeVulnerability();
 		}
@@ -207,6 +211,12 @@ public final class VulnerabilitiesProducer {
 		} else {
 			return null;
 		}
+	}
+	
+	private String getCategoryAndSubCategory(RunData runData, Result result) {
+		String category = getCategory(runData, result);
+		String subCategory = getSubCategory(runData, result);
+		return StringUtils.isBlank(subCategory) ? category : String.join(": ", category, subCategory);
 	}
 	
 	private float getFloatProperty(Map<String, Object> properties, String key, float defaultValue) {

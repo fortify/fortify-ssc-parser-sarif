@@ -35,8 +35,8 @@ package com.fortify.ssc.parser.sarif;
  */
 public enum CustomVulnAttribute implements com.fortify.plugin.spi.VulnerabilityAttribute {
 
-	custom1(AttrType.STRING),
-	custom2(AttrType.DECIMAL),
+	toolName(AttrType.STRING), 
+	categoryAndSubCategory(AttrType.STRING),
     ;
 
     private final AttrType attributeType;

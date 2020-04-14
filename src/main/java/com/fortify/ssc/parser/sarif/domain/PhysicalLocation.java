@@ -25,7 +25,6 @@
 package com.fortify.ssc.parser.sarif.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fortify.ssc.parser.sarif.parser.util.RunData;
 
 import lombok.Getter;
 

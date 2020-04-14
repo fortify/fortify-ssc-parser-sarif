@@ -2,24 +2,18 @@ package com.fortify.ssc.parser.sarif.parser;
 
 import java.io.IOException;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
 import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
-import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.domain.Result;
-import com.fortify.ssc.parser.sarif.parser.util.ResultWrapperWithRunData;
-import com.fortify.ssc.parser.sarif.parser.util.RunData;
-import com.fortify.ssc.parser.sarif.parser.util.SarifScanDataStreamingJsonParser;
+import com.fortify.ssc.parser.sarif.domain.RunData;
 import com.fortify.util.io.Region;
 import com.fortify.util.json.ExtendedJsonParser;
-import com.fortify.util.ssc.parser.HandleDuplicateIdVulnerabilityHandler;
 
 /**
  * This class parses a SARIF JSON input document to generate Fortify vulnerabilities.
@@ -49,17 +43,17 @@ import com.fortify.util.ssc.parser.HandleDuplicateIdVulnerabilityHandler;
  */
 public final class VulnerabilitiesParser {
 	private final ScanData scanData;
-	private final VulnerabilityHandler vulnerabilityHandler;
+	private final VulnerabilitiesProducer vulnerabilitiesProducer;
 	
 	/**
-	 * Constructor for storing {@link ScanData} and {@link VulnerabilityBuilder}
+	 * Constructor for storing {@link ScanData} and {@link VulnerabilityHandler}
 	 * instances.
 	 * @param scanData
-	 * @param vulnerabilityBuilder
+	 * @param vulnerabilityHandler
 	 */
 	public VulnerabilitiesParser(final ScanData scanData, final VulnerabilityHandler vulnerabilityHandler) {
 		this.scanData = scanData;
-		this.vulnerabilityHandler = new HandleDuplicateIdVulnerabilityHandler(vulnerabilityHandler);
+		this.vulnerabilitiesProducer = new VulnerabilitiesProducer(vulnerabilityHandler);
 	}
 	
 	/**
@@ -91,7 +85,8 @@ public final class VulnerabilitiesParser {
 				.closeOnJvmShutdown().fileDeleteAfterClose()
 				.fileMmapEnableIfSupported()
 				.make() ) {
-			parseResults(RunData.parseRunData(db, jsonParser));
+			RunData runData = RunData.parseRunData(db, jsonParser);
+			parseResults(runData);
 		}
 	}
 	
@@ -101,75 +96,17 @@ public final class VulnerabilitiesParser {
 	 * object. For each entry in the <code>results</code> array:
 	 * <ol>
 	 *  <li>The JSON contents are mapped to a {@link Result} object</li>
-	 *  <li>The {@link Result} and {@link RunData} objects are wrapped into
-	 *      a new {@link ResultWrapperWithRunData} instance</li>
-	 *  <li>The {@link ResultWrapperWithRunData} instance is passed to the
-	 *      {@link #produceVulnerability(ResultWrapperWithRunData)} method
-	 *      to produce the actual Fortify vulnerability (if applicable)</li>
+	 *  <li>The {@link Result} and {@link RunData} objects are passed to the
+	 *      {@link VulnerabilitiesProducer#produceVulnerability(RunData, Result)} method to produce
+	 *      the actual Fortify vulnerability (if applicable)</li>
 	 * </ol>
 	 * @param runData
-	 * @throws ScanParsingException
 	 * @throws IOException
 	 */
 	private final void parseResults(final RunData runData) throws IOException {
 		new SarifScanDataStreamingJsonParser()
 			.expectedStartTokens(JsonToken.START_ARRAY)
-			.handler("/*", jp->produceVulnerability(runData, jp))
+			.handler("/*", Result.class, result->vulnerabilitiesProducer.produceVulnerability(runData, result))
 			.parse(scanData, runData.getResultsRegion());
-	}
-	
-	private final void produceVulnerability(RunData runData, JsonParser jp) throws IOException {
-		produceVulnerability(new ResultWrapperWithRunData(jp.readValueAs(Result.class), runData));
-	}
-	
-	/**
-	 * This method produces a Fortify vulnerability based on the given
-	 * {@link ResultWrapperWithRunData} instance. No vulnerability will be produced 
-	 * if {@link ResultWrapperWithRunData#resolveLevel()} returns a level that
-	 * indicates that the result is not interesting from a Fortify perspective.
-	 * @param result
-	 */
-	private final void produceVulnerability(ResultWrapperWithRunData result) {
-		Priority priority = result.resolvePriority();
-		if ( priority != null ) {
-			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(DigestUtils.sha256Hex(result.getVulnerabilityId()));
-			vb.setAccuracy(5.0f);
-			vb.setAnalyzer("External");
-			vb.setCategory(result.getCategory());
-			vb.setClassName(null);
-			vb.setConfidence(2.5f);
-			vb.setEngineType(result.getEngineType());
-    		vb.setFileName(result.resolveFullFileName("Unknown"));
-    		//vb.setFunctionName(functionName);
-    		vb.setImpact(2.5f);
-    		vb.setKingdom(result.resolveKingdom());
-    		vb.setLikelihood(2.5f);
-    		//vb.setLineNumber(lineNumber);
-    		//vb.setMappedCategory(mappedCategory);
-    		//vb.setMinVirtualCallConfidence(minVirtualCallConfidence);
-    		//vb.setPackageName(packageName);
-    		vb.setPriority(priority);
-    		vb.setProbability(2.5f);
-    		//vb.setRemediationConstant(remediationConstant);
-    		//vb.setRuleGuid(ruleGuid);
-    		//vb.setSink(sink);
-    		//vb.setSinkContext(sinkContext);
-    		//vb.setSource(source);
-    		//vb.setSourceContext(sourceContext);
-    		//vb.setSourceFile(sourceFile);
-    		//vb.setSourceLine(sourceLine);
-    		vb.setSubCategory(result.getSubCategory());
-    		//vb.setTaintFlag(taintFlag);
-    		vb.setVulnerabilityAbstract(result.getResultMessage());
-    		//vb.setVulnerabilityRecommendation(vulnerabilityRecommendation);
-    		addCustomAttributes(vb, result);
-    		
-    		vb.completeVulnerability();
-		}
-	}
-
-	private void addCustomAttributes(StaticVulnerabilityBuilder vb, ResultWrapperWithRunData result) {
-		// TODO Add custom attributes
-		
 	}
 }

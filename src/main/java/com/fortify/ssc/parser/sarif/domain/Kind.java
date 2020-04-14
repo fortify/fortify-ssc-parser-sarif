@@ -24,44 +24,6 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.domain;
 
-import java.io.Serializable;
-import java.net.URI;
-import java.nio.file.Paths;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.Getter;
-
-@Getter
-public final class ArtifactLocation implements Serializable {
-	private static final long serialVersionUID = 1L;
-	@JsonProperty private URI uri;
-	@JsonProperty private String uriBaseId;
-	@JsonProperty private Integer index;
-	// @JsonProperty private Message description;
-	
-	private URI resolveURI(RunData runData) {
-		URI result = this.uri;
-		ArtifactLocation baseLocation = runData.getBaseLocation(uriBaseId);
-		if (baseLocation!=null) {
-			URI baseUri = baseLocation.resolveURI(runData);
-			if ( baseUri != null ) {
-				result = baseUri.resolve(result);
-			}
-		}
-		return result;
-	}
-	
-	public String getFullFileName(RunData runData) {
-		URI resolvedURI = resolveURI(runData);
-		if ( resolvedURI==null ) { return null; }
-		try {
-			return Paths.get(resolvedURI).toString();
-		} catch ( IllegalArgumentException iae ) {
-			// Return the URI if we cannot get a path, for example if not a file:// scheme,
-			// or if we are running on Linux and resolvedURI points to an UNC path (which is 
-			// only natively supported on Windows). 
-			return resolvedURI.toString();
-		}
-	}
+public enum Kind {
+	pass, open, informational, notApplicable, review, fail
 }

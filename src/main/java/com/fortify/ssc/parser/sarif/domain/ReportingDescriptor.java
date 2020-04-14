@@ -53,4 +53,12 @@ public final class ReportingDescriptor implements Serializable {
 	@JsonProperty private URI helpUri;
 	@JsonProperty private MultiformatMessageString help;
 	@JsonProperty private Map<String, Object> properties;
+	
+	public Level getDefaultLevel() {
+		return defaultConfiguration==null ? null : defaultConfiguration.getLevel();
+	}
+	
+	public MultiformatMessageString getMessageString(String id) {
+		return messageStrings==null ? null : messageStrings.get(id);
+	}
 }

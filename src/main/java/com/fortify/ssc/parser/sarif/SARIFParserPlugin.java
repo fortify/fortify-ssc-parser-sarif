@@ -10,7 +10,6 @@ import com.fortify.plugin.api.ScanData;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.plugin.spi.ParserPlugin;
-import com.fortify.ssc.parser.sarif.parser.CustomVulnAttribute;
 import com.fortify.ssc.parser.sarif.parser.ScanParser;
 import com.fortify.ssc.parser.sarif.parser.VulnerabilitiesParser;
 

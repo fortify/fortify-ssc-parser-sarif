@@ -22,10 +22,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
  * IN THE SOFTWARE.
  ******************************************************************************/
-package com.fortify.ssc.parser.sarif.parser.util;
+package com.fortify.ssc.parser.sarif.domain;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,15 +33,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.mapdb.DB;
 import org.mapdb.Serializer;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fortify.plugin.api.ScanParsingException;
-import com.fortify.ssc.parser.sarif.domain.Artifact;
-import com.fortify.ssc.parser.sarif.domain.ArtifactLocation;
-import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
 import com.fortify.util.io.Region;
 import com.fortify.util.json.ExtendedJsonParser;
 import com.fortify.util.json.StreamingJsonParser;
 import com.fortify.util.ssc.parser.EngineTypeHelper;
+
+import lombok.Getter;
 
 /**
  * This class stores auxiliary data for a <code>run</code> entry in the SARIF 
@@ -57,17 +53,22 @@ public final class RunData {
 	private final Map<String, Integer> ruleIndexesById;
 	private final Map<String, Integer> ruleIndexesByGuid;
 	private final List<ReportingDescriptor> rulesByIndex;
-	private Region resultsRegion = null;
-	private String toolName;
+	@Getter private Region resultsRegion = null;
+	@Getter private String toolName;
 	
 	/**
-	 * Private constructor; instances can be created through the {@link #parseRunData(DB, JsonParser)}
+	 * Private constructor; instances can be created through the {@link #parseRunData(DB, ExtendedJsonParser)}
 	 * method.
 	 * 
 	 * @param db
 	 */
 	private RunData(final DB db) {
+		// We assume there's only a limited set of URI base id's, so store in memory
 		this.originalUriBaseIds = new HashMap<>();
+		// We assume large scans may include a lot of artifacts and rules, so we use disk-backed collections.
+		// Note that alternatively we could use a hash & position-based approach like the SARIF .NET SDK
+		// (see DeferredDictionary and DeferredList) to avoid serializing entries to disk, but for now
+		// disk-backed collections seem to perform well and the implementation is much easier to understand.
 		this.artifactsByIndex = db.indexTreeList("artifactsByIndex", Artifact.SERIALIZER).create();
 		this.ruleIndexesById = db.hashMap("ruleIndexesById", Serializer.STRING, Serializer.INTEGER).create();
 		this.ruleIndexesByGuid = db.hashMap("ruleIndexesByGuid", Serializer.STRING, Serializer.INTEGER).create();
@@ -81,7 +82,6 @@ public final class RunData {
 	 * @param db used to temporarily store some data in disk-backed collections
 	 * @param jsonParser pointing at a <code>run</code> entry in the SARIF <code>runs</code> array
 	 * @return {@link RunData} instance
-	 * @throws ScanParsingException
 	 * @throws IOException
 	 */
 	public static final RunData parseRunData(final DB db, final ExtendedJsonParser jsonParser) throws IOException {
@@ -90,12 +90,12 @@ public final class RunData {
 			.handler("/originalUriBaseIds/*", runData::addOriginalUriBaseId)
 			.handler("/artifacts/*", Artifact.class, runData::addArtifact)
 			.handler("/tool/driver/rules/*", ReportingDescriptor.class, runData::addRule)
-			.handler("/tool/driver/name", jp -> runData.toolName = jp.getValueAsString())
-			.handler("/results", jp -> runData.resultsRegion = jp.getObjectOrArrayRegion())
+			.handler("/tool/driver/name", String.class, runData::setToolName)
+			.handler("/results", runData::setResultsRegion)
 			.parseObjectProperties(jsonParser, "/");
 		return runData;
 	}
-	
+
 	private final void addOriginalUriBaseId(ExtendedJsonParser jp) throws IOException {
 		originalUriBaseIds.put(jp.getCurrentName(), jp.readValueAs(ArtifactLocation.class));
 	}
@@ -113,12 +113,20 @@ public final class RunData {
 	
 	private final void addRuleIndex(Map<String,Integer> map, String key, int index) {
 		if ( StringUtils.isNotBlank(key) ) {
-			ruleIndexesById.put(key, index);
+			map.put(key, index);
 		}
 	}
 	
-	public final Map<String, ArtifactLocation> getOriginalUriBaseIds() {
-		return Collections.unmodifiableMap(originalUriBaseIds);
+	private final void setResultsRegion(ExtendedJsonParser jp) throws IOException {
+		this.resultsRegion = jp.getObjectOrArrayRegion();
+	}
+	
+	private final void setToolName(String toolName) {
+		this.toolName = toolName;
+	}
+	
+	public final ArtifactLocation getBaseLocation(String uriBaseId) {
+		return uriBaseId==null ? null : originalUriBaseIds.get(uriBaseId);
 	}
 	
 	public final Artifact getArtifactByIndex(Integer index) {
@@ -135,14 +143,6 @@ public final class RunData {
 	
 	public final ReportingDescriptor getRuleByIndex(Integer index) {
 		return index==null ? null : rulesByIndex.get(index);
-	}
-	
-	public Region getResultsRegion() {
-		return resultsRegion;
-	}
-	
-	public String getToolName() {
-		return toolName;
 	}
 	
 	public String getEngineType() {

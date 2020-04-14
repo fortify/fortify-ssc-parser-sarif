@@ -1,9 +1,12 @@
 package com.fortify.ssc.parser.sarif.parser;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
@@ -14,6 +17,7 @@ import com.fortify.ssc.parser.sarif.domain.RunData;
 import com.fortify.util.ssc.parser.HandleDuplicateIdVulnerabilityHandler;
 
 public final class VulnerabilitiesProducer {
+	private static final Logger LOG = LoggerFactory.getLogger(VulnerabilitiesProducer.class);
 	private final VulnerabilityHandler vulnerabilityHandler;
 	
 	/**
@@ -31,27 +35,39 @@ public final class VulnerabilitiesProducer {
 	 * indicates that the result is not interesting from a Fortify perspective.
 	 * @param result
 	 */
+	@SuppressWarnings("deprecation") // SSC JavaDoc states that severity is mandatory, but method is deprecated
 	public final void produceVulnerability(RunData runData, Result result) {
 		Priority priority = getPriority(runData, result);
 		if ( priority != null ) {
 			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(getInstanceId(runData, result));
-			vb.setAccuracy(5.0f);
-			vb.setAnalyzer("External");
+			
+			// Set meta-data
+			vb.setEngineType(getEngineType(runData, result));
+			vb.setKingdom(getKingdom(runData, result));
+			vb.setAnalyzer(getAnalyzer(runData, result));
 			vb.setCategory(getCategory(runData, result));
-			vb.setClassName(null);
-			vb.setConfidence(2.5f);
-			vb.setEngineType(runData.getEngineType());
-    		vb.setFileName(result.resolveFullFileName(runData, "Unknown"));
+			vb.setSubCategory(getSubCategory(runData, result));
+			
+			// Set mandatory values to JavaDoc-recommended values
+			vb.setAccuracy(getAccuracy(runData, result));
+			vb.setSeverity(getSeverity(runData, result));
+			vb.setConfidence(getConfidence(runData, result));
+			vb.setProbability(getProbability(runData, result));
+			vb.setImpact(getImpact(runData, result));
+			vb.setLikelihood(getLikelihood(runData, result));
+			
+			// Set standard vulnerability fields based on input
+			vb.setFileName(getFileName(runData, result));
+			vb.setPriority(priority);
+			vb.setRuleGuid(getRuleGuid(runData, result));
+			vb.setVulnerabilityAbstract(getVulnerabilityAbstract(runData, result));
+			
+			//vb.setClassName(null);
     		//vb.setFunctionName(functionName);
-    		vb.setImpact(2.5f);
-    		vb.setKingdom(getKingdom(runData, result));
-    		vb.setLikelihood(2.5f);
     		//vb.setLineNumber(lineNumber);
     		//vb.setMappedCategory(mappedCategory);
     		//vb.setMinVirtualCallConfidence(minVirtualCallConfidence);
     		//vb.setPackageName(packageName);
-    		vb.setPriority(priority);
-    		vb.setProbability(2.5f);
     		//vb.setRemediationConstant(remediationConstant);
     		//vb.setRuleGuid(ruleGuid);
     		//vb.setSink(sink);
@@ -60,26 +76,28 @@ public final class VulnerabilitiesProducer {
     		//vb.setSourceContext(sourceContext);
     		//vb.setSourceFile(sourceFile);
     		//vb.setSourceLine(sourceLine);
-    		vb.setSubCategory(getSubCategory());
     		//vb.setTaintFlag(taintFlag);
-    		vb.setVulnerabilityAbstract(result.getResultMessage(runData));
     		//vb.setVulnerabilityRecommendation(vulnerabilityRecommendation);
-    		addCustomAttributes(vb, runData, result);
+			
+			//vb.set*CustomAttributeValue(...)
     		
     		vb.completeVulnerability();
 		}
 	}
 
-	private void addCustomAttributes(StaticVulnerabilityBuilder vb, RunData runData, Result result) {
-		// TODO Add custom attributes
-		
+	private String getVulnerabilityAbstract(RunData runData, Result result) {
+		return result.getResultMessage(runData);
 	}
-	
+
+	private String getFileName(RunData runData, Result result) {
+		return result.resolveFullFileName(runData, "Unknown");
+	}
+
 	private String getInstanceId(RunData runData, Result result) {
 		return DigestUtils.sha256Hex(getInstanceIdString(runData, result));
 	}
 	
-	public String getInstanceIdString(RunData runData, Result result) {
+	private String getInstanceIdString(RunData runData, Result result) {
 		if ( StringUtils.isNotBlank(result.getGuid()) ) {
 			return result.getGuid();
 		} else if ( StringUtils.isNotBlank(result.getCorrelationGuid()) ) {
@@ -103,50 +121,127 @@ public final class VulnerabilitiesProducer {
 		String partialFingerPrints = result.getPartialFingerprints()==null?"":new TreeMap<>(result.getPartialFingerprints()).toString();
 		return String.join("|", 
 			runData.getToolName(),
-			result.resolveFullFileName(runData, "Unknown"),
+			getFileName(runData, result),
 			result.resolveRuleId(runData),
 			partialFingerPrints,
-			result.getResultMessage(runData));
+			getVulnerabilityAbstract(runData, result));
 	}
 	
-	public String getCategory(RunData runData, Result result) {
-		ReportingDescriptor rule = result.resolveRule(runData);
-		if ( rule != null ) {
-			if ( StringUtils.isNotBlank(rule.getName()) ) {
-				return StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
-			} else if ( rule.getProperties()!=null && rule.getProperties().containsKey("Type") ) {
-				return rule.getProperties().get("Type").toString();
-			}
-		} else {
-			String ruleId = result.resolveRuleId(runData);
-			if ( StringUtils.isNotBlank(ruleId) ) {
-				return ruleId;
-			} 
-		}
+	private String getEngineType(RunData runData, Result result) {
 		return runData.getEngineType();
 	}
 	
-	public String getSubCategory() {
-		return null;
+	private String getKingdom(RunData runData, Result result) {
+		String kingdom = getStringProperty(result.getProperties(), "kingdom", null);
+		if ( StringUtils.isBlank(kingdom) ) {
+			kingdom = getStringProperty(getRuleProperties(runData, result), "Kingdom", null);
+		}
+		return kingdom;
+	}
+	
+	private String getCategory(RunData runData, Result result) {
+		String category = null;
+		ReportingDescriptor rule = result.resolveRule(runData);
+		if ( rule != null && StringUtils.isNotBlank(rule.getName()) ) {
+			category = StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
+		}
+		if ( StringUtils.isBlank(category) ) {
+			category = getStringProperty(getRuleProperties(rule), "Type", null);
+		}
+		if ( StringUtils.isBlank(category) ) {
+			category = result.resolveRuleId(runData);
+		}
+		if ( StringUtils.isBlank(category) ) {
+			category = getEngineType(runData, result);
+		}
+		return category;
+	}
+	
+	private String getSubCategory(RunData runData, Result result) {
+		return getStringProperty(getRuleProperties(runData, result), "Subtype", null);
+	}
+	
+	private String getAnalyzer(RunData runData, Result result) {
+		return "External";
 	}
 
-	public Priority getPriority(RunData runData, Result result) {
-		if ( "Fortify".equalsIgnoreCase(runData.getToolName()) && result.getProperties()!=null && result.getProperties().containsKey("priority")) {
-			return Priority.valueOf(result.getProperties().get("priority").toString());
+	private float getAccuracy(RunData runData, Result result) {
+		return getFloatProperty(getRuleProperties(runData, result), "Accuracy", 5.0f);
+	}
+	
+	private float getSeverity(RunData runData, Result result) {
+		return getFloatProperty(result.getProperties(), "InstanceSeverity", 2.5f);
+	}
+	
+	private float getConfidence(RunData runData, Result result) {
+		return getFloatProperty(result.getProperties(), "Confidence", 2.5f);
+	}
+	
+	private float getProbability(RunData runData, Result result) {
+		return getFloatProperty(getRuleProperties(runData, result), "Probability", 2.5f);
+	}
+	
+	private float getImpact(RunData runData, Result result) {
+		return getFloatProperty(getRuleProperties(runData, result), "Impact", 2.5f);
+	}
+	
+	private float getLikelihood(RunData runData, Result result) {
+		return 2.5f;
+	}
+
+	private Priority getPriority(RunData runData, Result result) {
+		String priorityString = null;
+		if ( isConvertedFromFortifyXml(runData) ) {
+			priorityString = getStringProperty(result.getProperties(), "priority", null);
+		}
+		return StringUtils.isNotBlank(priorityString) 
+				? Priority.valueOf(priorityString)
+				: result.resolveLevel(runData).getFortifyPriority();
+	}
+	
+	private String getRuleGuid(RunData runData, Result result) {
+		if ( isConvertedFromFortifyXml(runData) ) {
+			return getStringProperty(result.getProperties(), "fortifyRuleId", null);
+		} else if ( isConvertedFromFortifyFpr(runData) ) {
+			return result.resolveRuleGuid(runData);
 		} else {
-			return result.resolveLevel(runData).getFortifyPriority();
+			return null;
 		}
 	}
 	
-	public String getKingdom(RunData runData, Result result) {
-		if ( result.getProperties()!=null && result.getProperties().containsKey("kingdom") ) {
-			return result.getProperties().get("kingdom").toString();
-		} else {
-			ReportingDescriptor rule = result.resolveRule(runData);
-			if ( rule!=null && rule.getProperties()!=null && rule.getProperties().containsKey("Kingdom") ) {
-				return rule.getProperties().get("Kingdom").toString();
+	private float getFloatProperty(Map<String, Object> properties, String key, float defaultValue) {
+		String valueString = getStringProperty(properties, key, null);
+		if ( StringUtils.isNotBlank(valueString) ) {
+			try {
+				return new Float(valueString);
+			} catch (NumberFormatException nfe) {
+				LOG.warn("Error converting {} string '{}' to float: {}", key, valueString, nfe.getMessage());
 			}
 		}
-		return null;
+		return defaultValue;
 	}
+	
+	private String getStringProperty(Map<String, Object> properties, String key, String defaultValue) {
+		if ( properties!=null && properties.containsKey(key) ) {
+			return properties.get(key).toString();
+		}
+		return defaultValue;
+	}
+	
+	private Map<String, Object> getRuleProperties(ReportingDescriptor rule) {
+		return rule==null ? null : rule.getProperties();
+	}
+	
+	private Map<String, Object> getRuleProperties(RunData runData, Result result) {
+		return getRuleProperties(result.resolveRule(runData));
+	}
+	
+	private boolean isConvertedFromFortifyFpr(RunData runData) {
+		return "Micro Focus Fortify Static Code Analyzer".equalsIgnoreCase(runData.getToolName());
+	}
+
+	private boolean isConvertedFromFortifyXml(RunData runData) {
+		return "Fortify".equalsIgnoreCase(runData.getToolName());
+	}
+
 }

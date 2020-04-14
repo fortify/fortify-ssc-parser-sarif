@@ -22,7 +22,7 @@
     <issue-parser xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <engine-type>SARIF</engine-type>
         <supported-engine-versions>[2.1.0]</supported-engine-versions>
-        <view-template location="/viewtemplate/SARIFTemplate.json">
+        <view-template location="/viewtemplate/ViewTemplate.json">
             <description>Default SARIF vulnerability view template.</description>
         </view-template>
     </issue-parser>

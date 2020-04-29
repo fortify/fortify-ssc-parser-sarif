@@ -163,16 +163,42 @@ public final class Result {
 	
 	public String getResultMessage(RunData runData) {
 		Message msg = getMessage();
-		if ( msg.getText()!=null ) {
-			return msg.getText();
-		} else if ( msg.getId()!=null ) {
+		String text = msg.getText();
+		if ( StringUtils.isBlank(text) && msg.getId()!=null ) {
 			MultiformatMessageString msgString = getMultiformatMessageStringForId(runData, msg.getId());
-			// TODO Do we need to improve handling of single quotes around arguments?
 			// TODO Should we throw an exception if msgString==null, instead of just returning null?
-			return msgString==null ? null : MessageFormat.format(msgString.getText().replace("'", "''"), (Object[])msg.getArguments());
-		} else {
-			return null;
+			text = msgString==null ? null : msgString.getText();
+		} 
+		if ( StringUtils.isNotBlank(text) ) {
+			// TODO SARIF specification doesn't clearly state whether args should be resolved before replacing links, or vice versa
+			//      (i.e. can args contain links, do link characters need to be escaped in args?)
+			text = resolveArgs(text, msg.getArguments());
+			text = replaceLinks(text, runData);
 		}
+		return text;
+	}
+	
+	private String resolveArgs(String text, String[] args) {
+		// We use MessageFormat to resolve argument references in input text
+		// As single quotes have special meaning in MessageFormat, we escape them in the input text
+		// TODO Do we need to improve handling of single quotes?
+		return MessageFormat.format(text.replace("'", "''"), (Object[])args);
+	}
+	
+	// For now we simply render the link text; future versions may add extra info from the actual link
+	// as per the example in https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317467
+	String replaceLinks(String text, RunData runData) {
+		// Use regex (?<!\\)\[(.*?)(?<!\\)\]\(.*?\) to find link texts:
+		// - Find any non-escaped '[':   (?<!\\)\[
+		// - Find link text:             (.*?)
+		// - Find next non-escaped ']':  (?<!\\)\]
+		// - Find link destination:      \(.*?\)
+		text = text.replaceAll("(?<!\\\\)\\[(.*?)(?<!\\\\)\\]\\(.*?\\)", "$1");
+		// Replace all escaped '[', ']' and '\' with non-escaped version
+		text = text.replaceAll("\\\\\\[", "[");
+		text = text.replaceAll("\\\\\\]", "]");
+		text = text.replaceAll("\\\\\\\\", "\\\\");
+		return text;
 	}
 
 	private MultiformatMessageString getMultiformatMessageStringForId(RunData runData, String id) {

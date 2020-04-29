@@ -1,22 +1,34 @@
+<x-tag-head>
+<x-tag-meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+
+<x-tag-script language="JavaScript"><!--
+<X-INCLUDE url="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.0/build/highlight.min.js"/>
+--></x-tag-script>
+
+<x-tag-script language="JavaScript"><!--
+<X-INCLUDE url="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js" />
+--></x-tag-script>
+
+<x-tag-script language="JavaScript"><!--
+<X-INCLUDE url="${gradleHelpersLocation}/spa_readme.js" />
+--></x-tag-script>
+
+<x-tag-style><!--
+<X-INCLUDE url="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.0.0/build/styles/github.min.css" />
+--></x-tag-style>
+
+<x-tag-style><!--
+<X-INCLUDE url="${gradleHelpersLocation}/spa_readme.css" />
+--></x-tag-style>
+</x-tag-head>
+
 # Fortify SSC Parser Plugin for SARIF
+
+## Introduction
 
 This Fortify SSC parser plugin allows for importing SARIF (Static Analysis Results Interchange Format) files. 
 
-### <a name="related-links">Related Links</a>
-
-* **Downloads**:  
-  _Beta versions may be unstable or non-functional. The `*-thirdParty.zip` file is for informational purposes only and does not need to be downloaded._
-	* **Release versions**: https://bintray.com/package/files/fortify-ps/binaries/fortify-ssc-parser-sarif-release?order=desc&sort=fileLastModified&basePath=&tab=files  
-	* **Beta versions**: https://bintray.com/package/files/fortify-ps/binaries/fortify-ssc-parser-sarif-beta?order=desc&sort=fileLastModified&basePath=&tab=files
-	* **Sample input files**: [sampleData](sampleData)
-* **GitHub**: https://github.com/fortify-ps/fortify-ssc-parser-sarif
-* **Automated builds**: https://travis-ci.com/fortify-ps/fortify-ssc-parser-sarif
-* **SARIF resources**:
-	* Specification: https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html
-	* Microsoft SARIF SDK: https://github.com/microsoft/sarif-sdk  
-	Note that this SDK is not used by the parser plugin, but it provides some useful examples
-
-## <a name="limitations">Limitations</a>
+### Limitations
 
 * **SARIF 2.1.0 only**  
   The plugin should be able to parse any SARIF files that adhere to the SARIF 2.1.0 specification. Other versions of the
@@ -42,12 +54,25 @@ providing this information in a non-standard way
   originate from the scan engine. SSC will try to merge these uploads, thereby basically marking all issues from a previously uploaded
   SARIF file as 'removed'.
 
-## <a name="usage">Usage</a>
+### Related Links
 
-The following sections describe how to install and use the plugin. For generic information
-about how to install and use SSC parser plugins, please see the Fortify SSC documentation.
+* **Downloads**:  
+  _Beta versions may be unstable or non-functional. The `*-thirdParty.zip` file is for informational purposes only and does not need to be downloaded._
+	* **Release versions**: https://bintray.com/package/files/fortify-ps/binaries/fortify-ssc-parser-sarif-release?order=desc&sort=fileLastModified&basePath=&tab=files  
+	* **Beta versions**: https://bintray.com/package/files/fortify-ps/binaries/fortify-ssc-parser-sarif-beta?order=desc&sort=fileLastModified&basePath=&tab=files
+	* **Sample input files**: [sampleData](sampleData)
+* **GitHub**: https://github.com/fortify-ps/fortify-ssc-parser-sarif
+* **Automated builds**: https://travis-ci.com/fortify-ps/fortify-ssc-parser-sarif
+* **SARIF resources**:
+	* Specification: https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html
+	* Microsoft SARIF SDK: https://github.com/microsoft/sarif-sdk  
+	Note that this SDK is not used by the parser plugin, but it provides some useful examples
 
-### <a name="plugin-install--upgrade">Plugin Install & Upgrade</a>
+## Plugin Installation
+
+These sections describe how to install, upgrade and uninstall the plugin.
+
+### Install & Upgrade
 
 * Obtain the plugin binary jar file
 	* Either download from Bintray (see [Related Links](#related-links)) 
@@ -60,7 +85,7 @@ about how to install and use SSC parser plugins, please see the Fortify SSC docu
 	* Upload the plugin jar file
 	* Enable the plugin by clicking the `ENABLE` button
   
-### <a name="plugin-uninstall">Plugin Uninstall</a>
+### Uninstall
 
 * In Fortify Software Security Center:
 	* Navigate to Administration->Plugins->Parsers
@@ -68,7 +93,7 @@ about how to install and use SSC parser plugins, please see the Fortify SSC docu
 	* Click the `DISABLE` button
 	* Click the `REMOVE` button 
 
-### <a name="obtain-results">Obtain results</a>
+## Obtain results
 
 Some products provide native support for producing analysis results in SARIF format, these results can be
 directly uploaded to SSC. The SARIF MultiTool can be used to convert various other output formats into 
@@ -120,7 +145,7 @@ Once you have an XML report, the following command can be used to generate a SAR
 * `sarif convert EightBall.xml --tool Fortify --output EightBall.xml.sarif --pretty-print --force`
 
 
-### <a name="upload-results">Upload results</a>
+## Upload results
 
 SSC web interface (manual upload):
 
@@ -143,18 +168,18 @@ SSC clients (FortifyClient, Maven plugin, ...):
 
 
 
-## <a name="information-for-plugin-developers">Information for plugin developers</a>
+## Developers
 
 The following sections provide information that may be useful for developers of this 
 parser plugin.
 
-### <a name="ides">IDE's</a>
+### IDE's
 
 This project uses Lombok. In order to have your IDE compile this project without errors, 
 you may need to add Lombok support to your IDE. Please see https://projectlombok.org/setup/overview 
 for more information.
 
-### <a name="gradle">Gradle</a>
+### Gradle Wrapper
 
 It is strongly recommended to build this project using the included Gradle Wrapper
 scripts; using other Gradle versions may result in build errors and other issues.
@@ -162,7 +187,7 @@ scripts; using other Gradle versions may result in build errors and other issues
 The Gradle build uses various helper scripts from https://github.com/fortify-ps/gradle-helpers;
 please refer to the documentation and comments in included scripts for more information. 
 
-### <a name="commonly-used-commands">Commonly used commands</a>
+### Common Commands
 
 All commands listed below use Linux/bash notation; adjust accordingly if you
 are running on a different platform. All commands are to be executed from
@@ -182,7 +207,7 @@ the main project directory.
 Note that the version management tasks operate only on the local repository; you will need to manually
 push any changes (including tags and branches) to the remote repository.
 
-### <a name="versioning">Versioning</a>
+### Versioning
 
 The various version-related Gradle tasks assume the following versioning methodology:
 
@@ -192,7 +217,7 @@ The various version-related Gradle tasks assume the following versioning methodo
 	* However, note that the Gradle build may be unable to identify a correct version number for the project
 	* As such, only builds from tagged versions or from a `<version>-SNAPSHOT` branch should be published to a Maven repository
 
-### <a name="automated-builds--publishing">Automated Builds & publishing</a>
+### CI/CD
 
 Travis-CI builds are automatically triggered when there is any change in the project repository,
 for example due to pushing changes, or creating tags or branches. If applicable, binaries and related 
@@ -205,6 +230,11 @@ artifacts are automatically published to Bintray using the `bintrayUpload` task:
 See the [Related Links](#related-links) section for the relevant Travis-CI and Bintray links.
 
 
-# <a name="licensing">Licensing</a>
+## License
+<x-insert text="<!--"/>
+
 See [LICENSE.TXT](LICENSE.TXT)
 
+<x-insert text="-->"/>
+
+<x-include url="file:LICENSE.TXT"/>

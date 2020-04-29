@@ -58,8 +58,8 @@ providing this information in a non-standard way
 
 * **Downloads**:  
   _Beta versions may be unstable or non-functional. The `*-thirdParty.zip` file is for informational purposes only and does not need to be downloaded._
-	* **Release versions**: https://bintray.com/package/files/fortify-ps/binaries/fortify-ssc-parser-sarif-release?order=desc&sort=fileLastModified&basePath=&tab=files  
-	* **Beta versions**: https://bintray.com/package/files/fortify-ps/binaries/fortify-ssc-parser-sarif-beta?order=desc&sort=fileLastModified&basePath=&tab=files
+	* **Release versions**: https://bintray.com/package/files/fortify-ps/release/fortify-ssc-parser-sarif?order=desc&sort=fileLastModified&basePath=&tab=files  
+	* **Beta versions**: https://bintray.com/package/files/fortify-ps/beta/fortify-ssc-parser-sarif?order=desc&sort=fileLastModified&basePath=&tab=files
 	* **Sample input files**: [sampleData](sampleData)
 * **GitHub**: https://github.com/fortify-ps/fortify-ssc-parser-sarif
 * **Automated builds**: https://travis-ci.com/fortify-ps/fortify-ssc-parser-sarif

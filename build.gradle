@@ -9,7 +9,7 @@ plugins {
 group 'com.fortify.ssc.parser.sarif'
 
 ext {
-	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/1.1"
+	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/master"
 }
 
 apply from: "${gradleHelpersLocation}/repo-helper.gradle"
@@ -21,8 +21,8 @@ apply from: "${gradleHelpersLocation}/fortify-helper.gradle"
 version = getProjectVersionAsBetaOrRelease(true)
 ext {
 	sscParserPluginVersion = getProjectVersionAsPlainVersionNumber()
-	betaOrReleaseLabel = getBetaOrReleaseLabel()
-	bintrayPkgName = "${rootProject.name}-${betaOrReleaseLabel}"
+	bintrayRepo = "${getBetaOrReleaseLabel()}"
+	bintrayPkgName = "${rootProject.name}"
 	bintrayDownloadContainerName = getProjectVersionAsBetaOrRelease(false)
 	projectLicense = 'MIT'
 }

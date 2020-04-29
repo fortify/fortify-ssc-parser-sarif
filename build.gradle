@@ -9,7 +9,7 @@ plugins {
 group 'com.fortify.ssc.parser.sarif'
 
 ext {
-	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/master"
+	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/1.1"
 }
 
 apply from: "${gradleHelpersLocation}/repo-helper.gradle"

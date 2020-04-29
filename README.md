@@ -76,8 +76,9 @@ These sections describe how to install, upgrade and uninstall the plugin.
 
 * Obtain the plugin binary jar file
 	* Either download from Bintray (see [Related Links](#related-links)) 
-	* Or by building yourself (see [Information for plugin developers](#information-for-plugin-developers))
-* If you already have another version of the plugin installed, first uninstall the plugin by following the steps in [Plugin Uninstall](#plugin-uninstall)
+	* Or by building yourself (see [Developers](#developers))
+* If you already have another version of the plugin installed, first uninstall the previously 
+ installed version of the plugin by following the steps under [Uninstall](#uninstall) below
 * In Fortify Software Security Center:
 	* Navigate to Administration->Plugins->Parsers
 	* Click the `NEW` button
@@ -99,12 +100,16 @@ Some products provide native support for producing analysis results in SARIF for
 directly uploaded to SSC. The SARIF MultiTool can be used to convert various other output formats into 
 SARIF format. 
 
+### Install SARIF MultiTool
+
 The following example illustrates how to install the SARIF MultiTool. This example is for Windows only at the moment:
 
 * Download & install: https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.201-windows-x64-installer
 * Download & install: https://dotnet.microsoft.com/download/dotnet-core/thank-you/runtime-aspnetcore-2.1.17-windows-hosting-bundle-installer
 * Run the following command in an Administrator command prompt:  
   `dotnet tool install --global Sarif.Multitool --version 2.2.2`
+
+### Convert FPR to SARIF 
   
 As an example, SARIF MultiTool can be used to convert Fortify scan results into SARIF format. The resulting
 SARIF file can then be uploaded to SSC and processed by the SARIF parser plugin. Obviously this use case is

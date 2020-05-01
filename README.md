@@ -51,7 +51,7 @@ providing this information in a non-standard way
   Being a generic format, you may have multiple tools generating SARIF files that you want to import into SSC. Due to limitations
   in the SSC parser framework, it is currently not possible to import SARIF files from different sources into a single SSC
   application version. Independent of which tool was actually used to generate the SARIF file, SSC will assume that all SARIF files 
-  originate from the scan engine. SSC will try to merge these uploads, thereby basically marking all issues from a previously uploaded
+  originate from the same scan engine. SSC will try to merge these uploads, thereby basically marking all issues from a previously uploaded
   SARIF file as 'removed'.
 
 ### Related Links

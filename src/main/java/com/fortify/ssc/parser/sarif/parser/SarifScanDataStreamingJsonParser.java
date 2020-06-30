@@ -24,7 +24,7 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.parser;
 
-import com.fortify.util.ssc.parser.AbstractScanDataStreamingJsonParser;
+import com.fortify.util.ssc.parser.json.AbstractScanDataStreamingJsonParser;
 
 public class SarifScanDataStreamingJsonParser extends AbstractScanDataStreamingJsonParser<SarifScanDataStreamingJsonParser> {
 	public SarifScanDataStreamingJsonParser() {

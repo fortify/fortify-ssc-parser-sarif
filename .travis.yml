@@ -1,9 +1,14 @@
 language: java
 install: true
 sudo: false
-    
+
+env:    
+  global:   
+    - JAVA_TOOL_OPTIONS=-Dhttps.protocols=TLSv1.2
+
 stages:
   - name: build
+    if: tag IS blank AND NOT branch =~ /^(\d+.)+\d+-SNAPSHOT$/
   - name: snapshotBranch
     if: tag IS blank AND branch =~ /^(\d+.)+\d+-SNAPSHOT$/
   - name: releaseTag

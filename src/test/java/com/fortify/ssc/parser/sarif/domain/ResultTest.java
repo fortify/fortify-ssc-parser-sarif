@@ -31,8 +31,30 @@ import org.junit.jupiter.api.Test;
 public class ResultTest {
 	@Test
 	void testReplaceLinks() {
-		Result result = new Result();
 		assertEquals("Prohibited term used in para[0]\\spans[2].", 
-				result.replaceLinks("Prohibited term used in [para\\[0\\]\\\\spans\\[2\\]](1).", null));
+				Result.replaceLinks("Prohibited term used in [para\\[0\\]\\\\spans\\[2\\]](1).", null));
+	}
+	
+	@Test
+	void testReplaceArgs() {
+		assertResolveArgs("Hello {}", null, "Hello {}");
+		assertResolveArgs("Hello {}", new String[] {}, "Hello {}");
+		assertResolveArgs("Hello {}", new String[] {"r1", "r2", "r3"}, "Hello {}");
+		
+		assertResolveArgs("Hello {0}, {1}", null, "Hello {0}, {1}");
+		assertResolveArgs("Hello {0}, {1}", new String[] {}, "Hello {0}, {1}");
+		assertResolveArgs("Hello {0}, {1}", new String[] {"r1", "r2", "r3"}, "Hello r1, r2");
+		
+		assertResolveArgs("Hello {0}, {1}, {2}, {3}, {4}", null, "Hello {0}, {1}, {2}, {3}, {4}");
+		assertResolveArgs("Hello {0}, {1}, {2}, {3}, {4}", new String[] {}, "Hello {0}, {1}, {2}, {3}, {4}");
+		assertResolveArgs("Hello {0}, {1}, {2}, {3}, {4}", new String[] {"r1", "r2", "r3"}, "Hello r1, r2, r3, {3}, {4}");
+		
+		assertResolveArgs("triple braces '{{{...}}}' or amp", null, "triple braces '{{{...}}}' or amp");
+		assertResolveArgs("triple braces '{{{...}}}' or amp", new String[] {}, "triple braces '{{{...}}}' or amp");
+		assertResolveArgs("triple braces '{{{...}}}' or amp", new String[] {"r1", "r2", "r3"}, "triple braces '{{{...}}}' or amp");
+	}
+
+	private void assertResolveArgs(String text, String[] args, String expected) {
+		assertEquals(expected, Result.resolveArgs(text, args));
 	}
 }

@@ -178,7 +178,7 @@ public final class Result {
 		return text;
 	}
 	
-	private static final String resolveArgs(String text, String[] args) {
+	protected static final String resolveArgs(String text, String[] args) {
 		// Based on the length of the args array, we produce another array containing placeholders "{0}", "{1}", "{2}", ...
 		// Then we do a simple search and replace for each of these placeholders using StringUtils#replaceEach.
 		// This works better than something like Java's MessageFormat as this has many other characteristics that we don't want.
@@ -189,7 +189,7 @@ public final class Result {
 	
 	// For now we simply render the link text; future versions may add extra info from the actual link
 	// as per the example in https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317467
-	private static final String replaceLinks(String text, RunData runData) {
+	protected static final String replaceLinks(String text, RunData runData) {
 		// Use regex (?<!\\)\[(.*?)(?<!\\)\]\(.*?\) to find link texts:
 		// - Find any non-escaped '[':   (?<!\\)\[
 		// - Find link text:             (.*?)

@@ -24,8 +24,8 @@
  ******************************************************************************/
 package com.fortify.ssc.parser.sarif.domain;
 
-import java.text.MessageFormat;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -178,16 +178,18 @@ public final class Result {
 		return text;
 	}
 	
-	private String resolveArgs(String text, String[] args) {
-		// We use MessageFormat to resolve argument references in input text
-		// As single quotes have special meaning in MessageFormat, we escape them in the input text
-		// TODO Do we need to improve handling of single quotes?
-		return MessageFormat.format(text.replace("'", "''"), (Object[])args);
+	private static final String resolveArgs(String text, String[] args) {
+		// Based on the length of the args array, we produce another array containing placeholders "{0}", "{1}", "{2}", ...
+		// Then we do a simple search and replace for each of these placeholders using StringUtils#replaceEach.
+		// This works better than something like Java's MessageFormat as this has many other characteristics that we don't want.
+		String[] placeholders = args==null ? null 
+				: IntStream.rangeClosed(0, args.length-1).mapToObj(i->String.format("{%d}", i)).toArray(String[]::new);
+		return StringUtils.replaceEach(text, placeholders, args);
 	}
 	
 	// For now we simply render the link text; future versions may add extra info from the actual link
 	// as per the example in https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317467
-	String replaceLinks(String text, RunData runData) {
+	private static final String replaceLinks(String text, RunData runData) {
 		// Use regex (?<!\\)\[(.*?)(?<!\\)\]\(.*?\) to find link texts:
 		// - Find any non-escaped '[':   (?<!\\)\[
 		// - Find link text:             (.*?)

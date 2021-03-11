@@ -1,35 +1,26 @@
 plugins {
-  id "io.freefair.lombok" version "4.1.2"
-  id "com.jfrog.bintray" version "1.8.4"
-  id 'org.ajoberstar.grgit' version "4.0.0"
-  id 'com.github.jk1.dependency-license-report' version '1.12'
-  id "org.kordamp.gradle.markdown" version "2.0.0"
+  id "io.freefair.lombok" version "5.3.0"
+  id 'com.github.jk1.dependency-license-report' version '1.16'
+  id "org.kordamp.gradle.markdown" version "2.2.0"
 }
 
 group 'com.fortify.ssc.parser.sarif'
+ext.getVersion = {
+	def result = project.findProperty('version');
+	return result || result=='unspecified' ? new Date().format('0.yyyyMMdd.HHmmss') : result;
+}
+version = ext.getVersion();
+ext.sscParserPluginVersion = project.version
 
 ext {
-	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/1.2"
+	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/1.5"
 }
 
 apply from: "${gradleHelpersLocation}/repo-helper.gradle"
 apply from: "${gradleHelpersLocation}/junit-helper.gradle"
-apply from: "${gradleHelpersLocation}/version-helper.gradle"
 apply from: "${gradleHelpersLocation}/fortify-helper.gradle"
-
-// Project and plugin version based on SCM information
-version = getProjectVersionAsBetaOrRelease(true)
-ext {
-	sscParserPluginVersion = getProjectVersionAsPlainVersionNumber()
-	bintrayRepo = "${getBetaOrReleaseLabel()}"
-	bintrayPkgName = "${rootProject.name}"
-	bintrayDownloadContainerName = getProjectVersionAsBetaOrRelease(false)
-	projectLicense = 'MIT'
-}
-
 apply from: "${gradleHelpersLocation}/ssc-parser-plugin-helper.gradle"
 apply from: "${gradleHelpersLocation}/thirdparty-helper.gradle"
-apply from: "${gradleHelpersLocation}/bintray-binaries-helper.gradle"
 apply from: "${gradleHelpersLocation}/readme2html.gradle"
 
 apply plugin: 'java'
@@ -49,8 +40,8 @@ configurations.all {
 }
 
 dependencies {
-	compileExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.7') { transitive = true }
-    compileExport(group: 'com.fortify.ssc.parser.util', name: 'json', version:'1.3', changing: false) { transitive = true }
+	implementationExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.7') { transitive = true }
+    implementationExport(group: 'com.fortify.ssc.parser.util', name: 'fortify-ssc-parser-util-json', version:'1.4', changing: false) { transitive = true }
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.6.0")
 }
 
@@ -58,7 +49,7 @@ task dist(type: Zip) {
 	dependsOn 'build', 'readme2html'
 	archiveFileName = "${rootProject.name}-${project.version}.zip"
 	destinationDirectory = file("$buildDir/dist")
-	from("${libsDir}") {
+	from("${buildDir}/${libsDirName}") {
 		include "${rootProject.name}-${project.version}.jar"
 	}
 	from "${buildDir}/html"
@@ -67,13 +58,3 @@ task dist(type: Zip) {
 		include "LICENSE.TXT"
 	}
 }
-
-bintray {
-    filesSpec {
-       from("${buildDir}/dist") {
-          include "*.zip"
-       }
-       into '.'
-    }
-}
-_bintrayRecordingCopy.dependsOn 'clean', 'dist', 'distThirdParty'

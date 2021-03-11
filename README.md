@@ -56,13 +56,11 @@ providing this information in a non-standard way
 
 ### Related Links
 
-* **Downloads**:  
-  _Beta versions may be unstable or non-functional. The `*-thirdParty.zip` file is for informational purposes only and does not need to be downloaded._
-	* **Release versions**: https://bintray.com/package/files/fortify-ps/release/fortify-ssc-parser-sarif?order=desc&sort=fileLastModified&basePath=&tab=files  
-	* **Beta versions**: https://bintray.com/package/files/fortify-ps/beta/fortify-ssc-parser-sarif?order=desc&sort=fileLastModified&basePath=&tab=files
-	* **Sample input files**: [sampleData](sampleData)
+* **Downloads**: https://github.com/fortify-ps/fortify-ssc-parser-sarif/releases
+    * _Development releases may be unstable or non-functional. The `*-thirdparty.zip` file is for informational purposes only and does not need to be downloaded._
+* **Sample input files**: [sampleData](sampleData)
 * **GitHub**: https://github.com/fortify-ps/fortify-ssc-parser-sarif
-* **Automated builds**: https://travis-ci.com/fortify-ps/fortify-ssc-parser-sarif
+* **Automated builds**: https://github.com/fortify-ps/fortify-ssc-parser-sarif/actions
 * **SARIF resources**:
 	* Specification: https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html
 	* Microsoft SARIF SDK: https://github.com/microsoft/sarif-sdk  
@@ -175,8 +173,7 @@ SSC clients (FortifyClient, Maven plugin, ...):
 
 ## Developers
 
-The following sections provide information that may be useful for developers of this 
-parser plugin.
+The following sections provide information that may be useful for developers of this utility.
 
 ### IDE's
 
@@ -202,37 +199,16 @@ the main project directory.
 * Build: (plugin binary will be stored in `build/libs`)
 	* `./gradlew clean build`: Clean and build the project
 	* `./gradlew build`: Build the project without cleaning
-	* `./gradlew dist`: Build distribution zip
-* Version management:
-	* `./gradlew printProjectVersion`: Print the current version
-	* `./gradlew startSnapshotBranch -PnextVersion=2.0`: Start a new snapshot branch for an upcoming `2.0` version
-	* `./gradlew releaseSnapshot`: Merge the changes from the current branch to the master branch, and create release tag
+	* `./gradlew dist distThirdParty`: Build distribution zip and third-party information bundle
 * `./fortify-scan.sh`: Run a Fortify scan; requires Fortify SCA to be installed
 
-Note that the version management tasks operate only on the local repository; you will need to manually
-push any changes (including tags and branches) to the remote repository.
+### Automated Builds
 
-### Versioning
+This project uses GitHub Actions workflows to perform automated builds for both development and production releases. All pushes to the main branch qualify for building a production release. Commits on the main branch should use [Conventional Commit Messages](https://www.conventionalcommits.org/en/v1.0.0/); it is recommended to also use conventional commit messages on any other branches.
 
-The various version-related Gradle tasks assume the following versioning methodology:
+User-facing commits (features or fixes) on the main branch will trigger the [release-please-action](https://github.com/google-github-actions/release-please-action) to automatically create a pull request for publishing a release version. This pull request contains an automatically generated CHANGELOG.md together with a version.txt based on the conventional commit messages on the main branch. Merging such a pull request will automatically publish the production binaries and Docker images to the locations described in the [Related Links](#related-links) section.
 
-* The `master` branch is only used for creating tagged release versions
-* A branch named `<version>-SNAPSHOT` contains the current snapshot state for the upcoming release
-* Optionally, other branches can be used to develop individual features, perform bug fixes, ...
-	* However, note that the Gradle build may be unable to identify a correct version number for the project
-	* As such, only builds from tagged versions or from a `<version>-SNAPSHOT` branch should be published to a Maven repository
-
-### CI/CD
-
-Travis-CI builds are automatically triggered when there is any change in the project repository,
-for example due to pushing changes, or creating tags or branches. If applicable, binaries and related 
-artifacts are automatically published to Bintray using the `bintrayUpload` task:
-
-* Building a tagged version will result in corresponding release version artifacts to be published
-* Building a branch named `<version>-SNAPSHOT` will result in corresponding beta version artifacts to be published
-* No artifacts will be deployed for any other build, for example when Travis-CI builds the `master` branch
-
-See the [Related Links](#related-links) section for the relevant Travis-CI and Bintray links.
+Every push to a branch in the GitHub repository will also automatically trigger a development release to be built. By default, development releases are only published as build job artifacts. However, if a tag named `dev_<branch-name>` exists, then development releases are also published to the locations described in the [Related Links](#related-links) section. The `dev_<branch-name>` tag will be automatically updated to the commit that triggered the build.
 
 
 ## License
@@ -243,3 +219,4 @@ See [LICENSE.TXT](LICENSE.TXT)
 <x-insert text="-->"/>
 
 <x-include url="file:LICENSE.TXT"/>
+

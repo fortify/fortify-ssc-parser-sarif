@@ -13,12 +13,11 @@ version = ext.getVersion();
 ext.sscParserPluginVersion = project.version
 
 ext {
-	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/1.5"
+	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/1.6"
 }
 
 apply from: "${gradleHelpersLocation}/repo-helper.gradle"
 apply from: "${gradleHelpersLocation}/junit-helper.gradle"
-apply from: "${gradleHelpersLocation}/fortify-helper.gradle"
 apply from: "${gradleHelpersLocation}/ssc-parser-plugin-helper.gradle"
 apply from: "${gradleHelpersLocation}/thirdparty-helper.gradle"
 apply from: "${gradleHelpersLocation}/readme2html.gradle"
@@ -41,7 +40,7 @@ configurations.all {
 
 dependencies {
 	implementationExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.7') { transitive = true }
-    implementationExport(group: 'com.fortify.ssc.parser.util', name: 'fortify-ssc-parser-util-json', version:'1.4', changing: false) { transitive = true }
+    implementationExport(group: 'com.fortify.ssc.parser.util', name: 'fortify-ssc-parser-util-json', version:'1.6.0.RELEASE', changing: false) { transitive = true }
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.6.0")
 }
 

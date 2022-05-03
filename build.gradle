@@ -39,9 +39,9 @@ configurations.all {
 }
 
 dependencies {
-	implementationExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.7') { transitive = true }
-    implementationExport(group: 'com.fortify.ssc.parser.util', name: 'fortify-ssc-parser-util-json', version:'1.6.0.RELEASE', changing: false) { transitive = true }
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.6.0")
+	implementationExport(group: 'org.mapdb', name: 'mapdb', version: '3.0.8') { transitive = true }
+    implementationExport(group: 'com.fortify.ssc.parser.util', name: 'fortify-ssc-parser-util-json', version:'1.6.1.RELEASE', changing: false) { transitive = true }
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
 }
 
 task dist(type: Zip) {

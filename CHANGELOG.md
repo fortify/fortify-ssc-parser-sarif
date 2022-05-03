@@ -1,5 +1,13 @@
 # Changelog
 
+### [1.2.3](https://www.github.com/fortify-ps/fortify-ssc-parser-sarif/compare/v1.2.2...v1.2.3) (2022-05-03)
+
+
+### Bug Fixes
+
+* Add missing changelog entry in previous release ([15449c6](https://www.github.com/fortify-ps/fortify-ssc-parser-sarif/commit/15449c69818193278263d15e8654d0112b346cd3))
+* Update (potentially vulnerable) dependency versions ([3bb57d7](https://www.github.com/fortify-ps/fortify-ssc-parser-sarif/commit/3bb57d731bfd18957f3d15adf742cf8a976042c6))
+
 ### [1.2.2](https://www.github.com/fortify-ps/fortify-ssc-parser-sarif/compare/v1.2.1...v1.2.2) (2022-05-03)
 
 

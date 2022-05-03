@@ -1,6 +1,6 @@
 plugins {
-  id "io.freefair.lombok" version "5.3.0"
-  id 'com.github.jk1.dependency-license-report' version '1.16'
+  id "io.freefair.lombok" version "6.4.3"
+  id 'com.github.jk1.dependency-license-report' version '2.1'
   id "org.kordamp.gradle.markdown" version "2.2.0"
 }
 
@@ -13,7 +13,7 @@ version = ext.getVersion();
 ext.sscParserPluginVersion = project.version
 
 ext {
-	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/1.6"
+	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/1.7"
 }
 
 apply from: "${gradleHelpersLocation}/repo-helper.gradle"

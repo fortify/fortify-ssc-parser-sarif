@@ -221,7 +221,7 @@ public final class VulnerabilitiesProducer {
 		String valueString = getStringProperty(properties, key, null);
 		if ( StringUtils.isNotBlank(valueString) ) {
 			try {
-				return new Float(valueString);
+				return Float.parseFloat(valueString);
 			} catch (NumberFormatException nfe) {
 				LOG.warn("Error converting {} string '{}' to float: {}", key, valueString, nfe.getMessage());
 			}

@@ -15,10 +15,12 @@ import com.fortify.ssc.parser.sarif.CustomVulnAttribute;
 import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.domain.Result;
 import com.fortify.ssc.parser.sarif.domain.RunData;
+import com.fortify.util.ssc.parser.EngineTypeHelper;
 import com.fortify.util.ssc.parser.HandleDuplicateIdVulnerabilityHandler;
 
 public final class VulnerabilitiesProducer {
 	private static final Logger LOG = LoggerFactory.getLogger(VulnerabilitiesProducer.class);
+	private static final String ENGINE_TYPE = EngineTypeHelper.getEngineType();
 	private final VulnerabilityHandler vulnerabilityHandler;
 	
 	/**
@@ -43,7 +45,7 @@ public final class VulnerabilitiesProducer {
 			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(getInstanceId(runData, result));
 			
 			// Set meta-data
-			vb.setEngineType(getEngineType(runData, result));
+			vb.setEngineType(ENGINE_TYPE);
 			vb.setKingdom(getKingdom(runData, result));
 			vb.setAnalyzer(getAnalyzer(runData, result));
 			vb.setCategory(getCategory(runData, result));
@@ -131,10 +133,6 @@ public final class VulnerabilitiesProducer {
 			getVulnerabilityAbstract(runData, result));
 	}
 	
-	private String getEngineType(RunData runData, Result result) {
-		return runData.getEngineType();
-	}
-	
 	private String getKingdom(RunData runData, Result result) {
 		String kingdom = getStringProperty(result.getProperties(), "kingdom", null);
 		if ( StringUtils.isBlank(kingdom) ) {
@@ -156,7 +154,7 @@ public final class VulnerabilitiesProducer {
 			category = result.resolveRuleId(runData);
 		}
 		if ( StringUtils.isBlank(category) ) {
-			category = getEngineType(runData, result);
+			category = runData.getToolName();
 		}
 		return category;
 	}

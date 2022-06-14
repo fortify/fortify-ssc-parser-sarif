@@ -36,7 +36,6 @@ import org.mapdb.Serializer;
 import com.fortify.util.io.Region;
 import com.fortify.util.json.ExtendedJsonParser;
 import com.fortify.util.json.StreamingJsonParser;
-import com.fortify.util.ssc.parser.EngineTypeHelper;
 
 import lombok.Getter;
 
@@ -143,9 +142,5 @@ public final class RunData {
 	
 	public final ReportingDescriptor getRuleByIndex(Integer index) {
 		return index==null ? null : rulesByIndex.get(index);
-	}
-	
-	public String getEngineType() {
-		return toolName!=null ? toolName : EngineTypeHelper.getEngineType();
 	}
 }

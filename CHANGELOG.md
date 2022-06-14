@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.2.4](https://www.github.com/fortify-ps/fortify-ssc-parser-sarif/compare/v1.2.3...v1.2.4) (2022-06-14)
+
+
+### Bug Fixes
+
+* Allow SARIF to be imported on SSC 22.1+ ([1e84ae3](https://www.github.com/fortify-ps/fortify-ssc-parser-sarif/commit/1e84ae3545a76e8fa1fdd1f460511cfabd873a97))
+
 ### [1.2.3](https://www.github.com/fortify-ps/fortify-ssc-parser-sarif/compare/v1.2.2...v1.2.3) (2022-05-03)
 
 

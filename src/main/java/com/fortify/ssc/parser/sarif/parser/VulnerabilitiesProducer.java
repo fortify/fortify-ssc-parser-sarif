@@ -192,13 +192,13 @@ public final class VulnerabilitiesProducer {
 	}
 
 	private Priority getPriority(RunData runData, Result result) {
-		String priorityString = null;
 		if ( isConvertedFromFortifyXml(runData) ) {
-			priorityString = getStringProperty(result.getProperties(), "priority", null);
+			String priorityString = getStringProperty(result.getProperties(), "priority", null);
+			if ( StringUtils.isNotBlank(priorityString) ) {
+				return Priority.valueOf(priorityString);
+			}
 		}
-		return StringUtils.isNotBlank(priorityString) 
-				? Priority.valueOf(priorityString)
-				: result.resolveLevel(runData).getFortifyPriority();
+		return result.resolveLevel(runData).getFortifyPriority();
 	}
 	
 	private String getRuleGuid(RunData runData, Result result) {

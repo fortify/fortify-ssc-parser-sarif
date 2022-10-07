@@ -70,8 +70,12 @@ public final class Result {
 	public String resolveFullFileName(RunData runData, final String defaultValue) {
 		String value = defaultValue;
 		Location[] locations = getLocations();
-		if ( locations!=null && locations.length>0 && locations[0].getPhysicalLocation()!=null ) {
-			value = locations[0].getPhysicalLocation().resolveArtifactLocation(runData).getFullFileName(runData);
+		if ( locations!=null && locations.length>0 ) {
+			if ( locations[0].getMessage()!=null ){
+				value = resolveMessage(locations[0].getMessage(), runData);
+			} else if ( locations[0].getPhysicalLocation()!=null ) {
+				value = locations[0].getPhysicalLocation().resolveArtifactLocation(runData).getFullFileName(runData);
+			}
 		} else if ( getAnalysisTarget()!=null ) {
 			value = getAnalysisTarget().getFullFileName(runData);
 		}
@@ -160,9 +164,12 @@ public final class Result {
 		}
 		return level;
 	}
-	
+
 	public String getResultMessage(RunData runData) {
-		Message msg = getMessage();
+		return resolveMessage(getMessage(), runData);
+	}
+
+	protected String resolveMessage(Message msg, RunData runData) {
 		String text = msg.getText();
 		if ( StringUtils.isBlank(text) && msg.getId()!=null ) {
 			MultiformatMessageString msgString = getMultiformatMessageStringForId(runData, msg.getId());

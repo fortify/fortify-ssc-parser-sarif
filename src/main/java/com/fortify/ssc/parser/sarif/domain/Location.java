@@ -32,8 +32,8 @@ import lombok.Getter;
 public final class Location {
 	@JsonProperty private int id = -1;
 	@JsonProperty PhysicalLocation physicalLocation;
+	@JsonProperty Message message;
 	//@JsonProperty LogicalLocation[] logicalLocations;
-	//@JsonProperty Message message;
 	//@JsonProperty Region[] regions;
 	//@JsonProperty LocationRelationship[] relationships;
 }

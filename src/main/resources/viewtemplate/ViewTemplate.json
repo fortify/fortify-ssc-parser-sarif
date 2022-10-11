@@ -44,5 +44,14 @@
 			"templateId": "COLLAPSE",
 			"dataType": "string"
 		}
+	],
+	[
+		{
+			"type": "template",
+			"title": "Help",
+			"key": "customAttributes.help",
+			"templateId": "COLLAPSE",
+			"dataType": "string"
+		}
 	]
 ]

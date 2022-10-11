@@ -86,6 +86,7 @@ public final class VulnerabilitiesProducer {
 			
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.categoryAndSubCategory, getCategoryAndSubCategory(runData, result));
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.toolName, runData.getToolName());
+			vb.setStringCustomAttributeValue(CustomVulnAttribute.help, getHelp(runData, result));
     		
     		vb.completeVulnerability();
 		}
@@ -93,6 +94,15 @@ public final class VulnerabilitiesProducer {
 
 	private String getVulnerabilityAbstract(RunData runData, Result result) {
 		return result.getResultMessage(runData);
+	}
+
+	private String getHelp(RunData runData, Result result) {
+		String help = null;
+		ReportingDescriptor rule = result.resolveRule(runData);
+		if ( rule != null && rule.getHelp() != null ) {
+			help = rule.getHelp().getText();
+		}
+		return help;
 	}
 
 	private String getFileName(RunData runData, Result result) {

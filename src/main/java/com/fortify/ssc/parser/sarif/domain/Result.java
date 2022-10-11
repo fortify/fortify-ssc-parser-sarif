@@ -169,7 +169,7 @@ public final class Result {
 		return resolveMessage(getMessage(), runData);
 	}
 
-	protected String resolveMessage(Message msg, RunData runData) {
+	public String resolveMessage(Message msg, RunData runData) {
 		String text = msg.getText();
 		if ( StringUtils.isBlank(text) && msg.getId()!=null ) {
 			MultiformatMessageString msgString = getMultiformatMessageStringForId(runData, msg.getId());

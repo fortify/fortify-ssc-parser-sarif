@@ -44,5 +44,27 @@
 			"templateId": "COLLAPSE",
 			"dataType": "string"
 		}
+	],
+	[
+		{
+			"type": "template",
+			"title": "Additional Information",
+			"templateId": "TITLEBOX",
+			"dataType": "string",
+			"items": [
+				{
+					"type": "template",
+					"key": "customAttributes.help",
+					"templateId": "COLLAPSE",
+					"dataType": "string"
+				},
+				{
+					"type": "template",
+					"key": "customAttributes.helpUri",
+					"templateId": "SIMPLE",
+					"dataType": "string"
+				}
+			]
+		}
 	]
 ]

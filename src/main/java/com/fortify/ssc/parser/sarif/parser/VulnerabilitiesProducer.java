@@ -192,13 +192,35 @@ public final class VulnerabilitiesProducer {
 	}
 
 	private Priority getPriority(RunData runData, Result result) {
-		String priorityString = null;
 		if ( isConvertedFromFortifyXml(runData) ) {
-			priorityString = getStringProperty(result.getProperties(), "priority", null);
+			String priorityString = getStringProperty(result.getProperties(), "priority", null);
+			if ( StringUtils.isNotBlank(priorityString) ) {
+				return Priority.valueOf(priorityString);
+			}
 		}
-		return StringUtils.isNotBlank(priorityString) 
-				? Priority.valueOf(priorityString)
-				: result.resolveLevel(runData).getFortifyPriority();
+		String securitySeverityString = getStringProperty(getRuleProperties(runData, result), "security-severity", null);
+		if ( StringUtils.isNotBlank(securitySeverityString) ) {
+			try {
+				float securitySeverity = Float.parseFloat(securitySeverityString);
+				// CVSS score range mapping from https://nvd.nist.gov/vuln-metrics/cvss
+				if ( securitySeverity < 0 ){
+					LOG.warn("Invalid security-severity, {} is less than 0.", securitySeverity);
+				}else if ( securitySeverity < 4 ){
+					return Priority.Low;
+				}else if ( securitySeverity < 7 ){
+					return Priority.Medium;
+				}else if ( securitySeverity < 9 ){
+					return Priority.High;
+				}else if ( securitySeverity <= 10 ){
+					return Priority.Critical;
+				}else{
+					LOG.warn("Invalid security-severity, {} is greater than 10.", securitySeverity);
+				}
+			} catch (NumberFormatException nfe) {
+				LOG.warn("Error converting {} string '{}' to float: {}", "security-severity", securitySeverityString, nfe.getMessage());
+			}
+		}
+		return result.resolveLevel(runData).getFortifyPriority();
 	}
 	
 	private String getRuleGuid(RunData runData, Result result) {

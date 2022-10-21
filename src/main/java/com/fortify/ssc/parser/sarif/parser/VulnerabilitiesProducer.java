@@ -103,7 +103,7 @@ public final class VulnerabilitiesProducer {
 		if ( rule != null && rule.getHelp() != null ) {
 			help = rule.getHelp().getText();
 		}
-		return help;
+		return StringUtils.isBlank(help) ? "Not Available" : help;
 	}
 
 	private String getHelpUri(RunData runData, Result result) {
@@ -112,7 +112,7 @@ public final class VulnerabilitiesProducer {
 		if ( rule != null && rule.getHelpUri() != null ) {
 			helpUri = rule.getHelpUri().toString();
 		}
-		return helpUri;
+		return StringUtils.isBlank(helpUri) ? "Not Available" : helpUri;
 	}
 
 	private String getFileName(RunData runData, Result result) {

@@ -144,11 +144,16 @@ public final class VulnerabilitiesProducer {
 	private String getCategory(RunData runData, Result result) {
 		String category = null;
 		ReportingDescriptor rule = result.resolveRule(runData);
-		if ( rule != null && StringUtils.isNotBlank(rule.getName()) ) {
-			category = StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
-		}
-		if ( StringUtils.isBlank(category) ) {
-			category = getStringProperty(getRuleProperties(rule), "Type", null);
+		if ( rule != null ) {
+			if ( rule.getShortDescription() != null ) {
+				category = result.resolveMessage(rule.getShortDescription(), runData);
+			}
+			if ( StringUtils.isBlank(category) && StringUtils.isNotBlank(rule.getName()) ) {
+				category = StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
+			}
+			if ( StringUtils.isBlank(category) ) {
+				category = getStringProperty(getRuleProperties(rule), "Type", null);
+			}
 		}
 		if ( StringUtils.isBlank(category) ) {
 			category = result.resolveRuleId(runData);

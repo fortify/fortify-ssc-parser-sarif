@@ -13,14 +13,14 @@ version = ext.getVersion();
 ext.sscParserPluginVersion = project.version
 
 ext {
-	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/1.7"
+	gradleHelpersLocation = "https://raw.githubusercontent.com/fortify-ps/gradle-helpers/1.8"
 }
 
 apply from: "${gradleHelpersLocation}/repo-helper.gradle"
 apply from: "${gradleHelpersLocation}/junit-helper.gradle"
 apply from: "${gradleHelpersLocation}/ssc-parser-plugin-helper.gradle"
 apply from: "${gradleHelpersLocation}/thirdparty-helper.gradle"
-apply from: "${gradleHelpersLocation}/readme2html.gradle"
+apply from: "${gradleHelpersLocation}/markdown2html.gradle"
 
 apply plugin: 'java'
 sourceCompatibility = 1.8
@@ -44,16 +44,23 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
 }
 
+task copyMarkdown(type: Copy) {
+	from("${projectDir}") {
+		include "USAGE.md"
+	}
+	into "${m2hSourceDir}"
+}
+
 task dist(type: Zip) {
-	dependsOn 'build', 'readme2html'
+	dependsOn 'build', 'markdownToHtml'
 	archiveFileName = "${rootProject.name}-${project.version}.zip"
 	destinationDirectory = file("$buildDir/dist")
 	from("${buildDir}/${libsDirName}") {
 		include "${rootProject.name}-${project.version}.jar"
 	}
-	from "${buildDir}/html"
+	from "${m2hOutputDir}"
 	from("${projectDir}") {
 		include "sampleData/**/*"
-		include "LICENSE.TXT"
+		include "LICENSE.txt"
 	}
 }

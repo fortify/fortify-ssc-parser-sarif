@@ -169,7 +169,11 @@ public final class VulnerabilitiesProducer {
 				category = result.resolveMessage(rule.getShortDescription(), runData);
 			}
 			if ( StringUtils.isBlank(category) && StringUtils.isNotBlank(rule.getName()) ) {
-				category = StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
+				if ( rule.getName().contains(StringUtils.SPACE)) {
+					category = rule.getName();
+				}else {
+					category = StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
+				}
 			}
 			if ( StringUtils.isBlank(category) ) {
 				category = getStringProperty(getRuleProperties(rule), "Type", null);

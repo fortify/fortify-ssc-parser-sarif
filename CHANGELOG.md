@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.3.0...v1.4.0) (2023-03-03)
+
+
+### Features
+
+* if rule.name contains spaces, don't treat as camel case ([3a4b198](https://www.github.com/fortify/fortify-ssc-parser-sarif/commit/3a4b198e92a2927fdc72baab7e4afd348ba2dfac))
+
 ## [1.3.0](https://www.github.com/fortify-ps/fortify-ssc-parser-sarif/compare/v1.2.4...v1.3.0) (2022-10-21)
 
 

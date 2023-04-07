@@ -59,8 +59,8 @@ class SARIFParserPluginTest {
 			"spec-minimal-without-source.sarif",
 			"spec-minimal-with-source.sarif",
 			"spec-comprehensive.sarif",
-			"github.com_microsoft_sarif-sdk_blob_master_src_Samples_Sarif.WorkItems.Sample_SampleTestFiles_Current.sarif",
-			"github.com_microsoft_sarif-sdk_blob_master_src_Test.FunctionalTests.Sarif_v2_ConverterTestData_ContrastSecurity_WebGoat.xml.sarif"
+			"gitlab.com_microsoft_sarif-sdk_blob_master_src_Samples_Sarif.WorkItems.Sample_SampleTestFiles_Current.sarif",
+			"gitlab.com_microsoft_sarif-sdk_blob_master_src_Test.FunctionalTests.Sarif_v2_ConverterTestData_ContrastSecurity_WebGoat.xml.sarif"
 	};
 	
 	private final ScanData getScanData(String fileName) {

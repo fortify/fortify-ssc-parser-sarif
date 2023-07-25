@@ -12,6 +12,7 @@ import com.fortify.plugin.api.BasicVulnerabilityBuilder.Priority;
 import com.fortify.plugin.api.StaticVulnerabilityBuilder;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.CustomVulnAttribute;
+import com.fortify.ssc.parser.sarif.domain.Kind;
 import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.domain.Result;
 import com.fortify.ssc.parser.sarif.domain.RunData;
@@ -40,6 +41,22 @@ public final class VulnerabilitiesProducer {
 	 */
 	@SuppressWarnings("deprecation") // SSC JavaDoc states that severity is mandatory, but method is deprecated
 	public final void produceVulnerability(RunData runData, Result result) {
+		Kind kind = result.getKind();
+		if ( kind == null ) {
+			// SARIF specification says that if kind is not specified, then the default value of fail is to be used
+			kind = Kind.fail;
+		}
+		switch(kind) {
+			case review:
+			case open:
+			case fail:
+				break;
+			case informational:
+			case notApplicable:
+			case pass:
+				// results with these kind values are not vulnerabilities.
+				return;
+		}
 		Priority priority = getPriority(runData, result);
 		if ( priority != null ) {
 			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(getInstanceId(runData, result));

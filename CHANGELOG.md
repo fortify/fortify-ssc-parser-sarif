@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.4.0...v1.5.0) (2023-07-27)
+
+
+### Features
+
+* handle SARIF kind ([#19](https://www.github.com/fortify/fortify-ssc-parser-sarif/issues/19)) ([d052119](https://www.github.com/fortify/fortify-ssc-parser-sarif/commit/d05211948a66c0fe070abd151ee4935d2597a6ff))
+
+
+### Bug Fixes
+
+* correct test data file names ([4c6de5d](https://www.github.com/fortify/fortify-ssc-parser-sarif/commit/4c6de5d0c7ac9496a5a4be1244c6ab0e0c5b0091))
+
 ## [1.4.0](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.3.0...v1.4.0) (2023-03-03)
 
 

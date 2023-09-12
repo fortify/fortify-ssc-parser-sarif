@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.5.2](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.5.1...v1.5.2) (2023-09-12)
+
+
+### Bug Fixes
+
+* Use proper fortify-ssc-parser-util and transitive dependencies" ([2ef9d9b](https://www.github.com/fortify/fortify-ssc-parser-sarif/commit/2ef9d9bb3eaeb171b0e8d5bdbe07a70cc9e8af0e))
+
 ### [1.5.1](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.5.0...v1.5.1) (2023-09-12)
 
 

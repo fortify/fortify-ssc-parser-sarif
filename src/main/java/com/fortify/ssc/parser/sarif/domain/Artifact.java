@@ -27,14 +27,12 @@ package com.fortify.ssc.parser.sarif.domain;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fortify.util.mapdb.CustomSerializerElsa;
 
 import lombok.Getter;
 
 @Getter
 public final class Artifact implements Serializable {
 	private static final long serialVersionUID = 1L;
-	public static final CustomSerializerElsa<Artifact> SERIALIZER = new CustomSerializerElsa<>(Artifact.class);
 	@JsonProperty private ArtifactLocation location;
 	// @JsonProperty private Integer parentIndex;
 	// @JsonProperty private Integer offset;

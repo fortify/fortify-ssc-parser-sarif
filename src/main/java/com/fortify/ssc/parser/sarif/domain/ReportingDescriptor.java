@@ -29,7 +29,6 @@ import java.net.URI;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fortify.util.mapdb.CustomSerializerElsa;
 
 import lombok.Getter;
 
@@ -40,7 +39,6 @@ import lombok.Getter;
  */
 @Getter
 public final class ReportingDescriptor implements Serializable {
-	public static final CustomSerializerElsa<ReportingDescriptor> SERIALIZER = new CustomSerializerElsa<>(ReportingDescriptor.class);
 	private static final long serialVersionUID = 1L;
 	
 	@JsonProperty private String id;

@@ -27,7 +27,6 @@ package com.fortify.ssc.parser.sarif.domain;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fortify.util.mapdb.CustomSerializerElsa;
 
 import lombok.Getter;
 
@@ -38,7 +37,6 @@ import lombok.Getter;
  */
 @Getter
 public final class ReportingDescriptorReference implements Serializable {
-	public static final CustomSerializerElsa<ReportingDescriptorReference> SERIALIZER = new CustomSerializerElsa<>(ReportingDescriptorReference.class);
 	private static final long serialVersionUID = 1L;
 	
 	@JsonProperty private String id;

@@ -61,17 +61,18 @@ public final class RunData {
 	 * 
 	 * @param db
 	 */
-	private RunData(final DB db) {
+	@SuppressWarnings("unchecked")
+    private RunData(final DB db) {
 		// We assume there's only a limited set of URI base id's, so store in memory
 		this.originalUriBaseIds = new HashMap<>();
 		// We assume large scans may include a lot of artifacts and rules, so we use disk-backed collections.
 		// Note that alternatively we could use a hash & position-based approach like the SARIF .NET SDK
 		// (see DeferredDictionary and DeferredList) to avoid serializing entries to disk, but for now
 		// disk-backed collections seem to perform well and the implementation is much easier to understand.
-		this.artifactsByIndex = db.indexTreeList("artifactsByIndex", Artifact.SERIALIZER).create();
+		this.artifactsByIndex = (List<Artifact>) db.indexTreeList("artifactsByIndex", Serializer.JAVA).create();
 		this.ruleIndexesById = db.hashMap("ruleIndexesById", Serializer.STRING, Serializer.INTEGER).create();
 		this.ruleIndexesByGuid = db.hashMap("ruleIndexesByGuid", Serializer.STRING, Serializer.INTEGER).create();
-		this.rulesByIndex = db.indexTreeList("rulesByIndex", ReportingDescriptor.SERIALIZER).create();
+		this.rulesByIndex = (List<ReportingDescriptor>) db.indexTreeList("rulesByIndex", Serializer.JAVA).create();
 	}
 	
 	/**

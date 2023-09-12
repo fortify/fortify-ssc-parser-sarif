@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.5.1](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.5.0...v1.5.1) (2023-09-12)
+
+
+### Bug Fixes
+
+* Compatibility update for Java 17 / SSC 23.2 ([c4ec141](https://www.github.com/fortify/fortify-ssc-parser-sarif/commit/c4ec1417be505e9705677921efe1422ae82abe55))
+
 ## [1.5.0](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.4.0...v1.5.0) (2023-07-27)
 
 

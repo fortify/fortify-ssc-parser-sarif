@@ -176,7 +176,7 @@ To upload results through the SSC web interface or most clients:
 	
 Both SSC REST API and fcli provide options for specifying the engine type directly, and as such it is not necessary to package the raw results into a zip-file with accompanying `scan.info` file. For example, fcli allows for uploading raw scan results using a command like the following:
 
-`fcli ssc appversion-artifact upload <raw-results-file> --appversion MyApp:MyVersion --engine-type SARIF`
+`fcli ssc artifact upload -f <raw-results-file> --appversion MyApp:MyVersion --engine-type SARIF`
 
 <!-- END-INCLUDE:usage/h1.standard-parser-usage.md -->
 

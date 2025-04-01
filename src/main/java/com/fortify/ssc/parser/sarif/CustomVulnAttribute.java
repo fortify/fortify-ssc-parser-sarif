@@ -39,6 +39,7 @@ public enum CustomVulnAttribute implements com.fortify.plugin.spi.VulnerabilityA
 	categoryAndSubCategory(AttrType.STRING),
 	help(AttrType.LONG_STRING),
 	helpUri(AttrType.STRING),
+	tags(AttrType.LONG_STRING),
     ;
 
     private final AttrType attributeType;

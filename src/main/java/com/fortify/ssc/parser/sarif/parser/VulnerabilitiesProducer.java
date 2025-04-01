@@ -1,7 +1,10 @@
 package com.fortify.ssc.parser.sarif.parser;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -105,6 +108,7 @@ public final class VulnerabilitiesProducer {
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.toolName, runData.getToolName());
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.help, getHelp(runData, result));
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.helpUri, getHelpUri(runData, result));
+			vb.setStringCustomAttributeValue(CustomVulnAttribute.tags, getTags(runData, result));
     		
     		vb.completeVulnerability();
 		}
@@ -268,6 +272,16 @@ public final class VulnerabilitiesProducer {
 		}
 		return result.resolveLevel(runData).getFortifyPriority();
 	}
+
+	private String getTags(RunData runData, Result result) {
+		return getStringListProperty(getRuleProperties(runData, result), "tags", Collections.emptyList())
+			.stream()
+			// the tag "security" is almost always present for many SARIF reports because GitHub Code Scanning requires that tag be present for findings to appear
+			// See https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning
+			// Since it's not really useful, filter it out.
+			.filter(s -> ! "security".equalsIgnoreCase(s))
+			.collect(Collectors.joining(", "));
+	}
 	
 	private String getRuleGuid(RunData runData, Result result) {
 		if ( isConvertedFromFortifyXml(runData) ) {
@@ -278,7 +292,7 @@ public final class VulnerabilitiesProducer {
 			return null;
 		}
 	}
-	
+
 	private String getCategoryAndSubCategory(RunData runData, Result result) {
 		String category = getCategory(runData, result);
 		String subCategory = getSubCategory(runData, result);
@@ -304,6 +318,13 @@ public final class VulnerabilitiesProducer {
 		return defaultValue;
 	}
 	
+	private List<String> getStringListProperty(Map<String, Object> properties, String key, List<String> defaultValue) {
+		if ( properties!=null && properties.containsKey(key) && properties.get(key) instanceof List ) {
+			return (List<String>) properties.get(key);
+		}
+		return defaultValue;
+	}
+
 	private Map<String, Object> getRuleProperties(ReportingDescriptor rule) {
 		return rule==null ? null : rule.getProperties();
 	}

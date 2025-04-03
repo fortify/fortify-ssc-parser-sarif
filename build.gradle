@@ -1,3 +1,11 @@
+buildscript {
+    configurations.all {
+        resolutionStrategy.dependencySubstitution {
+            substitute module("com.overzealous:remark:1.1.0") using module("com.wavefront:remark:2023-07.07") because "not available on maven central anymore"
+        }
+    }
+}
+
 plugins {
   id "io.freefair.lombok" version "6.4.3"
   id 'com.github.jk1.dependency-license-report' version '2.1'

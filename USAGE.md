@@ -80,7 +80,7 @@ These sections describe how to install, upgrade and uninstall the parser plugin 
 
 * Obtain the plugin binary jar file; either:
      * Download from the repository release page: https://github.com/fortify/fortify-ssc-parser-sarif/releases
-     * Build the plugin from source: https://github.com/fortify/fortify-ssc-parser-sarif/CONTRIB.md
+     * Build the plugin from source: https://github.com/fortify/fortify-ssc-parser-sarif/blob/main/CONTRIBUTING.md
 * If you already have another version of the plugin installed, first uninstall the previously  installed version of the plugin by following the steps under [Uninstall](#uninstall) below
 * In Fortify Software Security Center:
 	* Navigate to Administration->Plugins->Parsers

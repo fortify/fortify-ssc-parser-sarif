@@ -5,7 +5,7 @@
     <plugin-info>
         <name>SARIF parser plugin</name>
         <version><!--VERSION-->0.0<!--/VERSION--></version>
-        <data-version>2</data-version>
+        <data-version>3</data-version>
         <vendor name="Micro Focus" url="https://www.microfocus.com"/>
         <description>SARIF parser plugin</description>
         <resources>

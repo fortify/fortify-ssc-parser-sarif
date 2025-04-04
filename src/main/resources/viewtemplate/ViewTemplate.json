@@ -63,6 +63,12 @@
 					"key": "customAttributes.helpUri",
 					"templateId": "SIMPLE",
 					"dataType": "string"
+				},
+				{
+					"type": "template",
+					"key": "customAttributes.tags",
+					"templateId": "COLLAPSE",
+					"dataType": "string"
 				}
 			]
 		}

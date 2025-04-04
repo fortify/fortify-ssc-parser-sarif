@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.5.2...v1.6.0) (2025-04-04)
+
+
+### Features
+
+* Display SARIF tags ([#31](https://www.github.com/fortify/fortify-ssc-parser-sarif/issues/31)) ([f57f3ac](https://www.github.com/fortify/fortify-ssc-parser-sarif/commit/f57f3ac7a996b98a108fdfd27dc7f56f53a3cde4))
+
 ### [1.5.2](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.5.1...v1.5.2) (2023-09-12)
 
 

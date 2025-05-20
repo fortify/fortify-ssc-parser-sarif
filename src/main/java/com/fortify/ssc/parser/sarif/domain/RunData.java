@@ -32,6 +32,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.mapdb.DB;
 import org.mapdb.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fortify.util.io.Region;
 import com.fortify.util.json.ExtendedJsonParser;
@@ -47,6 +49,7 @@ import lombok.Getter;
  *
  */
 public final class RunData {
+    private static final Logger LOG = LoggerFactory.getLogger(RunData.class);
 	private final Map<String, ArtifactLocation> originalUriBaseIds;
 	private final List<Artifact> artifactsByIndex;
 	private final Map<String, Integer> ruleIndexesById;
@@ -130,7 +133,12 @@ public final class RunData {
 	}
 	
 	public final Artifact getArtifactByIndex(Integer index) {
-		return index==null ? null : artifactsByIndex.get(index);
+		if ( index==null || artifactsByIndex==null || artifactsByIndex.isEmpty() ) { return null; }
+        if ( index<0 || index>=artifactsByIndex.size() ) {
+            LOG.warn("SARIF input error: Ignoring non-existing artifact index "+index);
+            return null;
+         }
+         return artifactsByIndex.get(index);
 	}
 	
 	public final ReportingDescriptor getRuleById(String id) {
@@ -142,6 +150,11 @@ public final class RunData {
 	}
 	
 	public final ReportingDescriptor getRuleByIndex(Integer index) {
-		return index==null ? null : rulesByIndex.get(index);
+	    if ( index==null || rulesByIndex==null || rulesByIndex.isEmpty() ) { return null; }
+	    if ( index<0 || index>=rulesByIndex.size() ) {
+	       LOG.warn("SARIF input error: Ignoring non-existing rule index "+index);
+	       return null;
+	    }
+		return rulesByIndex.get(index);
 	}
 }

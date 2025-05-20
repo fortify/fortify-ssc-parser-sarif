@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.6.1](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.6.0...v1.6.1) (2025-05-20)
+
+
+### Bug Fixes
+
+* Gracefully handle non-existing rule & artifact indexes ([ea84b5a](https://www.github.com/fortify/fortify-ssc-parser-sarif/commit/ea84b5a80d0652672e39643a11f3664521011578))
+
 ## [1.6.0](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.5.2...v1.6.0) (2025-04-04)
 
 

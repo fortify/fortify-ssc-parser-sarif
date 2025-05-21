@@ -87,7 +87,7 @@ public final class VulnerabilitiesProducer {
 			
 			//vb.setClassName(null);
     		//vb.setFunctionName(functionName);
-    		//vb.setLineNumber(lineNumber);
+    		vb.setLineNumber(result.resolveLineNumber());
     		//vb.setMappedCategory(mappedCategory);
     		//vb.setMinVirtualCallConfidence(minVirtualCallConfidence);
     		//vb.setPackageName(packageName);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * (c) Copyright 2020 Micro Focus or one of its affiliates
+ * (c) Copyright 2025 Micro Focus or one of its affiliates
  *
  * Permission is hereby granted, free of charge, to any person obtaining a 
  * copy of this software and associated documentation files (the 
@@ -29,17 +29,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public final class PhysicalLocation {
-	@JsonProperty private ArtifactLocation artifactLocation;
-	@JsonProperty private Region region;
-	// @JsonProperty private Region contextRegion;
-	// @JsonProperty private Address address;
-
-	public ArtifactLocation resolveArtifactLocation(RunData runData) {
-		if ( artifactLocation!=null ) {
-			Artifact artifact = runData.getArtifactByIndex(artifactLocation.getIndex());
-			if ( artifact!=null ) { return artifact.getLocation(); }
-		}
-		return artifactLocation;
-	}
+public final class Region {
+	@JsonProperty private Integer endColumn;
+	@JsonProperty private Integer endLine;
+	@JsonProperty private Integer startColumn;
+	@JsonProperty private Integer startLine;
 }

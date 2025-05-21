@@ -82,6 +82,15 @@ public final class Result {
 		return value;
 	}
 	
+	public Integer resolveLineNumber() {
+		Integer value = null;
+		Location[] locations = getLocations();
+		if ( locations!=null && locations.length>0 && locations[0].getPhysicalLocation()!=null && locations[0].getPhysicalLocation().getRegion()!=null && locations[0].getPhysicalLocation().getRegion().getStartLine()!=null ) {
+			value = locations[0].getPhysicalLocation().getRegion().getStartLine();
+		}
+		return value;
+	}
+
 	public ReportingDescriptor resolveRule(RunData runData) {
 		if ( this.resolvedRule == null ) {
 			this.resolvedRule = resolveRuleByIndex(runData);

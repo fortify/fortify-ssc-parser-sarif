@@ -90,6 +90,15 @@ public final class Result {
 		}
 		return value;
 	}
+	
+	public String resolveSnippet() {
+		String value = null;
+		Location[] locations = getLocations();
+		if ( locations!=null && locations.length>0 && locations[0].getPhysicalLocation()!=null && locations[0].getPhysicalLocation().getRegion()!=null && locations[0].getPhysicalLocation().getRegion().getSnippet()!=null ) {
+			value = locations[0].getPhysicalLocation().getRegion().getSnippet().getText();
+		}
+		return value;
+	}
 
 	public ReportingDescriptor resolveRule(RunData runData) {
 		if ( this.resolvedRule == null ) {

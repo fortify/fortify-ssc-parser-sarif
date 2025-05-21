@@ -29,10 +29,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
-public final class Region {
-	@JsonProperty private Integer endColumn;
-	@JsonProperty private Integer endLine;
-	@JsonProperty private Integer startColumn;
-	@JsonProperty private Integer startLine;
-	@JsonProperty private ArtifactContent snippet;
+public final class ArtifactContent {
+	@JsonProperty private String text;
 }

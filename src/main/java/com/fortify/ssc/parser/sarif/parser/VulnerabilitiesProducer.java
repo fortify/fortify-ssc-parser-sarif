@@ -109,6 +109,7 @@ public final class VulnerabilitiesProducer {
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.help, getHelp(runData, result));
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.helpUri, getHelpUri(runData, result));
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.tags, getTags(runData, result));
+			vb.setStringCustomAttributeValue(CustomVulnAttribute.snippet, result.resolveSnippet());
     		
     		vb.completeVulnerability();
 		}

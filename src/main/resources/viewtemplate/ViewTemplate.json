@@ -14,6 +14,13 @@
 				},
 				{
 					"type": "template",
+					"title": "Snippet",
+					"key": "customAttributes.snippet",
+					"templateId": "COLLAPSE",
+					"dataType": "string"
+				},
+				{
+					"type": "template",
 					"title": "Category",
 					"key": "customAttributes.categoryAndSubCategory",
 					"templateId": "SIMPLE",

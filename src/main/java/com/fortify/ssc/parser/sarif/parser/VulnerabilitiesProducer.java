@@ -87,7 +87,7 @@ public final class VulnerabilitiesProducer {
 			
 			//vb.setClassName(null);
     		//vb.setFunctionName(functionName);
-    		//vb.setLineNumber(lineNumber);
+    		vb.setLineNumber(result.resolveLineNumber());
     		//vb.setMappedCategory(mappedCategory);
     		//vb.setMinVirtualCallConfidence(minVirtualCallConfidence);
     		//vb.setPackageName(packageName);
@@ -109,6 +109,7 @@ public final class VulnerabilitiesProducer {
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.help, getHelp(runData, result));
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.helpUri, getHelpUri(runData, result));
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.tags, getTags(runData, result));
+			vb.setStringCustomAttributeValue(CustomVulnAttribute.snippet, result.resolveSnippet());
     		
     		vb.completeVulnerability();
 		}

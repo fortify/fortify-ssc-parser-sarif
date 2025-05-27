@@ -31,7 +31,7 @@ import lombok.Getter;
 @Getter
 public final class PhysicalLocation {
 	@JsonProperty private ArtifactLocation artifactLocation;
-	// @JsonProperty private Region region;
+	@JsonProperty private Region region;
 	// @JsonProperty private Region contextRegion;
 	// @JsonProperty private Address address;
 

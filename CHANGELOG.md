@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.0](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.6.1...v1.7.0) (2025-05-27)
+
+
+### Features
+
+* Display line number if available ([2a27588](https://www.github.com/fortify/fortify-ssc-parser-sarif/commit/2a27588edc2fe8847f5e3df1c83e52a08646009c))
+* Display snippet if available ([2a27588](https://www.github.com/fortify/fortify-ssc-parser-sarif/commit/2a27588edc2fe8847f5e3df1c83e52a08646009c))
+
 ### [1.6.1](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.6.0...v1.6.1) (2025-05-20)
 
 

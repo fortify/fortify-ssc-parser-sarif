@@ -29,13 +29,16 @@ import java.net.URI;
 import java.nio.file.Paths;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import lombok.Getter;
 
 @Getter
 public final class ArtifactLocation implements Serializable {
 	private static final long serialVersionUID = 1L;
-	@JsonProperty private URI uri;
+	@JsonProperty 
+	@JsonDeserialize(using = URIDeserializer.class)
+	private URI uri;
 	@JsonProperty private String uriBaseId;
 	@JsonProperty private Integer index;
 	// @JsonProperty private Message description;

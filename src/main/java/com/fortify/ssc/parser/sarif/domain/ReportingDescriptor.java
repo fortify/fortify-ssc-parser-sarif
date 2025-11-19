@@ -29,6 +29,7 @@ import java.net.URI;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import lombok.Getter;
 
@@ -48,7 +49,9 @@ public final class ReportingDescriptor implements Serializable {
 	@JsonProperty private Map<String,MultiformatMessageString> messageStrings;
 	@JsonProperty private Message shortDescription;
 	@JsonProperty private Message fullDescription;
-	@JsonProperty private URI helpUri;
+	@JsonProperty 
+	@JsonDeserialize(using = URIDeserializer.class)
+	private URI helpUri;
 	@JsonProperty private MultiformatMessageString help;
 	@JsonProperty private Map<String, Object> properties;
 	

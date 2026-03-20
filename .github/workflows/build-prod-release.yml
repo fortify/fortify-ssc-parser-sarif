@@ -2,25 +2,34 @@ on:
   push:
     branches:
       - main
-      
+
 env:
   DIST_DIR: ${{ github.workspace }}/build/dist
-      
+  DO_RELEASE: ''
+  RELEASE_TAG: ''
+  RELEASE_VERSION: ''
+
 name: Build production release
+permissions:
+  read-all
+
 jobs:
   build-and-release:
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Check-out source code
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v6
+
       - name: Generate and process release PR
         id: release_please
-        uses: GoogleCloudPlatform/release-please-action@v2
+        uses: googleapis/release-please-action@v4
         with:
           release-type: simple
-          package-name: ${{ github.event.repository.name }}
-          
+
       - name: Define production release info
         if: steps.release_please.outputs.release_created
         run: |
@@ -32,11 +41,11 @@ jobs:
           echo DO_RELEASE=true >> $GITHUB_ENV
           echo RELEASE_TAG=${tag} >> $GITHUB_ENV
           echo RELEASE_VERSION=${version} >> $GITHUB_ENV
-          
+
       - name: Build production release
         if: env.DO_RELEASE
         run: ./gradlew dist distThirdParty -Pversion=${{env.RELEASE_VERSION}}
-      
+
       - name: Upload assets to release
         if: env.DO_RELEASE
         run: |
@@ -45,4 +54,3 @@ jobs:
           gh release upload "${tag}" $files --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          

@@ -1,19 +1,28 @@
-on: 
-  push: 
+on:
+  push:
     branches:
       - '**'
 
 env:
   DIST_DIR: ${{ github.workspace }}/build/dist
+  DO_BUILD: ''
+  DO_RELEASE: ''
+  BRANCH: ''
+  RELEASE_TAG: ''
 
 name: Build development release
+permissions:
+  read-all
+
 jobs:
   build:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Check-out source code
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v6
+
       - name: Define development release info
         if: startsWith(github.ref, 'refs/heads/')
         run: |
@@ -22,33 +31,33 @@ jobs:
           echo DO_BUILD=true >> $GITHUB_ENV # We always want to do a build if we're building a branch
           echo BRANCH=${branch} >> $GITHUB_ENV
           echo RELEASE_TAG=${tag} >> $GITHUB_ENV
-          
+
           if git ls-remote --exit-code origin refs/tags/${tag} >/dev/null 2>&1; then
             echo "Found tag ${tag}, development release will be published"
             echo DO_RELEASE=true >> $GITHUB_ENV
-          else 
+          else
             echo "Tag ${tag} does not exist, no development release will be published"
           fi
-          
+
       - name: Build development release
         if: env.DO_BUILD
         run: ./gradlew dist distThirdParty
-        
+
       - name: Publish build artifacts
         if: env.DO_BUILD
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build_artifacts
           path: ${{ env.DIST_DIR }}
-          
+
       - name: Update development release tag
         uses: richardsimko/update-tag@aab2434e9a5040687874aa39d1c6377ec0cb0d94
         if: env.DO_RELEASE
         with:
           tag_name: ${{ env.RELEASE_TAG }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-        
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create pre-release
         if: env.DO_RELEASE
         run: |
@@ -56,10 +65,4 @@ jobs:
           gh release delete ${{ env.RELEASE_TAG }} -y || true
           gh release create ${{ env.RELEASE_TAG }} -p -t "Development Release - ${{ env.BRANCH }} branch" -n 'See `Assets` section below for latest build artifacts' ${files}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-          
-      
-          
-      
-
-      
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

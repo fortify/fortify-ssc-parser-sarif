@@ -51,7 +51,7 @@ jobs:
           path: ${{ env.DIST_DIR }}
 
       - name: Update development release tag
-        uses: richardsimko/update-tag@aab2434e9a5040687874aa39d1c6377ec0cb0d94
+        uses: fortify/3rdparty-actions/actions/richardsimko/update-tag/v1@main
         if: env.DO_RELEASE
         with:
           tag_name: ${{ env.RELEASE_TAG }}

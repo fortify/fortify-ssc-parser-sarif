@@ -26,7 +26,7 @@ jobs:
 
       - name: Generate and process release PR
         id: release_please
-        uses: googleapis/release-please-action@v4
+        uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v4@main
         with:
           release-type: simple
 

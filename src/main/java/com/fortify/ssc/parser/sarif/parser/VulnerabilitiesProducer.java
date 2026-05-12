@@ -249,6 +249,16 @@ public final class VulnerabilitiesProducer {
 				return Priority.valueOf(priorityString);
 			}
 		}
+		if ( isConvertedFromFortifyFpr(runData) ) {
+			String fortifySeverityString = getStringProperty(result.getProperties(), "fortify-severity", null);
+			if ( StringUtils.isNotBlank(fortifySeverityString) ) {
+				try {
+					return Priority.valueOf(fortifySeverityString);
+				} catch (IllegalArgumentException iae) {
+					LOG.warn("Error converting fortify-severity string '{}' to Priority: {}", fortifySeverityString, iae.getMessage());
+				}
+			}
+		}
 		String securitySeverityString = getStringProperty(getRuleProperties(runData, result), "security-severity", null);
 		if ( StringUtils.isNotBlank(securitySeverityString) ) {
 			try {
@@ -335,7 +345,7 @@ public final class VulnerabilitiesProducer {
 	}
 	
 	private boolean isConvertedFromFortifyFpr(RunData runData) {
-		return "Micro Focus Fortify Static Code Analyzer".equalsIgnoreCase(runData.getToolName());
+		return "Micro Focus Fortify Static Code Analyzer".equalsIgnoreCase(runData.getToolName()) || "Fortify SCA".equalsIgnoreCase(runData.getToolName());
 	}
 
 	private boolean isConvertedFromFortifyXml(RunData runData) {

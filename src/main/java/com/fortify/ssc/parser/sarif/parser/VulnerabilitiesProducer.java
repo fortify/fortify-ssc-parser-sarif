@@ -1,6 +1,7 @@
 package com.fortify.ssc.parser.sarif.parser;
 
 import java.util.Collections;
+import java.util.Optional;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -116,7 +117,7 @@ public final class VulnerabilitiesProducer {
 	}
 
 	private String getVulnerabilityAbstract(RunData runData, Result result) {
-		return result.getResultMessage(runData);
+		return StringUtils.defaultIfBlank(result.getResultMessage(runData), "Not Available");
 	}
 
 	private String getHelp(RunData runData, Result result) {
@@ -167,10 +168,10 @@ public final class VulnerabilitiesProducer {
 	// still result in duplicate uuid strings.
 	private String generateInstanceIdString(RunData runData, Result result) {
 		String partialFingerPrints = result.getPartialFingerprints()==null?"":new TreeMap<>(result.getPartialFingerprints()).toString();
-		return String.join("|", 
-			runData.getToolName(),
+		return String.join("|",
+			StringUtils.defaultString(runData.getToolName()),
 			getFileName(runData, result),
-			result.resolveRuleId(runData),
+			StringUtils.defaultString(result.resolveRuleId(runData)),
 			partialFingerPrints,
 			getVulnerabilityAbstract(runData, result));
 	}
@@ -205,7 +206,7 @@ public final class VulnerabilitiesProducer {
 			category = result.resolveRuleId(runData);
 		}
 		if ( StringUtils.isBlank(category) ) {
-			category = runData.getToolName();
+			category = StringUtils.defaultIfBlank(runData.getToolName(), "Unknown");
 		}
 		return category;
 	}
@@ -243,45 +244,48 @@ public final class VulnerabilitiesProducer {
 	}
 
 	private Priority getPriority(RunData runData, Result result) {
-		String fortifySeverityString = getStringProperty(result.getProperties(), "fortify-severity", null);
-		if ( StringUtils.isNotBlank(fortifySeverityString) ) {
+		return tryParsePriority("fortify-severity", result.getProperties())
+			.orElseGet(() -> tryParsePriority("priority", result.getProperties())
+			.orElseGet(() -> resolveSecuritySeverityPriority(runData, result)
+			.orElseGet(() -> result.resolveLevel(runData).getFortifyPriority())));
+	}
+
+	private Optional<Priority> tryParsePriority(String propertyName, Map<String, Object> properties) {
+		String value = getStringProperty(properties, propertyName, null);
+		if ( StringUtils.isNotBlank(value) ) {
 			try {
-				return Priority.valueOf(fortifySeverityString);
+				return Optional.of(Priority.valueOf(value));
 			} catch (IllegalArgumentException iae) {
-				LOG.warn("Error converting fortify-severity string '{}' to Priority: {}", fortifySeverityString, iae.getMessage());
+				LOG.warn("Ignoring {}: '{}' is not a valid Fortify priority value", propertyName, value);
 			}
 		}
-		String priorityString = getStringProperty(result.getProperties(), "priority", null);
-		if ( StringUtils.isNotBlank(priorityString) ) {
+		return Optional.empty();
+	}
+
+	private Optional<Priority> resolveSecuritySeverityPriority(RunData runData, Result result) {
+		String value = getStringProperty(getRuleProperties(runData, result), "security-severity", null);
+		if ( StringUtils.isNotBlank(value) ) {
 			try {
-				return Priority.valueOf(priorityString);
-			} catch (IllegalArgumentException iae) {
-				LOG.debug("Ignoring priority property '{}': not a valid Fortify priority value", priorityString);
-			}
-		}
-		String securitySeverityString = getStringProperty(getRuleProperties(runData, result), "security-severity", null);
-		if ( StringUtils.isNotBlank(securitySeverityString) ) {
-			try {
-				float securitySeverity = Float.parseFloat(securitySeverityString);
+				float score = Float.parseFloat(value);
 				// CVSS score range mapping from https://nvd.nist.gov/vuln-metrics/cvss
-				if ( securitySeverity < 0 ){
-					LOG.warn("Invalid security-severity, {} is less than 0.", securitySeverity);
-				}else if ( securitySeverity < 4 ){
-					return Priority.Low;
-				}else if ( securitySeverity < 7 ){
-					return Priority.Medium;
-				}else if ( securitySeverity < 9 ){
-					return Priority.High;
-				}else if ( securitySeverity <= 10 ){
-					return Priority.Critical;
-				}else{
-					LOG.warn("Invalid security-severity, {} is greater than 10.", securitySeverity);
+				if ( score < 0 ) {
+					LOG.warn("Ignoring security-severity: {} is less than 0.", score);
+				} else if ( score < 4 ) {
+					return Optional.of(Priority.Low);
+				} else if ( score < 7 ) {
+					return Optional.of(Priority.Medium);
+				} else if ( score < 9 ) {
+					return Optional.of(Priority.High);
+				} else if ( score <= 10 ) {
+					return Optional.of(Priority.Critical);
+				} else {
+					LOG.warn("Ignoring security-severity: {} is greater than 10.", score);
 				}
 			} catch (NumberFormatException nfe) {
-				LOG.warn("Error converting {} string '{}' to float: {}", "security-severity", securitySeverityString, nfe.getMessage());
+				LOG.warn("Ignoring security-severity: '{}' is not a valid float value", value);
 			}
 		}
-		return result.resolveLevel(runData).getFortifyPriority();
+		return Optional.empty();
 	}
 
 	private String getTags(RunData runData, Result result) {
@@ -321,7 +325,7 @@ public final class VulnerabilitiesProducer {
 	}
 	
 	private String getStringProperty(Map<String, Object> properties, String key, String defaultValue) {
-		if ( properties!=null && properties.containsKey(key) ) {
+		if ( properties!=null && properties.containsKey(key) && properties.get(key) != null ) {
 			return properties.get(key).toString();
 		}
 		return defaultValue;
@@ -329,7 +333,10 @@ public final class VulnerabilitiesProducer {
 	
 	private List<String> getStringListProperty(Map<String, Object> properties, String key, List<String> defaultValue) {
 		if ( properties!=null && properties.containsKey(key) && properties.get(key) instanceof List ) {
-			return (List<String>) properties.get(key);
+			return ((List<?>) properties.get(key)).stream()
+				.filter(String.class::isInstance)
+				.map(String.class::cast)
+				.collect(Collectors.toList());
 		}
 		return defaultValue;
 	}

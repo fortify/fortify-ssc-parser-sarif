@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.7.2](https://github.com/fortify/fortify-ssc-parser-sarif/compare/v1.7.1...v1.7.2) (2026-05-14)
+
+
+### Bug Fixes
+
+* Add null safety guards for missing/null SARIF properties to prevent NPE during parsing ([d373905](https://github.com/fortify/fortify-ssc-parser-sarif/commit/d373905738c4497354da52396a116d0d64817fc2))
+* Improve priority resolution for FPR-generated SARIF files ([d373905](https://github.com/fortify/fortify-ssc-parser-sarif/commit/d373905738c4497354da52396a116d0d64817fc2))
+* Remove specific tool checks to allow for resolving `priority` and `ruleGuid` from SARIF files produced by arbitrary tools ([d373905](https://github.com/fortify/fortify-ssc-parser-sarif/commit/d373905738c4497354da52396a116d0d64817fc2))
+
 ### [1.7.1](https://www.github.com/fortify/fortify-ssc-parser-sarif/compare/v1.7.0...v1.7.1) (2025-12-08)
 
 

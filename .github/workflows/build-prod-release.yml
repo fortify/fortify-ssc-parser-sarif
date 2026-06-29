@@ -26,9 +26,10 @@ jobs:
 
       - name: Generate and process release PR
         id: release_please
-        uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v4@main
+        uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v5@main
         with:
           release-type: simple
+          target-branch: ${{ github.ref_name }}
 
       - name: Define production release info
         if: steps.release_please.outputs.release_created

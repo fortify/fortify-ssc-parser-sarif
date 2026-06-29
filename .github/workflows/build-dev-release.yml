@@ -45,13 +45,13 @@ jobs:
 
       - name: Publish build artifacts
         if: env.DO_BUILD
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: build_artifacts
           path: ${{ env.DIST_DIR }}
 
       - name: Update development release tag
-        uses: fortify/3rdparty-actions/actions/richardsimko/update-tag/v1@main
+        uses: fortify/.github/.github/actions/update-tag@main
         if: env.DO_RELEASE
         with:
           tag_name: ${{ env.RELEASE_TAG }}

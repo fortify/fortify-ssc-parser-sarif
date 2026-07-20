@@ -36,8 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fortify.ssc.parser.sarif.cache.CachedObject;
-import com.fortify.ssc.parser.sarif.cache.CachedObjectUtil;
+import com.fortify.util.cache.CachedObject;
+import com.fortify.util.cache.CachedObjectUtil;
 import com.fortify.util.io.Region;
 import com.fortify.util.json.ExtendedJsonParser;
 import com.fortify.util.json.StreamingJsonParser;

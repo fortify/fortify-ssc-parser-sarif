@@ -20,12 +20,12 @@ import com.fortify.ssc.parser.sarif.domain.Kind;
 import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.domain.Result;
 import com.fortify.ssc.parser.sarif.domain.RunData;
-import com.fortify.util.ssc.parser.EngineTypeHelper;
+import com.fortify.util.ssc.parser.PluginXmlHelper;
 import com.fortify.util.ssc.parser.HandleDuplicateIdVulnerabilityHandler;
 
 public final class VulnerabilitiesProducer {
 	private static final Logger LOG = LoggerFactory.getLogger(VulnerabilitiesProducer.class);
-	private static final String ENGINE_TYPE = EngineTypeHelper.getEngineType();
+	private static final String ENGINE_TYPE = PluginXmlHelper.getPluginXmlDescriptor().getEngineType();
 	private final VulnerabilityHandler vulnerabilityHandler;
 
 	/**

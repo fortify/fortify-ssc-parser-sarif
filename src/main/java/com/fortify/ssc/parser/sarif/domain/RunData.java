@@ -26,9 +26,9 @@ package com.fortify.ssc.parser.sarif.domain;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fortify.util.cache.CachedObject;
-import com.fortify.util.cache.CachedObjectUtil;
+import com.fortify.util.cache.CachedObjectArrayList;
 import com.fortify.util.io.Region;
 import com.fortify.util.json.ExtendedJsonParser;
 import com.fortify.util.json.StreamingJsonParser;
@@ -54,12 +54,12 @@ import lombok.Getter;
 public final class RunData {
 	private static final Logger LOG = LoggerFactory.getLogger(RunData.class);
 	private final Map<String, ArtifactLocation> originalUriBaseIds;
-	private final List<CachedObject<Artifact>> artifactsByIndex;
+	private final CachedObjectArrayList<Artifact> artifactsByIndex;
 	private final Map<String, Integer> ruleIndexesById;
 	private final InputStream sourceInputStream;
 	private final ObjectMapper objectMapper;
 	private final Map<String, Integer> ruleIndexesByGuid;
-	private final List<CachedObject<ReportingDescriptor>> rulesByIndex;
+	private final CachedObjectArrayList<ReportingDescriptor> rulesByIndex;
 	@Getter
 	private Region resultsRegion = null;
 	@Getter
@@ -77,10 +77,10 @@ public final class RunData {
 		this.originalUriBaseIds = new HashMap<>();
 		this.sourceInputStream = sourceInputStream;
 		this.objectMapper = objectMapper;
-		this.artifactsByIndex = new ArrayList<>();
+		this.artifactsByIndex = new CachedObjectArrayList<>();
 		this.ruleIndexesById = new HashMap<>();
 		this.ruleIndexesByGuid = new HashMap<>();
-		this.rulesByIndex = new ArrayList<>();
+		this.rulesByIndex = new CachedObjectArrayList<>();
 	}
 
 	/**
@@ -166,7 +166,14 @@ public final class RunData {
 	}
 
 	public final Artifact getArtifactByIndex(Integer index) {
-		return CachedObjectUtil.getOrNull(artifactsByIndex, index, LOG, "artifact");
+		if (index == null)
+			return null;
+		try {
+			return artifactsByIndex.getCachedObject(index);
+		} catch (IOException e) {
+			LOG.error("Failed to retrieve artifact at index {}", index, e);
+			return null;
+		}
 	}
 
 	public final ReportingDescriptor getRuleById(String id) {
@@ -178,6 +185,13 @@ public final class RunData {
 	}
 
 	public final ReportingDescriptor getRuleByIndex(Integer index) {
-		return CachedObjectUtil.getOrNull(rulesByIndex, index, LOG, "rule");
+		if (index == null)
+			return null;
+		try {
+			return rulesByIndex.getCachedObject(index);
+		} catch (IOException e) {
+			LOG.error("Failed to retrieve rule at index {}", index, e);
+			return null;
+		}
 	}
 }

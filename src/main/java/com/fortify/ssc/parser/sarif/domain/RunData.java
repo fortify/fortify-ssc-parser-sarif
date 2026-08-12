@@ -168,12 +168,7 @@ public final class RunData {
 	public final Artifact getArtifactByIndex(Integer index) {
 		if (index == null)
 			return null;
-		try {
-			return artifactsByIndex.getCachedObject(index);
-		} catch (IOException e) {
-			LOG.error("Failed to retrieve artifact at index {}", index, e);
-			return null;
-		}
+		return artifactsByIndex.getCachedObject(index);
 	}
 
 	public final ReportingDescriptor getRuleById(String id) {
@@ -187,11 +182,6 @@ public final class RunData {
 	public final ReportingDescriptor getRuleByIndex(Integer index) {
 		if (index == null)
 			return null;
-		try {
-			return rulesByIndex.getCachedObject(index);
-		} catch (IOException e) {
-			LOG.error("Failed to retrieve rule at index {}", index, e);
-			return null;
-		}
+		return rulesByIndex.getCachedObject(index);
 	}
 }

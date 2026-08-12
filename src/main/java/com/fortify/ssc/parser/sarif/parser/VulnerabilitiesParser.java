@@ -96,7 +96,7 @@ public final class VulnerabilitiesParser {
 	public final void parse() throws ScanParsingException, IOException {
 		new SarifScanDataStreamingJsonParser()
 				.handler("/runs/*", this::parseRun)
-				.parse(scanData);
+				.parse(scanData, null);
 	}
 
 	/**
@@ -146,6 +146,6 @@ public final class VulnerabilitiesParser {
 		new SarifScanDataStreamingJsonParser()
 				.expectedStartTokens(JsonToken.START_ARRAY)
 				.handler("/*", Result.class, result -> vulnerabilitiesProducer.produceVulnerability(runData, result))
-				.parse(scanData, runData.getResultsRegion());
+				.parse(scanData, null, runData.getResultsRegion());
 	}
 }

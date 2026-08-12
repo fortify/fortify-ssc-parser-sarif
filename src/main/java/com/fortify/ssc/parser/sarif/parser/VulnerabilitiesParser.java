@@ -34,6 +34,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fortify.plugin.api.ScanData;
+import com.fortify.plugin.api.ScanEntry;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.ssc.parser.sarif.domain.Result;
@@ -71,81 +72,85 @@ import com.fortify.util.json.ExtendedJsonParser;
  * @author Ruud Senden
  */
 public final class VulnerabilitiesParser {
-	private static final Logger LOG = LoggerFactory.getLogger(VulnerabilitiesParser.class);
-	private final ScanData scanData;
-	private final VulnerabilitiesProducer vulnerabilitiesProducer;
+    private static final Logger LOG = LoggerFactory.getLogger(VulnerabilitiesParser.class);
+    private final ScanData scanData;
+    private final ScanEntry scanEntry;
+    private final VulnerabilitiesProducer vulnerabilitiesProducer;
 
-	/**
-	 * Constructor for storing {@link ScanData} and {@link VulnerabilityHandler}
-	 * instances.
-	 * 
-	 * @param scanData
-	 * @param vulnerabilityHandler
-	 */
-	public VulnerabilitiesParser(final ScanData scanData, final VulnerabilityHandler vulnerabilityHandler) {
-		this.scanData = scanData;
-		this.vulnerabilitiesProducer = new VulnerabilitiesProducer(vulnerabilityHandler);
-	}
+    /**
+     * Constructor for storing {@link ScanData}, {@link ScanEntry} and
+     * {@link VulnerabilityHandler} instances.
+     * 
+     * @param scanData
+     * @param scanEntry
+     * @param vulnerabilityHandler
+     */
+    public VulnerabilitiesParser(final ScanData scanData, final ScanEntry scanEntry,
+            final VulnerabilityHandler vulnerabilityHandler) {
+        this.scanData = scanData;
+        this.scanEntry = scanEntry;
+        this.vulnerabilitiesProducer = new VulnerabilitiesProducer(vulnerabilityHandler);
+    }
 
-	/**
-	 * Main method to commence parsing the SARIF document provided by the
-	 * configured {@link ScanData}.
-	 * 
-	 * @throws IOException
-	 */
-	public final void parse() throws ScanParsingException, IOException {
-		new SarifScanDataStreamingJsonParser()
-				.handler("/runs/*", this::parseRun)
-				.parse(scanData, null);
-	}
+    /**
+     * Main method to commence parsing the SARIF document provided by the
+     * configured {@link ScanData}.
+     * 
+     * @throws IOException
+     */
+    public final void parse() throws ScanParsingException, IOException {
+        new SarifScanDataStreamingJsonParser()
+                .handler("/runs/*", this::parseRun)
+                .parse(scanData, scanEntry);
+    }
 
-	/**
-	 * This method parses an individual run from the SARIF <code>runs</code>
-	 * array using the following steps:
-	 * <ol>
-	 * <li>Parse SARIF data into a {@link RunData} object (no MapDB needed)</li>
-	 * <li>Invoke {@link #parseResults(RunData)} to parse and process the
-	 * SARIF <code>results</code> array</li>
-	 * </ol>
-	 * 
-	 * @param jsonParser
-	 * @throws IOException
-	 */
-	private final void parseRun(ExtendedJsonParser jsonParser) throws IOException {
-		// IMPORTANT: Document stream lifetime requirement
-		// parseRunData() needs sourceInputStream to stay open for entire run parsing
-		// + storage in CachedObject for potential re-parsing on GC
-		InputStream sourceInputStream = scanData.getInputStream(name -> name.endsWith(".sarif") || name.endsWith(".json"));
-		ObjectMapper objectMapper = DefaultObjectMapperFactory.getDefaultObjectMapper();
+    /**
+     * This method parses an individual run from the SARIF <code>runs</code>
+     * array using the following steps:
+     * <ol>
+     * <li>Parse SARIF data into a {@link RunData} object (no MapDB needed)</li>
+     * <li>Invoke {@link #parseResults(RunData)} to parse and process the
+     * SARIF <code>results</code> array</li>
+     * </ol>
+     * 
+     * @param jsonParser
+     * @throws IOException
+     */
+    private final void parseRun(ExtendedJsonParser jsonParser) throws IOException {
+        // IMPORTANT: Document stream lifetime requirement
+        // parseRunData() needs sourceInputStream to stay open for entire run parsing
+        // + storage in CachedObject for potential re-parsing on GC
+        InputStream sourceInputStream = scanData.getInputStream(scanEntry);
+        ObjectMapper objectMapper = DefaultObjectMapperFactory.getDefaultObjectMapper();
 
-		try {
-			RunData runData = RunData.parseRunData(jsonParser, sourceInputStream, objectMapper);
-			parseResults(runData);
-		} catch (IOException e) {
-			LOG.error("Failed to parse SARIF run data", e);
-			throw e;
-		}
-	}
+        try {
+            RunData runData = RunData.parseRunData(jsonParser, sourceInputStream, objectMapper);
+            parseResults(runData);
+        } catch (IOException e) {
+            LOG.error("Failed to parse SARIF run data", e);
+            throw e;
+        }
+    }
 
-	/**
-	 * This method re-parses the SARIF <code>results</code> array, based on the
-	 * input document {@link Region} previously collected in the given
-	 * {@link RunData}
-	 * object. For each entry in the <code>results</code> array:
-	 * <ol>
-	 * <li>The JSON contents are mapped to a {@link Result} object</li>
-	 * <li>The {@link Result} and {@link RunData} objects are passed to the
-	 * {@link VulnerabilitiesProducer#produceVulnerability(RunData, Result)} method
-	 * to produce the actual Fortify vulnerability (if applicable)</li>
-	 * </ol>
-	 * 
-	 * @param runData
-	 * @throws IOException
-	 */
-	private final void parseResults(final RunData runData) throws IOException {
-		new SarifScanDataStreamingJsonParser()
-				.expectedStartTokens(JsonToken.START_ARRAY)
-				.handler("/*", Result.class, result -> vulnerabilitiesProducer.produceVulnerability(runData, result))
-				.parse(scanData, null, runData.getResultsRegion());
-	}
+    /**
+     * This method re-parses the SARIF <code>results</code> array, based on the
+     * input document {@link Region} previously collected in the given
+     * {@link RunData}
+     * object. For each entry in the <code>results</code> array:
+     * <ol>
+     * <li>The JSON contents are mapped to a {@link Result} object</li>
+     * <li>The {@link Result} and {@link RunData} objects are passed to the
+     * {@link VulnerabilitiesProducer#produceVulnerability(RunData, Result)} method
+     * to produce the actual Fortify vulnerability (if applicable)</li>
+     * </ol>
+     * 
+     * @param runData
+     * @throws IOException
+     */
+    private final void parseResults(final RunData runData) throws IOException {
+        new SarifScanDataStreamingJsonParser()
+                .expectedStartTokens(JsonToken.START_ARRAY)
+                .handler("/*", Result.class, result -> vulnerabilitiesProducer.produceVulnerability(runData, result))
+                .parse(scanData, scanEntry, runData.getResultsRegion());
+    }
 }

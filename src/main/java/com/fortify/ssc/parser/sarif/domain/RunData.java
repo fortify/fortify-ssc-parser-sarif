@@ -60,10 +60,8 @@ public final class RunData {
 	private final ObjectMapper objectMapper;
 	private final Map<String, Integer> ruleIndexesByGuid;
 	private final CachedObjectArrayList<ReportingDescriptor> rulesByIndex;
-	@Getter
-	private Region resultsRegion = null;
-	@Getter
-	private String toolName;
+	@Getter private Region resultsRegion = null;
+	@Getter private String toolName;
 
 	/**
 	 * Private constructor; instances can be created through the

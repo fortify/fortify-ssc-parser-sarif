@@ -25,11 +25,6 @@
 package com.fortify.ssc.parser.sarif.parser;
 
 import java.io.IOException;
-import java.io.InputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -72,7 +67,6 @@ import com.fortify.util.json.ExtendedJsonParser;
  * @author Ruud Senden
  */
 public final class VulnerabilitiesParser {
-    private static final Logger LOG = LoggerFactory.getLogger(VulnerabilitiesParser.class);
     private final ScanData scanData;
     private final ScanEntry scanEntry;
     private final VulnerabilitiesProducer vulnerabilitiesProducer;
@@ -117,19 +111,9 @@ public final class VulnerabilitiesParser {
      * @throws IOException
      */
     private final void parseRun(ExtendedJsonParser jsonParser) throws IOException {
-        // IMPORTANT: Document stream lifetime requirement
-        // parseRunData() needs sourceInputStream to stay open for entire run parsing
-        // + storage in CachedObject for potential re-parsing on GC
-        InputStream sourceInputStream = scanData.getInputStream(scanEntry);
         ObjectMapper objectMapper = DefaultObjectMapperFactory.getDefaultObjectMapper();
-
-        try {
-            RunData runData = RunData.parseRunData(jsonParser, sourceInputStream, objectMapper);
-            parseResults(runData);
-        } catch (IOException e) {
-            LOG.error("Failed to parse SARIF run data", e);
-            throw e;
-        }
+        RunData runData = RunData.parseRunData(jsonParser, scanData, scanEntry, objectMapper);
+        parseResults(runData);
     }
 
     /**

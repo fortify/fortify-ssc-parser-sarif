@@ -25,17 +25,12 @@
 package com.fortify.ssc.parser.sarif.domain;
 
 import java.io.IOException;
-import java.io.InputStream;
-
 import java.util.HashMap;
-
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fortify.plugin.api.ScanData;
+import com.fortify.plugin.api.ScanEntry;
 import com.fortify.util.cache.CachedObject;
 import com.fortify.util.cache.CachedObjectArrayList;
 import com.fortify.util.io.Region;
@@ -52,28 +47,30 @@ import lombok.Getter;
  *
  */
 public final class RunData {
-	private static final Logger LOG = LoggerFactory.getLogger(RunData.class);
 	private final Map<String, ArtifactLocation> originalUriBaseIds;
 	private final CachedObjectArrayList<Artifact> artifactsByIndex;
 	private final Map<String, Integer> ruleIndexesById;
-	private final InputStream sourceInputStream;
 	private final ObjectMapper objectMapper;
 	private final Map<String, Integer> ruleIndexesByGuid;
 	private final CachedObjectArrayList<ReportingDescriptor> rulesByIndex;
 	@Getter private Region resultsRegion = null;
 	@Getter private String toolName;
+	private final ScanData scanData;
+	private final ScanEntry scanEntry;
 
 	/**
 	 * Private constructor; instances can be created through the
 	 * {@link #parseRunData(DB, ExtendedJsonParser)}
 	 * method.
 	 * 
-	 * @param sourceInputStream
+	 * @param scanData
+	 * @param scanEntry
 	 * @param objectMapper
 	 */
-	private RunData(final InputStream sourceInputStream, final ObjectMapper objectMapper) {
+	private RunData(final ScanData scanData, final ScanEntry scanEntry, final ObjectMapper objectMapper) {
 		this.originalUriBaseIds = new HashMap<>();
-		this.sourceInputStream = sourceInputStream;
+		this.scanData = scanData;
+		this.scanEntry = scanEntry;
 		this.objectMapper = objectMapper;
 		this.artifactsByIndex = new CachedObjectArrayList<>();
 		this.ruleIndexesById = new HashMap<>();
@@ -93,9 +90,10 @@ public final class RunData {
 	 * @throws IOException
 	 */
 	public static final RunData parseRunData(final ExtendedJsonParser jsonParser,
-			final InputStream sourceInputStream,
+			final ScanData scanData,
+			final ScanEntry scanEntry,
 			final ObjectMapper objectMapper) throws IOException {
-		RunData runData = new RunData(sourceInputStream, objectMapper);
+		RunData runData = new RunData(scanData, scanEntry, objectMapper);
 		new StreamingJsonParser()
 				.handler("/originalUriBaseIds/*", runData::addOriginalUriBaseId)
 				.handler("/artifacts/*", runData::addArtifactWithRegion)
@@ -115,7 +113,7 @@ public final class RunData {
 	private void addArtifactWithRegion(ExtendedJsonParser jp) throws IOException {
 		// Factory method: parse + capture region in single pass
 		CachedObject<Artifact> cached = CachedObject.parse(jp, Artifact.class,
-				sourceInputStream, objectMapper);
+				scanData, scanEntry, objectMapper);
 		artifactsByIndex.add(cached);
 	}
 
@@ -131,7 +129,7 @@ public final class RunData {
 	private void addRuleWithRegion(ExtendedJsonParser jp) throws IOException {
 		// Factory method: parse + capture region in single pass
 		CachedObject<ReportingDescriptor> cached = CachedObject.parse(jp, ReportingDescriptor.class,
-				sourceInputStream, objectMapper);
+				scanData, scanEntry, objectMapper);
 		rulesByIndex.add(cached);
 
 		// Update indexes (for getRule*ById/ByGuid lookups)
@@ -142,7 +140,7 @@ public final class RunData {
 	}
 
 	private final void addOriginalUriBaseId(ExtendedJsonParser jp) throws IOException {
-		originalUriBaseIds.put(jp.getCurrentName(), jp.readValueAs(ArtifactLocation.class));
+		originalUriBaseIds.put(jp.currentName(), jp.readValueAs(ArtifactLocation.class));
 	}
 
 	private final void addRuleIndex(Map<String, Integer> map, String key, int index) {

@@ -55,68 +55,68 @@ class SARIFParserPluginTest {
 			"EightBall.xml.sarif",
 			"WebGoat5.0.fpr.sarif",
 			"WebGoat5.0.xml.sarif",
-			"spec-minimal.sarif", 
+			"spec-minimal.sarif",
 			"spec-minimal-without-source.sarif",
 			"spec-minimal-with-source.sarif",
 			"spec-comprehensive.sarif",
 			"github.com_microsoft_sarif-sdk_blob_master_src_Samples_Sarif.WorkItems.Sample_SampleTestFiles_Current.sarif",
 			"github.com_microsoft_sarif-sdk_blob_master_src_Test.FunctionalTests.Sarif_v2_ConverterTestData_ContrastSecurity_WebGoat.xml.sarif"
 	};
-	
+
 	private final ScanData getScanData(String fileName) {
 		return new ScanData() {
-		
+
 			@Override
 			public String getSessionId() {
 				return UUID.randomUUID().toString();
 			}
-			
+
 			@Override
 			public List<ScanEntry> getScanEntries() {
-				return null;
+				return Arrays.asList((ScanEntry) () -> fileName);
 			}
-			
+
 			@Override
 			public InputStream getInputStream(Predicate<String> matcher) throws IOException {
 				return ClassLoader.getSystemResourceAsStream(fileName);
 			}
-			
+
 			@Override
 			public InputStream getInputStream(ScanEntry scanEntry) throws IOException {
 				return ClassLoader.getSystemResourceAsStream(fileName);
 			}
 		};
 	}
-	
+
 	private final ScanBuilder scanBuilder = (ScanBuilder) Proxy.newProxyInstance(
-			SARIFParserPluginTest.class.getClassLoader(), 
-			  new Class[] { ScanBuilder.class }, new InvocationHandler() {
-				
+			SARIFParserPluginTest.class.getClassLoader(),
+			new Class[] { ScanBuilder.class }, new InvocationHandler() {
+
 				@Override
 				public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 					System.err.println(method.getName()+": "+(args==null?null:Arrays.asList(args)));
 					return null;
 				}
 			});
-	
+
 	private final VulnerabilityHandler vulnerabilityHandler = new VulnerabilityHandler() {
-		
+
 		@Override
 		public StaticVulnerabilityBuilder startStaticVulnerability(String instanceId) {
 			System.err.println("startStaticVulnerability: "+instanceId);
 			return (StaticVulnerabilityBuilder) Proxy.newProxyInstance(
-					SARIFParserPluginTest.class.getClassLoader(), 
-					  new Class[] { StaticVulnerabilityBuilder.class }, new InvocationHandler() {
-						
+					SARIFParserPluginTest.class.getClassLoader(),
+					new Class[] { StaticVulnerabilityBuilder.class }, new InvocationHandler() {
+
 						@Override
 						public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 							System.err.println(method.getName()+": "+(args==null?null:Arrays.asList(args)));
 							return null;
 						}
-					}); 
+					});
 		}
 	};
-	
+
 	@ParameterizedTest
 	@MethodSource("getSampleFiles2_1_0")
 	void testParseScan(String file) throws Exception {
@@ -124,7 +124,7 @@ class SARIFParserPluginTest {
 		new SARIFParserPlugin().parseScan(getScanData("2.1.0/"+file), scanBuilder);
 		// TODO Check actual output
 	}
-	
+
 	@ParameterizedTest
 	@MethodSource("getSampleFiles2_1_0")
 	void testParseVulnerabilities(String file) throws Exception {
@@ -132,11 +132,11 @@ class SARIFParserPluginTest {
 		new SARIFParserPlugin().parseVulnerabilities(getScanData("2.1.0/"+file), vulnerabilityHandler);
 		// TODO Check actual output
 	}
-	
+
 	public static List<String> getSampleFiles2_1_0() {
 		return Arrays.asList(SAMPLE_FILES_2_1_0);
 	}
-	
+
 	@Test
 	void testParseScanUnsupportedVersion() throws Exception {
 		try {

@@ -7,17 +7,19 @@ import org.slf4j.LoggerFactory;
 
 import com.fortify.plugin.api.ScanBuilder;
 import com.fortify.plugin.api.ScanData;
+import com.fortify.plugin.api.ScanEntry;
 import com.fortify.plugin.api.ScanParsingException;
 import com.fortify.plugin.api.VulnerabilityHandler;
 import com.fortify.plugin.spi.ParserPlugin;
 import com.fortify.ssc.parser.sarif.parser.ScanParser;
 import com.fortify.ssc.parser.sarif.parser.VulnerabilitiesParser;
+import com.fortify.util.ssc.parser.ScanEntryHelper;
 
 /**
  * Main {@link ParserPlugin} implementation for parsing SARIF results; see
  * https://docs.oasis-open.org/sarif/sarif/v2.1.0/cs01/sarif-v2.1.0-cs01.html
- * for the supported SARIF specification. This class simply defines the various 
- * parser plugin SPI methods; actual parsing is done by the appropriate dedicated 
+ * for the supported SARIF specification. This class simply defines the various
+ * parser plugin SPI methods; actual parsing is done by the appropriate dedicated
  * parser classes.
  * 
  * @author Ruud Senden
@@ -43,11 +45,20 @@ public class SARIFParserPlugin implements ParserPlugin<CustomVulnAttribute> {
 
     @Override
     public void parseScan(final ScanData scanData, final ScanBuilder scanBuilder) throws ScanParsingException, IOException {
-        new ScanParser(scanData, scanBuilder).parse();
+        new ScanParser(scanData, getScanEntry(scanData), scanBuilder).parse();
     }
 
-	@Override
-	public void parseVulnerabilities(final ScanData scanData, final VulnerabilityHandler vulnerabilityHandler) throws ScanParsingException, IOException {
-		new VulnerabilitiesParser(scanData, vulnerabilityHandler).parse();
-	}
+    @Override
+    public void parseVulnerabilities(final ScanData scanData, final VulnerabilityHandler vulnerabilityHandler)
+            throws ScanParsingException, IOException {
+        new VulnerabilitiesParser(scanData, getScanEntry(scanData), vulnerabilityHandler).parse();
+    }
+
+    private final ScanEntry getScanEntry(final ScanData scanData) {
+        return ScanEntryHelper.getScanEntryByName(scanData, this::isMatchingScanEntryName);
+    }
+
+    private final boolean isMatchingScanEntryName(String name) {
+        return name.endsWith(".sarif") || name.endsWith(".json");
+    }
 }

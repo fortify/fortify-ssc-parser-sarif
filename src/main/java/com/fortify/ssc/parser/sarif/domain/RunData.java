@@ -26,15 +26,13 @@ package com.fortify.ssc.parser.sarif.domain;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
-import org.mapdb.DB;
-import org.mapdb.Serializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fortify.plugin.api.ScanData;
+import com.fortify.plugin.api.ScanEntry;
+import com.fortify.util.cache.CachedObject;
+import com.fortify.util.cache.CachedObjectArrayList;
 import com.fortify.util.io.Region;
 import com.fortify.util.json.ExtendedJsonParser;
 import com.fortify.util.json.StreamingJsonParser;
@@ -42,119 +40,144 @@ import com.fortify.util.json.StreamingJsonParser;
 import lombok.Getter;
 
 /**
- * This class stores auxiliary data for a <code>run</code> entry in the SARIF 
+ * This class stores auxiliary data for a <code>run</code> entry in the SARIF
  * <code>runs</code> array, like base URI's and rules.
  * 
  * @author Ruud Senden
  *
  */
 public final class RunData {
-    private static final Logger LOG = LoggerFactory.getLogger(RunData.class);
 	private final Map<String, ArtifactLocation> originalUriBaseIds;
-	private final List<Artifact> artifactsByIndex;
+	private final CachedObjectArrayList<Artifact> artifactsByIndex;
 	private final Map<String, Integer> ruleIndexesById;
+	private final ObjectMapper objectMapper;
 	private final Map<String, Integer> ruleIndexesByGuid;
-	private final List<ReportingDescriptor> rulesByIndex;
+	private final CachedObjectArrayList<ReportingDescriptor> rulesByIndex;
 	@Getter private Region resultsRegion = null;
 	@Getter private String toolName;
-	
+	private final ScanData scanData;
+	private final ScanEntry scanEntry;
+
 	/**
-	 * Private constructor; instances can be created through the {@link #parseRunData(DB, ExtendedJsonParser)}
+	 * Private constructor; instances can be created through the
+	 * {@link #parseRunData(DB, ExtendedJsonParser)}
 	 * method.
 	 * 
-	 * @param db
+	 * @param scanData
+	 * @param scanEntry
+	 * @param objectMapper
 	 */
-	@SuppressWarnings("unchecked")
-    private RunData(final DB db) {
-		// We assume there's only a limited set of URI base id's, so store in memory
+	private RunData(final ScanData scanData, final ScanEntry scanEntry, final ObjectMapper objectMapper) {
 		this.originalUriBaseIds = new HashMap<>();
-		// We assume large scans may include a lot of artifacts and rules, so we use disk-backed collections.
-		// Note that alternatively we could use a hash & position-based approach like the SARIF .NET SDK
-		// (see DeferredDictionary and DeferredList) to avoid serializing entries to disk, but for now
-		// disk-backed collections seem to perform well and the implementation is much easier to understand.
-		this.artifactsByIndex = (List<Artifact>) db.indexTreeList("artifactsByIndex", Serializer.JAVA).create();
-		this.ruleIndexesById = db.hashMap("ruleIndexesById", Serializer.STRING, Serializer.INTEGER).create();
-		this.ruleIndexesByGuid = db.hashMap("ruleIndexesByGuid", Serializer.STRING, Serializer.INTEGER).create();
-		this.rulesByIndex = (List<ReportingDescriptor>) db.indexTreeList("rulesByIndex", Serializer.JAVA).create();
+		this.scanData = scanData;
+		this.scanEntry = scanEntry;
+		this.objectMapper = objectMapper;
+		this.artifactsByIndex = new CachedObjectArrayList<>();
+		this.ruleIndexesById = new HashMap<>();
+		this.ruleIndexesByGuid = new HashMap<>();
+		this.rulesByIndex = new CachedObjectArrayList<>();
 	}
-	
+
 	/**
 	 * This method parses auxiliary data from a SARIF <code>run</code> object;
 	 * the returned {@link RunData} object provides access to this auxiliary data.
 	 * 
-	 * @param db used to temporarily store some data in disk-backed collections
-	 * @param jsonParser pointing at a <code>run</code> entry in the SARIF <code>runs</code> array
+	 * @param db         used to temporarily store some data in disk-backed
+	 *                   collections
+	 * @param jsonParser pointing at a <code>run</code> entry in the SARIF
+	 *                   <code>runs</code> array
 	 * @return {@link RunData} instance
 	 * @throws IOException
 	 */
-	public static final RunData parseRunData(final DB db, final ExtendedJsonParser jsonParser) throws IOException {
-		RunData runData = new RunData(db);
+	public static final RunData parseRunData(final ExtendedJsonParser jsonParser,
+			final ScanData scanData,
+			final ScanEntry scanEntry,
+			final ObjectMapper objectMapper) throws IOException {
+		RunData runData = new RunData(scanData, scanEntry, objectMapper);
 		new StreamingJsonParser()
-			.handler("/originalUriBaseIds/*", runData::addOriginalUriBaseId)
-			.handler("/artifacts/*", Artifact.class, runData::addArtifact)
-			.handler("/tool/driver/rules/*", ReportingDescriptor.class, runData::addRule)
-			.handler("/tool/driver/name", String.class, runData::setToolName)
-			.handler("/results", runData::setResultsRegion)
-			.parseObjectProperties(jsonParser, "/");
+				.handler("/originalUriBaseIds/*", runData::addOriginalUriBaseId)
+				.handler("/artifacts/*", runData::addArtifactWithRegion)
+				.handler("/tool/driver/rules/*", runData::addRuleWithRegion)
+				.handler("/tool/driver/name", String.class, runData::setToolName)
+				.handler("/results", runData::setResultsRegion)
+				.parseObjectProperties(jsonParser, "/");
 		return runData;
 	}
 
-	private final void addOriginalUriBaseId(ExtendedJsonParser jp) throws IOException {
-		originalUriBaseIds.put(jp.getCurrentName(), jp.readValueAs(ArtifactLocation.class));
-	}
-	
-	private final void addArtifact(Artifact artifact) {
-		artifactsByIndex.add(artifact);
+	/**
+	 * Handler: Parse artifact with region capture (single pass).
+	 * 
+	 * Called by StreamingJsonParser for each array element at path "/artifacts/*".
+	 * Parser is positioned at START_OBJECT when handler is invoked.
+	 */
+	private void addArtifactWithRegion(ExtendedJsonParser jp) throws IOException {
+		// Factory method: parse + capture region in single pass
+		CachedObject<Artifact> cached = CachedObject.parse(jp, Artifact.class,
+				scanData, scanEntry, objectMapper);
+		artifactsByIndex.add(cached);
 	}
 
-	private final void addRule(ReportingDescriptor reportingDescriptor) {
-		rulesByIndex.add(reportingDescriptor);
-		int index = rulesByIndex.size()-1;
-		addRuleIndex(ruleIndexesById, reportingDescriptor.getId(), index);
-		addRuleIndex(ruleIndexesByGuid, reportingDescriptor.getGuid(), index);
+	/**
+	 * Handler: Parse rule with region capture (single pass).
+	 * 
+	 * Called by StreamingJsonParser for each array element at path
+	 * "/tool/driver/rules/*".
+	 * Parser is positioned at START_OBJECT when handler is invoked.
+	 * 
+	 * Also updates rule lookup indexes for getRule*ById/ByGuid searches.
+	 */
+	private void addRuleWithRegion(ExtendedJsonParser jp) throws IOException {
+		// Factory method: parse + capture region in single pass
+		CachedObject<ReportingDescriptor> cached = CachedObject.parse(jp, ReportingDescriptor.class,
+				scanData, scanEntry, objectMapper);
+		rulesByIndex.add(cached);
+
+		// Update indexes (for getRule*ById/ByGuid lookups)
+		int index = rulesByIndex.size() - 1;
+		ReportingDescriptor rule = cached.getOrReload(); // Get rule to extract ID/GUID
+		addRuleIndex(ruleIndexesById, rule.getId(), index);
+		addRuleIndex(ruleIndexesByGuid, rule.getGuid(), index);
 	}
-	
-	private final void addRuleIndex(Map<String,Integer> map, String key, int index) {
-		if ( StringUtils.isNotBlank(key) ) {
+
+	private final void addOriginalUriBaseId(ExtendedJsonParser jp) throws IOException {
+		originalUriBaseIds.put(jp.currentName(), jp.readValueAs(ArtifactLocation.class));
+	}
+
+	private final void addRuleIndex(Map<String, Integer> map, String key, int index) {
+		if (StringUtils.isNotBlank(key)) {
 			map.put(key, index);
 		}
 	}
-	
+
 	private final void setResultsRegion(ExtendedJsonParser jp) throws IOException {
 		this.resultsRegion = jp.getObjectOrArrayRegion();
 	}
-	
+
 	private final void setToolName(String toolName) {
 		this.toolName = toolName;
 	}
-	
+
 	public final ArtifactLocation getBaseLocation(String uriBaseId) {
-		return uriBaseId==null ? null : originalUriBaseIds.get(uriBaseId);
+		return uriBaseId == null ? null : originalUriBaseIds.get(uriBaseId);
 	}
-	
+
 	public final Artifact getArtifactByIndex(Integer index) {
-		if ( index==null || artifactsByIndex==null || artifactsByIndex.isEmpty() ) { return null; }
-        if ( index<0 || index>=artifactsByIndex.size() ) {
-            LOG.warn("SARIF input error: Ignoring non-existing artifact index "+index);
-            return null;
-         }
-         return artifactsByIndex.get(index);
+		if (index == null)
+			return null;
+		return artifactsByIndex.getCachedObject(index);
 	}
-	
+
 	public final ReportingDescriptor getRuleById(String id) {
 		return getRuleByIndex(ruleIndexesById.get(id));
 	}
-	
+
 	public final ReportingDescriptor getRuleByGuid(String guid) {
 		return getRuleByIndex(ruleIndexesByGuid.get(guid));
 	}
-	
+
 	public final ReportingDescriptor getRuleByIndex(Integer index) {
-	    if ( index==null || rulesByIndex==null || rulesByIndex.isEmpty() ) { return null; }
-	    if ( index<0 || index>=rulesByIndex.size() ) {
-	       LOG.warn("SARIF input error: Ignoring non-existing rule index "+index);
-	       return null;
-	    }
-		return rulesByIndex.get(index);
+		if (index == null)
+			return null;
+		return rulesByIndex.getCachedObject(index);
 	}
 }

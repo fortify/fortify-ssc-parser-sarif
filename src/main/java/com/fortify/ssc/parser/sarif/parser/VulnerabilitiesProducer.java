@@ -20,37 +20,40 @@ import com.fortify.ssc.parser.sarif.domain.Kind;
 import com.fortify.ssc.parser.sarif.domain.ReportingDescriptor;
 import com.fortify.ssc.parser.sarif.domain.Result;
 import com.fortify.ssc.parser.sarif.domain.RunData;
-import com.fortify.util.ssc.parser.EngineTypeHelper;
+import com.fortify.util.ssc.parser.PluginXmlHelper;
 import com.fortify.util.ssc.parser.HandleDuplicateIdVulnerabilityHandler;
 
 public final class VulnerabilitiesProducer {
 	private static final Logger LOG = LoggerFactory.getLogger(VulnerabilitiesProducer.class);
-	private static final String ENGINE_TYPE = EngineTypeHelper.getEngineType();
+	private static final String ENGINE_TYPE = PluginXmlHelper.getPluginXmlDescriptor().getEngineType();
 	private final VulnerabilityHandler vulnerabilityHandler;
-	
+
 	/**
 	 * Constructor for storing {@link VulnerabilityHandler} instance.
-	  * @param vulnerabilityHandler
+	 * 
+	 * @param vulnerabilityHandler
 	 */
 	public VulnerabilitiesProducer(final VulnerabilityHandler vulnerabilityHandler) {
 		this.vulnerabilityHandler = new HandleDuplicateIdVulnerabilityHandler(vulnerabilityHandler);
 	}
-	
+
 	/**
 	 * This method produces a Fortify vulnerability based on the given
-	 * {@link ResultWrapperWithRunData} instance. No vulnerability will be produced 
+	 * {@link ResultWrapperWithRunData} instance. No vulnerability will be produced
 	 * if {@link ResultWrapperWithRunData#resolveLevel()} returns a level that
 	 * indicates that the result is not interesting from a Fortify perspective.
+	 * 
 	 * @param result
 	 */
 	@SuppressWarnings("deprecation") // SSC JavaDoc states that severity is mandatory, but method is deprecated
 	public final void produceVulnerability(RunData runData, Result result) {
 		Kind kind = result.getKind();
-		if ( kind == null ) {
-			// SARIF specification says that if kind is not specified, then the default value of fail is to be used
+		if (kind == null) {
+			// SARIF specification says that if kind is not specified, then the default
+			// value of fail is to be used
 			kind = Kind.fail;
 		}
-		switch(kind) {
+		switch (kind) {
 			case review:
 			case open:
 			case fail:
@@ -62,16 +65,17 @@ public final class VulnerabilitiesProducer {
 				return;
 		}
 		Priority priority = getPriority(runData, result);
-		if ( priority != null ) {
-			StaticVulnerabilityBuilder vb = vulnerabilityHandler.startStaticVulnerability(getInstanceId(runData, result));
-			
+		if (priority != null) {
+			StaticVulnerabilityBuilder vb = vulnerabilityHandler
+					.startStaticVulnerability(getInstanceId(runData, result));
+
 			// Set meta-data
 			vb.setEngineType(ENGINE_TYPE);
 			vb.setKingdom(getKingdom(runData, result));
 			vb.setAnalyzer(getAnalyzer(runData, result));
 			vb.setCategory(getCategory(runData, result));
 			vb.setSubCategory(getSubCategory(runData, result));
-			
+
 			// Set mandatory values to JavaDoc-recommended values
 			vb.setAccuracy(getAccuracy(runData, result));
 			vb.setSeverity(getSeverity(runData, result));
@@ -79,51 +83,53 @@ public final class VulnerabilitiesProducer {
 			vb.setProbability(getProbability(runData, result));
 			vb.setImpact(getImpact(runData, result));
 			vb.setLikelihood(getLikelihood(runData, result));
-			
+
 			// Set standard vulnerability fields based on input
 			vb.setFileName(getFileName(runData, result));
 			vb.setPriority(priority);
 			vb.setRuleGuid(getRuleGuid(runData, result));
 			vb.setVulnerabilityAbstract(getVulnerabilityAbstract(runData, result));
-			
-			//vb.setClassName(null);
-    		//vb.setFunctionName(functionName);
-    		vb.setLineNumber(result.resolveLineNumber());
-    		//vb.setMappedCategory(mappedCategory);
-    		//vb.setMinVirtualCallConfidence(minVirtualCallConfidence);
-    		//vb.setPackageName(packageName);
-    		//vb.setRemediationConstant(remediationConstant);
-    		//vb.setRuleGuid(ruleGuid);
-    		//vb.setSink(sink);
-    		//vb.setSinkContext(sinkContext);
-    		//vb.setSource(source);
-    		//vb.setSourceContext(sourceContext);
-    		//vb.setSourceFile(sourceFile);
-    		//vb.setSourceLine(sourceLine);
-    		//vb.setTaintFlag(taintFlag);
-    		//vb.setVulnerabilityRecommendation(vulnerabilityRecommendation);
-			
-			//vb.set*CustomAttributeValue(...)
-			
-			vb.setStringCustomAttributeValue(CustomVulnAttribute.categoryAndSubCategory, getCategoryAndSubCategory(runData, result));
+
+			// vb.setClassName(null);
+			// vb.setFunctionName(functionName);
+			vb.setLineNumber(result.resolveLineNumber());
+			// vb.setMappedCategory(mappedCategory);
+			// vb.setMinVirtualCallConfidence(minVirtualCallConfidence);
+			// vb.setPackageName(packageName);
+			// vb.setRemediationConstant(remediationConstant);
+			// vb.setRuleGuid(ruleGuid);
+			// vb.setSink(sink);
+			// vb.setSinkContext(sinkContext);
+			// vb.setSource(source);
+			// vb.setSourceContext(sourceContext);
+			// vb.setSourceFile(sourceFile);
+			// vb.setSourceLine(sourceLine);
+			// vb.setTaintFlag(taintFlag);
+			// vb.setVulnerabilityRecommendation(vulnerabilityRecommendation);
+
+			// vb.set*CustomAttributeValue(...)
+
+			vb.setStringCustomAttributeValue(CustomVulnAttribute.categoryAndSubCategory,
+					getCategoryAndSubCategory(runData, result));
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.toolName, runData.getToolName());
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.help, getHelp(runData, result));
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.helpUri, getHelpUri(runData, result));
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.tags, getTags(runData, result));
 			vb.setStringCustomAttributeValue(CustomVulnAttribute.snippet, result.resolveSnippet());
-    		
-    		vb.completeVulnerability();
+
+			vb.completeVulnerability();
 		}
 	}
 
 	private String getVulnerabilityAbstract(RunData runData, Result result) {
-		return StringUtils.defaultIfBlank(result.getResultMessage(runData), "Not Available");
+		String message = result.getResultMessage(runData);
+		return StringUtils.isBlank(message) ? "Not Available" : sanitizeFortifyTemplates(message);
 	}
 
 	private String getHelp(RunData runData, Result result) {
 		String help = null;
 		ReportingDescriptor rule = result.resolveRule(runData);
-		if ( rule != null && rule.getHelp() != null ) {
+		if (rule != null && rule.getHelp() != null) {
 			help = rule.getHelp().getText();
 		}
 		return StringUtils.isBlank(help) ? "Not Available" : help;
@@ -132,7 +138,7 @@ public final class VulnerabilitiesProducer {
 	private String getHelpUri(RunData runData, Result result) {
 		String helpUri = null;
 		ReportingDescriptor rule = result.resolveRule(runData);
-		if ( rule != null && rule.getHelpUri() != null ) {
+		if (rule != null && rule.getHelpUri() != null) {
 			helpUri = rule.getHelpUri().toString();
 		}
 		return StringUtils.isBlank(helpUri) ? "Not Available" : helpUri;
@@ -145,76 +151,79 @@ public final class VulnerabilitiesProducer {
 	private String getInstanceId(RunData runData, Result result) {
 		return DigestUtils.sha256Hex(getInstanceIdString(runData, result));
 	}
-	
+
 	private String getInstanceIdString(RunData runData, Result result) {
-		if ( StringUtils.isNotBlank(result.getGuid()) ) {
+		if (StringUtils.isNotBlank(result.getGuid())) {
 			return result.getGuid();
-		} else if ( StringUtils.isNotBlank(result.getCorrelationGuid()) ) {
+		} else if (StringUtils.isNotBlank(result.getCorrelationGuid())) {
 			return result.getCorrelationGuid();
-		} else if ( result.getFingerprints()!=null && result.getFingerprints().size()>0 ) {
+		} else if (result.getFingerprints() != null && result.getFingerprints().size() > 0) {
 			return new TreeMap<>(result.getFingerprints()).toString();
 		} else {
 			return generateInstanceIdString(runData, result);
 		}
 	}
-	
-	// As described at https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317932
+
+	// As described at
+	// https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317932
 	// we calculate a unique id string based on tool name, full file location,
 	// rule id and partial finger prints if available. To increase chances
 	// of generating a unique id, we also include the result message.
-	// However, this could potentially still result in duplicate id strings. 
-	// Possibly we could add information from other properties like region, 
-	// logical location or code flows, but these may either not be available, or 
+	// However, this could potentially still result in duplicate id strings.
+	// Possibly we could add information from other properties like region,
+	// logical location or code flows, but these may either not be available, or
 	// still result in duplicate uuid strings.
 	private String generateInstanceIdString(RunData runData, Result result) {
-		String partialFingerPrints = result.getPartialFingerprints()==null?"":new TreeMap<>(result.getPartialFingerprints()).toString();
+		String partialFingerPrints = result.getPartialFingerprints() == null ? ""
+				: new TreeMap<>(result.getPartialFingerprints()).toString();
 		return String.join("|",
-			StringUtils.defaultString(runData.getToolName()),
-			getFileName(runData, result),
-			StringUtils.defaultString(result.resolveRuleId(runData)),
-			partialFingerPrints,
-			getVulnerabilityAbstract(runData, result));
+				StringUtils.defaultString(runData.getToolName()),
+				getFileName(runData, result),
+				StringUtils.defaultString(result.resolveRuleId(runData)),
+				partialFingerPrints,
+				getVulnerabilityAbstract(runData, result));
 	}
-	
+
 	private String getKingdom(RunData runData, Result result) {
 		String kingdom = getStringProperty(result.getProperties(), "kingdom", null);
-		if ( StringUtils.isBlank(kingdom) ) {
+		if (StringUtils.isBlank(kingdom)) {
 			kingdom = getStringProperty(getRuleProperties(runData, result), "Kingdom", null);
 		}
 		return kingdom;
 	}
-	
+
 	private String getCategory(RunData runData, Result result) {
 		String category = null;
 		ReportingDescriptor rule = result.resolveRule(runData);
-		if ( rule != null ) {
-			if ( rule.getShortDescription() != null ) {
-				category = result.resolveMessage(rule.getShortDescription(), runData);
+		if (rule != null) {
+			if (rule.getShortDescription() != null) {
+				category = sanitizeFortifyTemplates(result.resolveMessage(rule.getShortDescription(), runData));
 			}
-			if ( StringUtils.isBlank(category) && StringUtils.isNotBlank(rule.getName()) ) {
-				if ( rule.getName().contains(StringUtils.SPACE)) {
+			if (StringUtils.isBlank(category) && StringUtils.isNotBlank(rule.getName())) {
+				if (rule.getName().contains(StringUtils.SPACE)) {
 					category = rule.getName();
-				}else {
-					category = StringUtils.capitalize(StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
+				} else {
+					category = StringUtils.capitalize(StringUtils
+							.join(StringUtils.splitByCharacterTypeCamelCase(rule.getName()), StringUtils.SPACE));
 				}
 			}
-			if ( StringUtils.isBlank(category) ) {
+			if (StringUtils.isBlank(category)) {
 				category = getStringProperty(getRuleProperties(rule), "Type", null);
 			}
 		}
-		if ( StringUtils.isBlank(category) ) {
+		if (StringUtils.isBlank(category)) {
 			category = result.resolveRuleId(runData);
 		}
-		if ( StringUtils.isBlank(category) ) {
+		if (StringUtils.isBlank(category)) {
 			category = StringUtils.defaultIfBlank(runData.getToolName(), "Unknown");
 		}
 		return category;
 	}
-	
+
 	private String getSubCategory(RunData runData, Result result) {
 		return getStringProperty(getRuleProperties(runData, result), "Subtype", null);
 	}
-	
+
 	private String getAnalyzer(RunData runData, Result result) {
 		return "External";
 	}
@@ -222,37 +231,37 @@ public final class VulnerabilitiesProducer {
 	private float getAccuracy(RunData runData, Result result) {
 		return getFloatProperty(getRuleProperties(runData, result), "Accuracy", 5.0f);
 	}
-	
+
 	private float getSeverity(RunData runData, Result result) {
 		return getFloatProperty(result.getProperties(), "InstanceSeverity", 2.5f);
 	}
-	
+
 	private float getConfidence(RunData runData, Result result) {
 		return getFloatProperty(result.getProperties(), "Confidence", 2.5f);
 	}
-	
+
 	private float getProbability(RunData runData, Result result) {
 		return getFloatProperty(getRuleProperties(runData, result), "Probability", 2.5f);
 	}
-	
+
 	private float getImpact(RunData runData, Result result) {
 		return getFloatProperty(getRuleProperties(runData, result), "Impact", 2.5f);
 	}
-	
+
 	private float getLikelihood(RunData runData, Result result) {
 		return 2.5f;
 	}
 
 	private Priority getPriority(RunData runData, Result result) {
 		return tryParsePriority("fortify-severity", result.getProperties())
-			.orElseGet(() -> tryParsePriority("priority", result.getProperties())
-			.orElseGet(() -> resolveSecuritySeverityPriority(runData, result)
-			.orElseGet(() -> result.resolveLevel(runData).getFortifyPriority())));
+				.orElseGet(() -> tryParsePriority("priority", result.getProperties())
+						.orElseGet(() -> resolveSecuritySeverityPriority(runData, result)
+								.orElseGet(() -> result.resolveLevel(runData).getFortifyPriority())));
 	}
 
 	private Optional<Priority> tryParsePriority(String propertyName, Map<String, Object> properties) {
 		String value = getStringProperty(properties, propertyName, null);
-		if ( StringUtils.isNotBlank(value) ) {
+		if (StringUtils.isNotBlank(value)) {
 			try {
 				return Optional.of(Priority.valueOf(value));
 			} catch (IllegalArgumentException iae) {
@@ -264,19 +273,19 @@ public final class VulnerabilitiesProducer {
 
 	private Optional<Priority> resolveSecuritySeverityPriority(RunData runData, Result result) {
 		String value = getStringProperty(getRuleProperties(runData, result), "security-severity", null);
-		if ( StringUtils.isNotBlank(value) ) {
+		if (StringUtils.isNotBlank(value)) {
 			try {
 				float score = Float.parseFloat(value);
 				// CVSS score range mapping from https://nvd.nist.gov/vuln-metrics/cvss
-				if ( score < 0 ) {
+				if (score < 0) {
 					LOG.warn("Ignoring security-severity: {} is less than 0.", score);
-				} else if ( score < 4 ) {
+				} else if (score < 4) {
 					return Optional.of(Priority.Low);
-				} else if ( score < 7 ) {
+				} else if (score < 7) {
 					return Optional.of(Priority.Medium);
-				} else if ( score < 9 ) {
+				} else if (score < 9) {
 					return Optional.of(Priority.High);
-				} else if ( score <= 10 ) {
+				} else if (score <= 10) {
 					return Optional.of(Priority.Critical);
 				} else {
 					LOG.warn("Ignoring security-severity: {} is greater than 10.", score);
@@ -290,17 +299,19 @@ public final class VulnerabilitiesProducer {
 
 	private String getTags(RunData runData, Result result) {
 		return getStringListProperty(getRuleProperties(runData, result), "tags", Collections.emptyList())
-			.stream()
-			// the tag "security" is almost always present for many SARIF reports because GitHub Code Scanning requires that tag be present for findings to appear
-			// See https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning
-			// Since it's not really useful, filter it out.
-			.filter(s -> ! "security".equalsIgnoreCase(s))
-			.collect(Collectors.joining(", "));
+				.stream()
+				// the tag "security" is almost always present for many SARIF reports because
+				// GitHub Code Scanning requires that tag be present for findings to appear
+				// See
+				// https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning
+				// Since it's not really useful, filter it out.
+				.filter(s -> !"security".equalsIgnoreCase(s))
+				.collect(Collectors.joining(", "));
 	}
-	
+
 	private String getRuleGuid(RunData runData, Result result) {
 		String fortifyRuleId = getStringProperty(result.getProperties(), "fortifyRuleId", null);
-		if ( StringUtils.isNotBlank(fortifyRuleId) ) {
+		if (StringUtils.isNotBlank(fortifyRuleId)) {
 			return fortifyRuleId;
 		}
 		return result.resolveRuleGuid(runData);
@@ -311,10 +322,10 @@ public final class VulnerabilitiesProducer {
 		String subCategory = getSubCategory(runData, result);
 		return StringUtils.isBlank(subCategory) ? category : String.join(": ", category, subCategory);
 	}
-	
+
 	private float getFloatProperty(Map<String, Object> properties, String key, float defaultValue) {
 		String valueString = getStringProperty(properties, key, null);
-		if ( StringUtils.isNotBlank(valueString) ) {
+		if (StringUtils.isNotBlank(valueString)) {
 			try {
 				return Float.parseFloat(valueString);
 			} catch (NumberFormatException nfe) {
@@ -323,30 +334,64 @@ public final class VulnerabilitiesProducer {
 		}
 		return defaultValue;
 	}
-	
+
 	private String getStringProperty(Map<String, Object> properties, String key, String defaultValue) {
-		if ( properties!=null && properties.containsKey(key) && properties.get(key) != null ) {
+		if (properties != null && properties.containsKey(key) && properties.get(key) != null) {
 			return properties.get(key).toString();
 		}
 		return defaultValue;
 	}
-	
+
 	private List<String> getStringListProperty(Map<String, Object> properties, String key, List<String> defaultValue) {
-		if ( properties!=null && properties.containsKey(key) && properties.get(key) instanceof List ) {
+		if (properties != null && properties.containsKey(key) && properties.get(key) instanceof List) {
 			return ((List<?>) properties.get(key)).stream()
-				.filter(String.class::isInstance)
-				.map(String.class::cast)
-				.collect(Collectors.toList());
+					.filter(String.class::isInstance)
+					.map(String.class::cast)
+					.collect(Collectors.toList());
 		}
 		return defaultValue;
 	}
 
 	private Map<String, Object> getRuleProperties(ReportingDescriptor rule) {
-		return rule==null ? null : rule.getProperties();
+		return rule == null ? null : rule.getProperties();
 	}
-	
+
 	private Map<String, Object> getRuleProperties(RunData runData, Result result) {
 		return getRuleProperties(result.resolveRule(runData));
+	}
+
+	/**
+	 * Sanitize Fortify FPR template syntax from SARIF messages.
+	 * Removes <Replace key="..."/> patterns that appear in vulnerabilities
+	 * converted from FPR/FortifyIssueList format to SARIF.
+	 *
+	 * These unresolved templates cause duplicate category/abstract strings,
+	 * leading to SQL primary key violations in SSC's finding table when
+	 * multiple findings of the same type are inserted.
+	 *
+	 * Example input: "On line <Replace key="PrimaryLocation.line"/> of
+	 * <Replace key="PrimaryLocation.file"/>, the method..."
+	 * Example output: "On line of , the method..."
+	 *
+	 * @param text Text potentially containing Fortify template syntax
+	 * @return Text with <Replace key="..."/> patterns removed and whitespace
+	 *         normalized
+	 */
+	private static String sanitizeFortifyTemplates(String text) {
+		if (StringUtils.isBlank(text)) {
+			return text;
+		}
+
+		// Remove <Replace key="..."/> patterns with optional link attribute
+		// Handles: <Replace key="PrimaryLocation.line"/>
+		// <Replace key="SourceLocation.file" link="SourceLocation"/>
+		// <Replace key="$var.name$"/>
+		text = text.replaceAll("<Replace\\s+key=\"[^\"]*\"(?:\\s+link=\"[^\"]*\")?\\s*/?\\s*>", "");
+
+		// Normalize whitespace: collapse multiple spaces, trim
+		text = text.replaceAll("\\s+", " ").trim();
+
+		return text;
 	}
 
 }

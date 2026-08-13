@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.7.3](https://github.com/fortify/fortify-ssc-parser-sarif/compare/v1.7.2...v1.7.3) (2026-08-13)
+
+
+### Bug Fixes
+
+* Improve issue priority handling ([9099c11](https://github.com/fortify/fortify-ssc-parser-sarif/commit/9099c117e5f7d05540fc7098e0bb01177f8b119d))
+* Reduce plugin jar size by removing dependencies that are no longer needed ([9099c11](https://github.com/fortify/fortify-ssc-parser-sarif/commit/9099c117e5f7d05540fc7098e0bb01177f8b119d))
+* Sanitize Fortify FPR template syntax from SARIF messages ([9099c11](https://github.com/fortify/fortify-ssc-parser-sarif/commit/9099c117e5f7d05540fc7098e0bb01177f8b119d))
+* Update vendor name & URL to OpenText ([9099c11](https://github.com/fortify/fortify-ssc-parser-sarif/commit/9099c117e5f7d05540fc7098e0bb01177f8b119d))
+* Upgrade dependencies ([9099c11](https://github.com/fortify/fortify-ssc-parser-sarif/commit/9099c117e5f7d05540fc7098e0bb01177f8b119d))
+
 ## [1.7.2](https://github.com/fortify/fortify-ssc-parser-sarif/compare/v1.7.1...v1.7.2) (2026-05-14)
 
 

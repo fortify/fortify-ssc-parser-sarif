@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check-out source code
-        uses: actions/checkout@v6
+        uses: fortify/shared-github/actions/3rdparty/actions/checkout/v6@5ad1afec0f56a21b03f0887eea35505cb6a66554
 
       - name: Define development release info
         if: startsWith(github.ref, 'refs/heads/')
@@ -45,13 +45,13 @@ jobs:
 
       - name: Publish build artifacts
         if: env.DO_BUILD
-        uses: actions/upload-artifact@v7
+        uses: fortify/shared-github/actions/3rdparty/actions/upload-artifact/v7@5ad1afec0f56a21b03f0887eea35505cb6a66554
         with:
           name: build_artifacts
           path: ${{ env.DIST_DIR }}
 
       - name: Update development release tag
-        uses: fortify/.github/.github/actions/update-tag@main
+        uses: fortify/shared-github/actions/fortify/update-tag@5ad1afec0f56a21b03f0887eea35505cb6a66554
         if: env.DO_RELEASE
         with:
           tag_name: ${{ env.RELEASE_TAG }}

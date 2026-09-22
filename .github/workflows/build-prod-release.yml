@@ -22,11 +22,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check-out source code
-        uses: actions/checkout@v6
+        uses: fortify/shared-github/actions/3rdparty/actions/checkout/v6@5ad1afec0f56a21b03f0887eea35505cb6a66554
 
       - name: Generate and process release PR
         id: release_please
-        uses: fortify/3rdparty-actions/actions/googleapis/release-please-action/v5@main
+        uses: fortify/shared-github/actions/3rdparty/googleapis/release-please-action/v5@5ad1afec0f56a21b03f0887eea35505cb6a66554
         with:
           release-type: simple
           target-branch: ${{ github.ref_name }}
